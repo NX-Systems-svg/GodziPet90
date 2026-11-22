@@ -250,7 +250,8 @@ public class HogarFragment extends Fragment implements Refrescable {
     }
 
     private static Apariencia aparienciaAnterior(Apariencia a) {
-        Etapa previa = a.etapa == Etapa.FINAL ? Etapa.JUVENIL : a.etapa == Etapa.JUVENIL ? Etapa.CRIA : Etapa.HUEVO;
-        return new Apariencia(previa, RutaEvolucion.NINGUNA, a.origen, a.animo, 4);
+        Etapa previa = a.etapa == Etapa.FINAL ? Etapa.JUNIOR : a.etapa == Etapa.JUNIOR ? Etapa.PEQUENO
+                : a.etapa == Etapa.PEQUENO ? Etapa.BEBE : Etapa.HUEVO;
+        return new Apariencia(previa, RutaEvolucion.NINGUNA, a.origen, a.animo, 4, a.radiacion);
     }
 }

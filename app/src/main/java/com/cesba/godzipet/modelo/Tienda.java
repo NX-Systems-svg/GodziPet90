@@ -7,6 +7,10 @@ public final class Tienda {
     public static Resultado comprar(Partida p, String articuloId) {
         Articulo a = Catalogo.buscar(articuloId);
         if (a == null) return Resultado.error("Ese artículo no existe.");
+        if (a.prohibido) {
+            p.descubrir(Secreto.DESTRUCTOR_OXIGENO);
+            return Resultado.error("El Dr. Serizawa destruyó sus notas para que nadie volviera a construirlo. No está a la venta.");
+        }
         if (p.getNivel() < a.nivelRequerido) return Resultado.error("Disponible desde el nivel " + a.nivelRequerido + ".");
         if (!a.esConsumible() && p.getInventario().posee(a.id)) return Resultado.error("Ya tienes esta decoración.");
         if (!p.getInventario().puedeAgregar(a.id, 1)) return Resultado.error("Inventario lleno para este artículo (máx. 99).");

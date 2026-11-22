@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.cesba.godzipet.modelo.AlertaKaiju;
 import com.cesba.godzipet.modelo.Contadores;
+import com.cesba.godzipet.modelo.Escenario;
 import com.cesba.godzipet.modelo.Etapa;
 import com.cesba.godzipet.modelo.Inventario;
 import com.cesba.godzipet.modelo.Necesidades;
@@ -15,12 +16,16 @@ import com.cesba.godzipet.modelo.Partida;
 import com.cesba.godzipet.modelo.Personaje;
 import com.cesba.godzipet.modelo.Record;
 import com.cesba.godzipet.modelo.RutaEvolucion;
+import com.cesba.godzipet.modelo.Secreto;
 import com.cesba.godzipet.modelo.Slot;
 import com.cesba.godzipet.modelo.Stat;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -78,9 +83,13 @@ public final class Repositorio {
         disco.execute(() -> {
             try {
                 UsuarioEntity u = dao.buscarUsuario(usuario);
-                if (u == null || !Seguridad.iguales(u.hash, Seguridad.hash(contrasena, u.sal))) {
+                if (u == null || !Seguridad.verificar(contrasena, u.sal, u.hash)) {
                     principal.post(() -> error.listo("Usuario o contraseña incorrectos."));
                     return;
+                }
+                if (Seguridad.esAntiguo(u.hash)) { // actualiza cuentas de la v1 al hash fuerte
+                    String sal = Seguridad.nuevaSal();
+                    dao.actualizarHash(u.id, sal, Seguridad.hash(contrasena, sal));
                 }
                 principal.post(() -> ok.listo(u.id));
             } catch (Exception e) {
@@ -115,9 +124,9 @@ public final class Repositorio {
     Partida cargarSincrono(long uid) {
         PartidaEntity e = dao.partida(uid);
         if (e == null) return null;
-        Personaje k = new Personaje(e.nombre, OrigenHuevo.desde(e.origen), etapa(e.etapa),
+        Personaje k = new Personaje(e.nombre, OrigenHuevo.desde(e.origen), Etapa.desde(e.etapa),
                 RutaEvolucion.desde(e.ruta), e.dormido, e.despertarEn, e.toquesHuevo);
-        Necesidades n = new Necesidades(e.alimentacion, e.felicidad, e.energia, e.higiene, e.salud);
+        Necesidades n = new Necesidades(e.alimentacion, e.felicidad, e.energia, e.higiene, e.salud, e.radiacion);
         Inventario inv = new Inventario();
         for (InventarioEntity i : dao.inventario(uid)) {
             try {
@@ -133,11 +142,24 @@ public final class Repositorio {
         c.sumaBienestar = e.sumaBienestar; c.minutosBienestar = e.minutosBienestar;
         c.diaClave = e.diaClave; c.hoyAlimentar = e.hoyAlimentar; c.hoyMinijuegos = e.hoyMinijuegos;
         c.hoyEntrenar = e.hoyEntrenar;
+        c.centrales = e.cCentrales;
+        c.sumaRadiacion = e.sumaRadiacion;
+        c.entrenosBase = e.entrenosBase;
+        c.cuidadosBase = e.cuidadosBase;
+        c.hoyMinutosZona = e.hoyMinutosZona;
 
         Partida p = new Partida(k, n, inv, c, e.monedas, e.xp, e.cargaAliento, e.ultimaActualizacion);
         AlertaKaiju alerta = e.alertaMonstruo == null ? null
                 : new AlertaKaiju(e.alertaMonstruo, e.alertaLugar == null ? "la ciudad" : e.alertaLugar, e.alertaExpira);
         p.restaurar(alerta, e.proximaAlerta, e.ultimoJugar, e.ultimoEntrenar, e.ultimoBanoGratis, e.evolucionPendiente);
+        Set<Secreto> secretos = EnumSet.noneOf(Secreto.class);
+        for (String s : lista(e.secretos)) {
+            try { secretos.add(Secreto.valueOf(s)); } catch (IllegalArgumentException ex) { Log.w(TAG, "Secreto ignorado: " + s); }
+        }
+        Set<Escenario> visitados = EnumSet.noneOf(Escenario.class);
+        for (String s : lista(e.visitados)) visitados.add(Escenario.desde(s));
+        p.restaurarV2(e.escenario == null ? Escenario.ISLA_ODO : Escenario.desde(e.escenario), e.fusion,
+                e.generacion, e.ultimaCentral, secretos, visitados, new LinkedHashSet<>(lista(e.formas)));
         for (DecoracionEntity d : dao.decoraciones(uid)) {
             try {
                 Slot s = Slot.valueOf(d.slot);
@@ -153,12 +175,52 @@ public final class Repositorio {
         return p;
     }
 
-    private static Etapa etapa(String s) {
-        try {
-            return Etapa.valueOf(s);
-        } catch (Exception ex) {
-            return Etapa.HUEVO;
-        }
+    private static List<String> lista(String csv) {
+        List<String> r = new ArrayList<>();
+        if (csv == null || csv.isEmpty()) return r;
+        for (String s : csv.split(",")) if (!s.trim().isEmpty()) r.add(s.trim());
+        return r;
+    }
+
+    private static String csv(Iterable<?> valores) {
+        StringBuilder sb = new StringBuilder();
+        for (Object v : valores) sb.append(sb.length() > 0 ? "," : "").append(v instanceof Enum ? ((Enum<?>) v).name() : v);
+        return sb.toString();
+    }
+
+    // ------------------------------------------------------------ modo profesor: respaldo
+
+    /** Copia la partida real a un espacio de respaldo (id negativo) antes del modo profesor. */
+    public void respaldar(long uid, Partida p, Runnable listo) {
+        Instantanea s = instantanea(-uid, p);
+        disco.execute(() -> {
+            try {
+                dao.borrarTodo(-uid);
+                dao.guardarTodo(s);
+            } catch (Exception e) {
+                Log.e(TAG, "respaldar", e);
+            }
+            principal.post(listo);
+        });
+    }
+
+    /** Restaura la partida respaldada y elimina el respaldo. Devuelve null si no había. */
+    public void restaurarRespaldo(long uid, Callback<Partida> cb) {
+        disco.execute(() -> {
+            Partida p = null;
+            try {
+                p = cargarSincrono(-uid);
+                if (p != null) {
+                    dao.borrarTodo(uid);
+                    dao.guardarTodo(instantanea(uid, p));
+                    dao.borrarTodo(-uid);
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "restaurarRespaldo", e);
+            }
+            Partida r = p;
+            principal.post(() -> cb.listo(r));
+        });
     }
 
     /** Toma la instantánea en el hilo actual y escribe en segundo plano. */
@@ -222,6 +284,19 @@ public final class Repositorio {
         e.sumaBienestar = c.sumaBienestar; e.minutosBienestar = c.minutosBienestar;
         e.diaClave = c.diaClave; e.hoyAlimentar = c.hoyAlimentar; e.hoyMinijuegos = c.hoyMinijuegos;
         e.hoyEntrenar = c.hoyEntrenar;
+        e.radiacion = n.get(Stat.RADIACION);
+        e.fusion = p.getFusion();
+        e.generacion = p.getGeneracion();
+        e.escenario = p.getEscenario().name();
+        e.ultimaCentral = p.getUltimaCentral();
+        e.cCentrales = c.centrales;
+        e.sumaRadiacion = c.sumaRadiacion;
+        e.entrenosBase = c.entrenosBase;
+        e.cuidadosBase = c.cuidadosBase;
+        e.hoyMinutosZona = c.hoyMinutosZona;
+        e.secretos = csv(p.getSecretos());
+        e.visitados = csv(p.getVisitados());
+        e.formas = csv(p.getFormasVistas());
 
         List<InventarioEntity> inv = new ArrayList<>();
         for (Map.Entry<String, Integer> i : p.getInventario().comoMapa().entrySet()) {

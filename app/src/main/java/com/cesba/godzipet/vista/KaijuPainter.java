@@ -33,6 +33,20 @@ public final class KaijuPainter {
         boolean brillo;
     }
 
+    // ---- Contrato de animación (lo usa PetView) ----
+    private float miradaX, miradaY, cargaPlacas;
+
+    /** Dirección de la mirada / cabeza hacia el dedo del jugador, cada eje en [-1, 1]. */
+    public void setMirada(float dx, float dy) {
+        miradaX = Math.max(-1, Math.min(1, dx));
+        miradaY = Math.max(-1, Math.min(1, dy));
+    }
+
+    /** Secuencia de carga del aliento: 0 = apagado, 1 = todas las placas encendidas. */
+    public void setCargaPlacas(float p) {
+        cargaPlacas = Math.max(0, Math.min(1, p));
+    }
+
     public KaijuPainter() {
         trazo.setStyle(Paint.Style.STROKE);
         trazo.setStrokeJoin(Paint.Join.ROUND);
@@ -45,11 +59,11 @@ public final class KaijuPainter {
         Paleta p = new Paleta();
         p.cuerpo = 0xFF56695A; p.sombra = 0xFF2F3D33; p.vientre = 0xFF98A68F; p.rayas = 0xFF7B2D3B;
         p.aletas = 0xFFC9D4DD; p.aletasBorde = 0xFF8B9BAA; p.ojo = 0xFFFFC23D; p.pupila = 0xFF1A0E05;
-        if (a.etapa == Etapa.FINAL && a.ruta == RutaEvolucion.ATOMICO) {
+        if (a.etapa == Etapa.FINAL && a.ruta == RutaEvolucion.HEISEI) {
             p.cuerpo = 0xFF3A4352; p.sombra = 0xFF1C222C; p.vientre = 0xFF66758A; p.rayas = 0xFF2E8B57;
             p.aletas = 0xFF9BFF7A; p.aletasBorde = 0xFF3CCB5A; p.ojo = 0xFFD8FFD0; p.pupila = 0xFF0F3D1A;
             p.brillo = true;
-        } else if (a.etapa == Etapa.FINAL && a.ruta == RutaEvolucion.SALVAJE) {
+        } else if (a.etapa == Etapa.FINAL && a.ruta == RutaEvolucion.SHIN) {
             p.cuerpo = 0xFF66413A; p.sombra = 0xFF35201C; p.vientre = 0xFFA57A62; p.rayas = 0xFF1E1110;
             p.aletas = 0xFFCF3B3B; p.aletasBorde = 0xFF7E1C1C; p.ojo = 0xFFFF4A3D; p.pupila = 0xFF1A0303;
         } else if (a.etapa == Etapa.FINAL) { // Guardián: tonos más brillantes y aletas azul hielo
@@ -100,13 +114,13 @@ public final class KaijuPainter {
         c.scale(1f, respira, 0, 0);
         trazo.setStrokeWidth(1.7f);
 
-        float escalaAletas = a.etapa == Etapa.CRIA ? 0.5f : a.etapa == Etapa.JUVENIL ? 0.78f
-                : a.ruta == RutaEvolucion.SALVAJE ? 1.3f : 1.12f;
-        float escalaCabeza = a.etapa == Etapa.CRIA ? 1.38f : a.etapa == Etapa.JUVENIL ? 1.15f : 1f;
+        float escalaAletas = a.etapa == Etapa.BEBE ? 0.5f : a.etapa == Etapa.JUNIOR ? 0.78f
+                : a.ruta == RutaEvolucion.SHIN ? 1.3f : 1.12f;
+        float escalaCabeza = a.etapa == Etapa.BEBE ? 1.38f : a.etapa == Etapa.JUNIOR ? 1.15f : 1f;
 
         if (p.brillo) dibujarHaloAtomico(t);
         dibujarCola(c, p);
-        dibujarAletas(c, p, escalaAletas, a.ruta == RutaEvolucion.SALVAJE && a.etapa == Etapa.FINAL, t);
+        dibujarAletas(c, p, escalaAletas, a.ruta == RutaEvolucion.SHIN && a.etapa == Etapa.FINAL, t);
         dibujarPiernaTrasera(c, p);
         dibujarCuerpo(c, p);
         dibujarPiernaDelantera(c, p);
@@ -371,7 +385,7 @@ public final class KaijuPainter {
 
     private void dibujarOjo(Canvas c, Paleta p, EstadoAnimo animo, float t, Etapa etapa) {
         float ox = 27, oy = -87;
-        float grande = etapa == Etapa.CRIA ? 1.45f : etapa == Etapa.JUVENIL ? 1.2f : 1f;
+        float grande = etapa == Etapa.BEBE ? 1.45f : etapa == Etapa.JUNIOR ? 1.2f : 1f;
         float rx = 4.2f * grande, ry = 3.3f * grande;
         boolean parpadeo = (t % 4.2f) < 0.13f;
         aux.setStyle(Paint.Style.STROKE);
@@ -493,7 +507,7 @@ public final class KaijuPainter {
     /** Punto aproximado de la boca en pantalla (para efectos de comer / aliento). */
     public static PointF boca(float cx, float suelo, float tam, Apariencia a) {
         float u = tam / 100f * a.escalaEtapa();
-        float cabeza = a.etapa == Etapa.CRIA ? 1.38f : a.etapa == Etapa.JUVENIL ? 1.15f : 1f;
+        float cabeza = a.etapa == Etapa.BEBE ? 1.38f : a.etapa == Etapa.JUNIOR ? 1.15f : 1f;
         float bx = 10 + (44 - 10) * cabeza, by = -70 + (-76 + 70) * cabeza;
         return new PointF(cx + bx * u, suelo + by * u);
     }
@@ -501,7 +515,7 @@ public final class KaijuPainter {
     /** Punto aproximado de la cabeza (para burbujas de pensamiento / Zzz). */
     public static PointF cabeza(float cx, float suelo, float tam, Apariencia a) {
         float u = tam / 100f * a.escalaEtapa();
-        float cabeza = a.etapa == Etapa.CRIA ? 1.38f : a.etapa == Etapa.JUVENIL ? 1.15f : 1f;
+        float cabeza = a.etapa == Etapa.BEBE ? 1.38f : a.etapa == Etapa.JUNIOR ? 1.15f : 1f;
         if (a.etapa == Etapa.HUEVO) return new PointF(cx, suelo - 64 * tam / 100f);
         return new PointF(cx + (10 + 16 * cabeza) * u, suelo + (-70 - 26 * cabeza) * u);
     }

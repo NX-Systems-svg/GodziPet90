@@ -8,9 +8,12 @@ public final class Cuidados {
     public static final long ESPERA_JUGAR_MS = 20_000;
     public static final long ESPERA_ENTRENAR_MS = 30_000;
     public static final long ESPERA_BANO_GRATIS_MS = 60_000;
+    public static final long ESPERA_CENTRAL_MS = 45_000;
     public static final int ENERGIA_ENTRENAR = 20;
+    public static final int RADIACION_CENTRAL = 25;
+    public static final int ENFRIAR_MAR = 12;
 
-    public enum Accion { ALIMENTAR, JUGAR, DORMIR, BANAR, CURAR, ENTRENAR }
+    public enum Accion { ALIMENTAR, JUGAR, DORMIR, BANAR, CURAR, ENTRENAR, CENTRAL }
 
     private Cuidados() { }
 
@@ -56,7 +59,7 @@ public final class Cuidados {
         n.cambiar(Stat.HIGIENE, -5);
         p.getContadores().jugar++;
         p.sumarXp(5);
-        return Resultado.exito("¡Persiguió un helicóptero de juguete! +15 😊  -10 ⚡", Reaccion.JUGAR);
+        return Resultado.exito("¡Persiguió un tren bala de juguete! +15 😊  -10 ⚡", Reaccion.JUGAR);
     }
 
     /** Dormir o, si ya duerme, despertarlo antes de tiempo. */
@@ -76,7 +79,7 @@ public final class Cuidados {
         n.cambiar(Stat.SALUD, 3);
         p.getContadores().dormir++;
         p.sumarXp(3);
-        return Resultado.exito("Se acurrucó en el muelle… Zzz. Recupera energía mientras duerme.", Reaccion.DORMIR);
+        return Resultado.exito("Se acurrucó en la playa… Zzz. Recupera energía mientras duerme.", Reaccion.DORMIR);
     }
 
     public static Resultado banar(Partida p, long ahora) {
@@ -89,15 +92,18 @@ public final class Cuidados {
         if (p.getInventario().consumir(Catalogo.JABON)) {
             Articulo jabon = Catalogo.buscar(Catalogo.JABON);
             aplicarEfectos(p, jabon);
-            msg = "¡Baño con jabón marino! " + jabon.resumenEfectos();
+            msg = "¡Nadó en el mar con jabón marino! " + jabon.resumenEfectos();
         } else {
             long resta = p.ultimoBanoGratis + ESPERA_BANO_GRATIS_MS - ahora;
             if (resta > 0) return Resultado.error("Sin jabón. Chapuzón gratis en " + (resta / 1000 + 1) + " s, o compra jabón.");
             p.ultimoBanoGratis = ahora;
             n.cambiar(Stat.HIGIENE, 15);
             n.cambiar(Stat.ENERGIA, -3);
-            msg = "Chapuzón en la bahía (sin jabón): +15 🫧  -3 ⚡";
+            msg = "Nadó en el mar (sin jabón): +15 🫧  -3 ⚡";
         }
+        double enfriar = p.getEscenario() == Escenario.BAHIA_TOKIO ? ENFRIAR_MAR * 2 : ENFRIAR_MAR;
+        n.cambiar(Stat.RADIACION, -enfriar);
+        msg += "  -" + (int) enfriar + " ☢";
         p.getContadores().banar++;
         p.sumarXp(4);
         return Resultado.exito(msg, Reaccion.BANAR);
@@ -113,7 +119,7 @@ public final class Cuidados {
         aplicarEfectos(p, b);
         p.getContadores().curar++;
         p.sumarXp(5);
-        return Resultado.exito("El Dr. Tatopoulos lo atendió. " + b.resumenEfectos(), Reaccion.CURAR);
+        return Resultado.exito("Los médicos de la Fuerza G lo atendieron. " + b.resumenEfectos(), Reaccion.CURAR);
     }
 
     public static Resultado entrenar(Partida p, long ahora) {
@@ -136,28 +142,61 @@ public final class Cuidados {
         p.getContadores().entrenar++;
         p.getContadores().hoyEntrenar++;
         p.sumarXp(15);
-        return Resultado.exito("¡Derribó una torre de contenedores! +15 XP, +☢ aliento, -" + costo + " ⚡", Reaccion.ENTRENAR);
+        return Resultado.exito("¡Derribó una torre de alta tensión! +15 XP, +🔥 aliento, -" + costo + " ⚡", Reaccion.ENTRENAR);
     }
 
     public static int costoEntrenar(Partida p) {
         return (int) Math.round(ENERGIA_ENTRENAR * p.getPersonaje().getRuta().multCostoEntreno);
     }
 
-    /** Mecánica exclusiva #1: descargar el Aliento Atómico cuando la carga llega a 100. */
+    /** Visitar una central nuclear: sube la radiación (mecánica característica). */
+    public static Resultado central(Partida p, long ahora) {
+        Resultado base = validarBase(p);
+        if (base != null) return base;
+        if (p.getPersonaje().isDormido()) return Resultado.error("Está dormido.");
+        long resta = p.ultimaCentral + ESPERA_CENTRAL_MS - ahora;
+        if (resta > 0) return Resultado.error("La central se está recargando. " + espera(resta));
+        Necesidades n = p.getNecesidades();
+        p.ultimaCentral = ahora;
+        double rad = RADIACION_CENTRAL * p.getPersonaje().getRuta().multRadiacion;
+        n.cambiar(Stat.RADIACION, rad);
+        n.cambiar(Stat.ENERGIA, 10);
+        n.cambiar(Stat.FELICIDAD, 5);
+        n.cambiar(Stat.HIGIENE, -5);
+        p.cargarAliento(10);
+        p.getContadores().centrales++;
+        p.sumarXp(5);
+        String aviso = n.get(Stat.RADIACION) >= Necesidades.RAD_ALTA
+                ? " ⚠ ¡Cuidado, está sobrecalentado!" : n.enZonaIdeal() ? " Zona ideal ✔" : "";
+        return Resultado.exito("Absorbió energía de una central nuclear: +" + (int) rad + " ☢ +10 ⚡." + aviso,
+                Reaccion.CENTRAL);
+    }
+
+    /**
+     * Mecánica exclusiva: Aliento Atómico con carga 100. De Baby o Little Godzilla sale un
+     * anillo de humo (como Minilla en 1967); desde Junior, el rayo atómico.
+     */
     public static Resultado alientoAtomico(Partida p) {
         Resultado base = validarBase(p);
         if (base != null) return base;
-        if (!p.alientoDesbloqueado()) return Resultado.error("El Aliento Atómico se desbloquea en el nivel 3.");
         if (p.getPersonaje().isDormido()) return Resultado.error("Está dormido.");
         if (p.getCargaAliento() < Partida.ALIENTO_MAX) {
-            return Resultado.error("Carga insuficiente (" + (int) p.getCargaAliento() + "/100). Entrena o dale pescado radioactivo.");
+            return Resultado.error("Carga insuficiente (" + (int) p.getCargaAliento() + "/100). Entrena, visita una central o dale pescado radioactivo.");
         }
         if (p.getNecesidades().get(Stat.ENERGIA) < 10) return Resultado.error("Necesita 10 de energía.");
         p.consumirAliento();
+        if (p.alientoEsAnilloDeHumo()) {
+            p.descubrir(Secreto.ANILLO_HUMO);
+            p.getNecesidades().cambiar(Stat.FELICIDAD, 15);
+            p.getNecesidades().cambiar(Stat.ENERGIA, -5);
+            p.sumarXp(10);
+            return Resultado.exito("Intentó lanzar su aliento… ¡y le salió un anillo de humo! Como Minilla. +15 😊", Reaccion.ANILLO_HUMO);
+        }
         p.getNecesidades().cambiar(Stat.FELICIDAD, 25);
         p.getNecesidades().cambiar(Stat.ENERGIA, -10);
+        p.getNecesidades().cambiar(Stat.RADIACION, -15);
         p.sumarXp(20);
-        return Resultado.exito("¡ALIENTO ATÓMICO! Un rayo verde ilumina toda la bahía. +25 😊 +20 XP", Reaccion.ALIENTO);
+        return Resultado.exito("¡ALIENTO ATÓMICO! Sus placas brillaron y un rayo azul iluminó la costa. +25 😊 -15 ☢", Reaccion.ALIENTO);
     }
 
     /** Usar un consumible desde el inventario. */
@@ -172,7 +211,12 @@ public final class Cuidados {
         if (!p.getInventario().consumir(id)) return Resultado.error("No tienes " + a.nombre + ".");
         aplicarEfectos(p, a);
         p.sumarXp(3);
-        return Resultado.exito("Usaste " + a.nombre + ". " + a.resumenEfectos(), Reaccion.CURAR);
+        if (Catalogo.CADMIO.equals(id)) {
+            p.descubrir(Secreto.CADMIO);
+            return Resultado.exito("¡Misil de cadmio! Su núcleo se enfrió de golpe. " + a.resumenEfectos(), Reaccion.ENFRIAR);
+        }
+        return Resultado.exito("Usaste " + a.nombre + ". " + a.resumenEfectos(),
+                a.radiacion > 0 ? Reaccion.CENTRAL : Reaccion.CURAR);
     }
 
     private static void aplicarEfectos(Partida p, Articulo a) {
@@ -182,6 +226,7 @@ public final class Cuidados {
         n.cambiar(Stat.ENERGIA, a.energia);
         n.cambiar(Stat.HIGIENE, a.higiene);
         n.cambiar(Stat.SALUD, a.salud);
+        n.cambiar(Stat.RADIACION, a.radiacion > 0 ? a.radiacion * p.getPersonaje().getRuta().multRadiacion : a.radiacion);
         if (a.aliento > 0) p.cargarAliento(a.aliento);
     }
 }

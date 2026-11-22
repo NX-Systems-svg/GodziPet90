@@ -27,6 +27,27 @@ public final class EscenaPainter {
         }
     }
 
+    /**
+     * CONTRATO (lo implementa el agente de escenarios): dibuja el fondo COMPLETO del escenario
+     * japonés (cielo, horizonte, elementos icónicos, agua y suelo) en un lienzo w×h, usando las
+     * proporciones de {@link Escenas}. momento: 0 día, 1 atardecer, 2 noche. t en segundos.
+     */
+    public void dibujarEscenario(android.graphics.Canvas c, float w, float h,
+                                 com.cesba.godzipet.modelo.Escenario e, float t, int momento, boolean noche) {
+        cielo(c, w, h * Escenas.HORIZONTE, momento, t, noche);
+        ciudad(c, w, h * Escenas.HORIZONTE, h * 0.22f, momento, noche);
+        agua(c, w, h * Escenas.HORIZONTE, h * Escenas.INICIO_SUELO, t, noche || momento == 2);
+        muelle(c, w, h * Escenas.INICIO_SUELO, h);
+    }
+
+    /** CONTRATO: partículas de clima (sakura, lluvia, nieve) sobre todo, con estado interno. */
+    public void dibujarClima(android.graphics.Canvas c, float w, float h, Clima clima, float t) { }
+
+    /** CONTRATO: rectángulo (en px) de la punta de la Torre de Tokio en ese escenario, o null. */
+    public android.graphics.RectF puntaTorre(float w, float h, com.cesba.godzipet.modelo.Escenario e) {
+        return null;
+    }
+
     /** 0 = día, 1 = atardecer, 2 = noche, según la hora del teléfono. */
     public static int momento() {
         int h = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);

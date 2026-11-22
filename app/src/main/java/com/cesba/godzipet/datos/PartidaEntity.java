@@ -38,4 +38,17 @@ public class PartidaEntity {
     public double sumaBienestar, minutosBienestar;
     @NonNull public String diaClave = "";
     public int hoyAlimentar, hoyMinijuegos, hoyEntrenar;
+
+    // ---- Versión 2 (migración 1→2): radiación, fusión, generaciones, escenarios y secretos
+    public double radiacion;
+    public double fusion;
+    public int generacion;
+    public String escenario;
+    public long ultimaCentral;
+    public int cCentrales;
+    public double sumaRadiacion;
+    public int entrenosBase, cuidadosBase;
+    public double hoyMinutosZona;
+    /** Listas separadas por comas (Kaiju-pedia). */
+    public String secretos, visitados, formas;
 }

@@ -3,12 +3,12 @@ package com.cesba.godzipet.modelo;
 /** Mecánica exclusiva #2: un monstruo mutante ataca la ciudad durante un tiempo limitado. */
 public final class AlertaKaiju {
     public static final String[] MONSTRUOS = {
-            "Cangrejo mutante", "Murciélago colosal", "Lagarto de las alcantarillas",
-            "Calamar radioactivo", "Mantis gigante", "Cucaracha titánica"
+            "una mantis gigante", "un pteranodón colosal", "una langosta mutante",
+            "una polilla oscura", "un robot de guerra", "un dragón de tres cabezas"
     };
     public static final String[] LUGARES = {
-            "el Puente de Brooklyn", "Times Square", "el muelle 17", "Central Park",
-            "el túnel Lincoln", "la Isla de la Libertad"
+            "Shinjuku", "Shibuya", "el puerto de Yokohama", "Shinagawa",
+            "el aeropuerto de Haneda", "la bahía de Osaka"
     };
 
     public final String monstruo;
@@ -22,6 +22,6 @@ public final class AlertaKaiju {
     }
 
     public String descripcion() {
-        return "¡Un " + monstruo + " ataca " + lugar + "!";
+        return "¡" + Character.toUpperCase(monstruo.charAt(0)) + monstruo.substring(1) + " ataca " + lugar + "!";
     }
 }

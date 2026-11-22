@@ -27,7 +27,7 @@ import java.util.List;
 
 /** Selección de personaje: origen del huevo (imagen, descripción, ventaja) y nombre. */
 public class SeleccionActivity extends AppCompatActivity {
-    private OrigenHuevo elegido = OrigenHuevo.MANHATTAN;
+    private OrigenHuevo elegido = OrigenHuevo.ISLA_ODO;
     private final List<View> tarjetas = new ArrayList<>();
 
     @Override

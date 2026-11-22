@@ -64,7 +64,7 @@ public class InicioActivity extends AppCompatActivity {
         TextView detalle = findViewById(R.id.tvDetalle);
         View continuar = findViewById(R.id.btnContinuar);
         if (guardada == null) {
-            vista.setApariencia(new Apariencia(Etapa.HUEVO, RutaEvolucion.NINGUNA, OrigenHuevo.MANHATTAN, EstadoAnimo.NORMAL, 0));
+            vista.setApariencia(new Apariencia(Etapa.HUEVO, RutaEvolucion.NINGUNA, OrigenHuevo.ISLA_ODO, EstadoAnimo.NORMAL, 0));
             vista.setSilueta(false);
             resumen.setText("Aún no tienes un kaiju");
             detalle.setText("Inicia una nueva partida y elige tu huevo.");

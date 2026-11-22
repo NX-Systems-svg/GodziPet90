@@ -34,7 +34,7 @@ public class LoginActivity extends AppCompatActivity {
         }
         setContentView(R.layout.activity_login);
         KaijuMiniView logo = findViewById(R.id.logo);
-        logo.setApariencia(new Apariencia(Etapa.FINAL, RutaEvolucion.GUARDIAN, OrigenHuevo.MANHATTAN, EstadoAnimo.FELIZ, 0));
+        logo.setApariencia(new Apariencia(Etapa.FINAL, RutaEvolucion.SHOWA, OrigenHuevo.ISLA_ODO, EstadoAnimo.FELIZ, 0));
         etUsuario = findViewById(R.id.etUsuario);
         etContrasena = findViewById(R.id.etContrasena);
         tvError = findViewById(R.id.tvError);

@@ -73,14 +73,14 @@ public class ProgresoActivity extends AppCompatActivity {
         LinearLayout panel = Ui.panel(this);
         panel.addView(Ui.texto(this, "Línea evolutiva", R.style.Subtitulo));
         LinearLayout fila = new LinearLayout(this);
-        Etapa[] etapas = {Etapa.HUEVO, Etapa.CRIA, Etapa.JUVENIL, Etapa.FINAL};
+        Etapa[] etapas = {Etapa.HUEVO, Etapa.BEBE, Etapa.PEQUENO, Etapa.JUNIOR, Etapa.FINAL};
         Etapa actual = p.getPersonaje().getEtapa();
         for (Etapa e : etapas) {
             LinearLayout col = new LinearLayout(this);
             col.setOrientation(LinearLayout.VERTICAL);
             col.setGravity(android.view.Gravity.CENTER_HORIZONTAL);
             KaijuMiniView mini = new KaijuMiniView(this);
-            RutaEvolucion r = e == Etapa.FINAL ? (actual == Etapa.FINAL ? p.getPersonaje().getRuta() : RutaEvolucion.GUARDIAN)
+            RutaEvolucion r = e == Etapa.FINAL ? (actual == Etapa.FINAL ? p.getPersonaje().getRuta() : RutaEvolucion.SHOWA)
                     : RutaEvolucion.NINGUNA;
             mini.setApariencia(new Apariencia(e, r, p.getPersonaje().getOrigen(), EstadoAnimo.NORMAL, 0));
             mini.setSilueta(e.ordinal() > actual.ordinal());
@@ -93,7 +93,7 @@ public class ProgresoActivity extends AppCompatActivity {
             fila.addView(col, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
         }
         panel.addView(fila);
-        panel.addView(Ui.texto(this, "Cría → Juvenil en el nivel " + Evolucion.NIVEL_JUVENIL
+        panel.addView(Ui.texto(this, "Baby → Little en el nivel " + Evolucion.NIVEL_PEQUENO + " · Junior en el nivel " + Evolucion.NIVEL_JUNIOR
                 + " · Forma final en el nivel " + Evolucion.NIVEL_FINAL, R.style.Cuerpo));
         lista.addView(panel);
     }
@@ -103,7 +103,7 @@ public class ProgresoActivity extends AppCompatActivity {
         Contadores c = p.getContadores();
         double prom = p.getPromedioBienestar();
         RutaEvolucion actual = p.getPersonaje().getRuta();
-        RutaEvolucion prevista = Evolucion.decidir(prom, c.entrenar, c.cuidadosTotales());
+        RutaEvolucion prevista = Evolucion.decidir(prom, p.getPromedioRadiacion(), c.entrenosGeneracion(), c.cuidadosGeneracion());
         panel.addView(Ui.texto(this, "🧬 Evolución por decisiones", R.style.Subtitulo));
         if (actual != RutaEvolucion.NINGUNA) {
             TextView t = Ui.texto(this, "Ruta alcanzada: " + actual.nombre, R.style.Titulo);

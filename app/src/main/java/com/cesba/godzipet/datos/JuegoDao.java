@@ -17,6 +17,9 @@ public abstract class JuegoDao {
     @Query("SELECT * FROM usuarios WHERE usuario = :usuario LIMIT 1")
     public abstract UsuarioEntity buscarUsuario(String usuario);
 
+    @Query("UPDATE usuarios SET sal = :sal, hash = :hash WHERE id = :id")
+    public abstract void actualizarHash(long id, String sal, String hash);
+
     @Query("SELECT * FROM usuarios WHERE id = :id LIMIT 1")
     public abstract UsuarioEntity usuarioPorId(long id);
 

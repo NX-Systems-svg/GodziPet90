@@ -1,12 +1,16 @@
 package com.cesba.godzipet.modelo;
 
-/** Los cinco indicadores de bienestar del kaiju (rango 0-100). */
+/**
+ * Los seis indicadores del kaiju (rango 0-100). La RADIACIÓN es la mecánica
+ * característica: no se llena, se EQUILIBRA (zona ideal 40-70).
+ */
 public enum Stat {
-    ALIMENTACION("Alimentación", "🐟"),
+    ALIMENTACION("Alimentación", "🍙"),
     FELICIDAD("Felicidad", "😊"),
     ENERGIA("Energía", "⚡"),
     HIGIENE("Higiene", "🫧"),
-    SALUD("Salud", "❤");
+    SALUD("Salud", "❤"),
+    RADIACION("Radiación", "☢");
 
     public final String nombre;
     public final String icono;

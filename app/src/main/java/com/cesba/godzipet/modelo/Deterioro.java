@@ -5,24 +5,29 @@ package com.cesba.godzipet.modelo;
  * <pre>
  *  Alimentación  -8/h despierto, -4/h dormido
  *  Higiene       -5/h despierto, -2/h dormido
- *  Energía       -4/h despierto, +120/h dormido
- *  Felicidad     -4/h (-8/h si alimentación o higiene &lt; 30); a la mitad dormido
- *  Salud         -6/h si alimentación o higiene &lt; 20 o energía &lt; 10;
+ *  Energía       -4/h despierto, +120/h dormido (-2/h extra si la radiación &lt; 20)
+ *  Felicidad     -4/h (-8/h si alimentación o higiene &lt; 30); a la mitad dormido; 0 en la Isla de los Monstruos
+ *  Salud         -6/h si alimentación o higiene &lt; 20 o energía &lt; 10; -5/h si radiación ≥ 85;
  *                +2/h si el promedio de bienestar ≥ 60
+ *  Radiación     -3/h despierto, -1.5/h dormido (Burning Godzilla: +1/h, su núcleo nunca se enfría solo)
  * </pre>
  * Ejemplo comprobable: 80 de alimentación tras 2 h despierto → 64.
- * La ruta de evolución multiplica el deterioro (Salvaje x1.25, Guardián felicidad x0.5).
  */
 public final class Deterioro {
     public static final double ALIM_HORA = 8, ALIM_HORA_DORMIDO = 4;
     public static final double HIGIENE_HORA = 5, HIGIENE_HORA_DORMIDO = 2;
-    public static final double ENERGIA_HORA = 4, ENERGIA_RECUPERA_HORA = 120;
+    public static final double ENERGIA_HORA = 4, ENERGIA_RECUPERA_HORA = 120, ENERGIA_SIN_RADIACION_HORA = 2;
     public static final double FELICIDAD_HORA = 4, FELICIDAD_EXTRA_HORA = 4;
-    public static final double SALUD_DANO_HORA = 6, SALUD_RECUPERA_HORA = 2;
+    public static final double SALUD_DANO_HORA = 6, SALUD_RADIACION_HORA = 5, SALUD_RECUPERA_HORA = 2;
+    public static final double RADIACION_HORA = 3, RADIACION_HORA_DORMIDO = 1.5, RADIACION_BURNING_HORA = 1;
 
     private Deterioro() { }
 
     public static void aplicar(Necesidades n, double minutos, boolean dormido, RutaEvolucion ruta) {
+        aplicar(n, minutos, dormido, ruta, Escenario.ISLA_ODO);
+    }
+
+    public static void aplicar(Necesidades n, double minutos, boolean dormido, RutaEvolucion ruta, Escenario lugar) {
         if (minutos <= 0) return;
         double h = minutos / 60.0;
         double m = ruta.multDeterioro;
@@ -30,16 +35,25 @@ public final class Deterioro {
         boolean necesitado = n.get(Stat.ALIMENTACION) < 30 || n.get(Stat.HIGIENE) < 30;
         boolean critico = n.get(Stat.ALIMENTACION) < 20 || n.get(Stat.HIGIENE) < 20
                 || n.get(Stat.ENERGIA) < 10;
+        boolean sinRadiacion = n.get(Stat.RADIACION) < Necesidades.RAD_BAJA;
+        boolean sobrecalentado = n.get(Stat.RADIACION) >= Necesidades.RAD_ALTA;
 
         n.cambiar(Stat.ALIMENTACION, -(dormido ? ALIM_HORA_DORMIDO : ALIM_HORA) * h * m);
         n.cambiar(Stat.HIGIENE, -(dormido ? HIGIENE_HORA_DORMIDO : HIGIENE_HORA) * h * m);
         n.cambiar(Stat.ENERGIA, dormido ? ENERGIA_RECUPERA_HORA * h : -ENERGIA_HORA * h * m);
+        if (sinRadiacion && !dormido) n.cambiar(Stat.ENERGIA, -ENERGIA_SIN_RADIACION_HORA * h);
 
-        double feliz = FELICIDAD_HORA + (necesitado ? FELICIDAD_EXTRA_HORA : 0);
-        if (dormido) feliz /= 2;
-        n.cambiar(Stat.FELICIDAD, -feliz * h * m * ruta.multDeterioroFelicidad);
+        if (lugar != Escenario.ISLA_MONSTRUOS) {
+            double feliz = FELICIDAD_HORA + (necesitado ? FELICIDAD_EXTRA_HORA : 0);
+            if (dormido) feliz /= 2;
+            n.cambiar(Stat.FELICIDAD, -feliz * h * m * ruta.multDeterioroFelicidad);
+        }
+
+        if (ruta == RutaEvolucion.BURNING) n.cambiar(Stat.RADIACION, RADIACION_BURNING_HORA * h);
+        else n.cambiar(Stat.RADIACION, -(dormido ? RADIACION_HORA_DORMIDO : RADIACION_HORA) * h);
 
         if (critico) n.cambiar(Stat.SALUD, -SALUD_DANO_HORA * h * m);
-        else if (n.promedio() >= 60) n.cambiar(Stat.SALUD, SALUD_RECUPERA_HORA * h);
+        if (sobrecalentado) n.cambiar(Stat.SALUD, -SALUD_RADIACION_HORA * h);
+        if (!critico && !sobrecalentado && n.promedio() >= 60) n.cambiar(Stat.SALUD, SALUD_RECUPERA_HORA * h);
     }
 }
