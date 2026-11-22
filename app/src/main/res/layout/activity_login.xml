@@ -14,7 +14,7 @@
             android:text="GODZI-PET 90" android:textSize="40sp" android:textColor="@color/atomico" />
 
         <TextView style="@style/Cuerpo" android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:gravity="center" android:text="Cría a tu propio kaiju de la caricatura de los 90"
+            android:gravity="center" android:text="Cría a tu propio kaiju del Godzilla japonés"
             android:layout_marginBottom="20dp" />
 
         <LinearLayout style="@style/Panel" android:layout_width="match_parent" android:layout_height="wrap_content"
