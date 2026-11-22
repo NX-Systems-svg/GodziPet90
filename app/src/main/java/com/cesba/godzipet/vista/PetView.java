@@ -188,7 +188,7 @@ public class PetView extends View {
 
     // ------------------------------------------------------------ geometría
 
-    private float tam() { return Math.min(getHeight() * 0.82f, getWidth() * 0.78f); }
+    private float tam() { return Math.min(getHeight() * 0.72f, getWidth() * 0.7f); }
     private float pies() { return getHeight() * Escenas.PIES; }
 
     private float centroX() {

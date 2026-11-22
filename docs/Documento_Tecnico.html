@@ -28,161 +28,325 @@
 
 <div class="portada">
   <div style="color:#2e8b57;font-weight:800">PROGRAMACIÓN MÓVIL I · PROYECTO FINAL · RETROPET 90</div>
-  <h1>Godzi-Pet 90</h1>
-  <div class="sub">Mascota virtual inspirada en <b>Godzilla: La Serie Animada</b> (caricatura de finales de los 90)</div>
+  <h1>Godzi-Pet 90 · ゴジラ</h1>
+  <div class="sub">Mascota virtual inspirada en el <b>Godzilla japonés original</b> (Toho, 1954-2016)</div>
   <p>
-    <span class="badge">Android Studio</span><span class="badge">Java 11</span><span class="badge">Room / SQLite</span>
-    <span class="badge">Sin internet</span><span class="badge">18 pruebas JUnit</span>
+    <span class="badge">Android Studio</span><span class="badge">Java 11</span><span class="badge">Room v2 con migración</span>
+    <span class="badge">Sin internet</span><span class="badge">30 pruebas JUnit</span>
   </p>
   <p><b>Alumno:</b> Emilio Garduño Servín &nbsp;·&nbsp; <b>Modalidad:</b> individual &nbsp;·&nbsp; <b>Paquete:</b> <code>com.cesba.godzipet</code> &nbsp;·&nbsp; minSdk 24 / targetSdk 36</p>
 </div>
 
 <h2>1. Concepto</h2>
-<p>El jugador recibe un <b>huevo de kaiju</b> (como en la serie, donde el Dr. Nick Tatopoulos y el equipo H.E.A.T. cuidan a la cría de Godzilla en Nueva York). Al tocarlo 5 veces eclosiona una <b>cría</b> que vive en un muelle de la bahía de Manhattan. Sus necesidades bajan con el tiempo real (aunque la app esté cerrada) y cada decisión cambia su estado, su economía y la <b>forma final</b> en la que evolucionará: <b>Guardián</b>, <b>Atómico</b> o <b>Salvaje</b>.</p>
-<p>Todo el arte (Godzilla, escenario, guarida, monstruos) está <b>dibujado por código con Canvas</b> en estilo caricatura de los 90 (contorno grueso, aletas dorsales afiladas, rayas granate como el diseño de la serie), por lo que no usa imágenes con derechos de autor y pesa poco.</p>
+<p>El jugador recibe un <b>huevo de kaiju</b> de uno de cuatro orígenes (Isla Odo, Isla Adonoa, Isla del Nacimiento o Nueva York). Al tocarlo 5 veces eclosiona un <b>Baby Godzilla</b> que crece siguiendo la cronología japonesa de la saga:</p>
+<table>
+<tr><th>Etapa</th><th>Referencia en el cine japonés</th></tr>
+<tr><td>Huevo</td><td>Punto de partida: no se deteriora y no puede viajar ni jugar</td></tr>
+<tr><td>Baby Godzilla</td><td><i>Godzilla vs. Mechagodzilla II</i> (1993)</td></tr>
+<tr><td>Little Godzilla</td><td><i>Godzilla vs. SpaceGodzilla</i> (1994)</td></tr>
+<tr><td>Godzilla Junior</td><td><i>Godzilla vs. Destoroyah</i> (1995)</td></tr>
+<tr><td>Forma final</td><td>Una de cuatro eras: <b>Showa</b> (1954-1975), <b>Heisei</b> (1984-1995), <b>Burning</b> (el núcleo al borde de la fusión) o <b>Shin</b> (2016)</td></tr>
+</table>
+<p>Sus necesidades bajan con el tiempo real, aunque la app esté cerrada. Cada decisión cambia su estado, su economía y la forma final en la que evolucionará. La mecánica que lo distingue es la <b>radiación</b>, que no se llena sino que se equilibra (sección 7).</p>
+<div class="caja"><b>Propiedad intelectual:</b> todo el arte (Godzilla, escenarios, guarida y monstruos) está <b>dibujado por código con Canvas</b>. No se usan fotografías, fotogramas ni el logotipo de Toho. El rugido se <b>sintetiza</b> en el dispositivo (onda de sierra con ruido), no es una grabación de la película.</div>
 
 <h2>2. Flujo del jugador (cumplimiento de la guía)</h2>
 <table>
 <tr><th>#</th><th>Experiencia pedida</th><th>Dónde se cumple</th></tr>
-<tr><td>01</td><td>Nueva partida, elegir personaje y nombre</td><td><code>InicioActivity</code> → <code>SeleccionActivity</code> (3 huevos con imagen, descripción y bono inicial + nombre validado de 2–14 caracteres)</td></tr>
-<tr><td>02</td><td>Consultar necesidades y cuidarlo</td><td><code>HogarFragment</code>: 5 barras + valor numérico, mensaje contextual y 6 acciones</td></tr>
-<tr><td>03</td><td>Minijuegos por monedas y XP</td><td><code>DefensaActivity</code> (reflejos) y <code>MemoriaActivity</code> (parejas)</td></tr>
+<tr><td>01</td><td>Nueva partida: elegir huevo y nombre</td><td><code>InicioActivity</code> → <code>SeleccionActivity</code>: 4 orígenes con bono distinto y nombre validado de 2–14 caracteres</td></tr>
+<tr><td>02</td><td>Consultar necesidades y cuidarlo</td><td><code>HogarFragment</code>: 6 indicadores con valor numérico, mensaje contextual, 8 acciones (incluye Aliento)</td></tr>
+<tr><td>03</td><td>Minijuegos por monedas y XP</td><td><code>DefensaActivity</code>, <code>AnillosActivity</code> y <code>MemoriaActivity</code> (3 minijuegos)</td></tr>
 <tr><td>04</td><td>Comprar y administrar inventario</td><td><code>TiendaFragment</code> con pestañas Tienda / Inventario</td></tr>
-<tr><td>05</td><td>Decorar, misiones, evolución</td><td><code>GuaridaFragment</code>, <code>MisionesFragment</code>, <code>ProgresoActivity</code></td></tr>
-<tr><td>06</td><td>Cerrar y reabrir sin perder la partida</td><td>Room + marca de tiempo <code>ultimaActualizacion</code>; guardado tras cada acción, cada 10 s y en <code>onPause</code></td></tr>
+<tr><td>05</td><td>Decorar, viajar, misiones, evolución</td><td><code>GuaridaFragment</code>, <code>MapaActivity</code>, <code>MisionesFragment</code>, <code>ProgresoActivity</code>, <code>KaijupediaActivity</code></td></tr>
+<tr><td>06</td><td>Cerrar y reabrir sin perder la partida</td><td>Room (<code>godzipet.db</code>) + marca <code>ultimaActualizacion</code>; guardado tras cada acción, cada 10 s (<code>MainActivity</code>) y en <code>onPause</code></td></tr>
 </table>
-<p><b>Inicio de sesión:</b> cuentas locales (<code>LoginActivity</code>) — no requiere internet. La contraseña se guarda como hash <b>PBKDF2 + sal aleatoria</b>, nunca en texto plano. Cada usuario tiene su propia partida.</p>
+<p><b>Inicio de sesión:</b> cuentas locales (<code>LoginActivity</code>), sin internet. La contraseña se guarda como hash <b>PBKDF2-HMAC-SHA256</b> con sal aleatoria (sección 16). Cada usuario tiene su propia partida.</p>
 
 <h2>3. Arquitectura y clases</h2>
 <table>
 <tr><th>Capa / paquete</th><th>Clases</th><th>Responsabilidad</th></tr>
-<tr><td><code>modelo</code> (Java puro, probado con JUnit)</td><td><code>Personaje</code>, <code>Necesidades</code>, <code>Stat</code>, <code>EstadoAnimo</code>, <code>Etapa</code></td><td>Identidad, etapa, sueño; 5 indicadores con límite 0–100; reglas de estado</td></tr>
-<tr><td></td><td><code>Partida</code>, <code>Deterioro</code>, <code>Contadores</code></td><td>Estado completo, paso del tiempo real, historial de hábitos</td></tr>
-<tr><td></td><td><code>Cuidados</code></td><td>6 acciones + Aliento Atómico con validaciones</td></tr>
-<tr><td></td><td><code>Articulo</code>, <code>Catalogo</code>, <code>Tienda</code>, <code>Inventario</code>, <code>Guarida</code>, <code>Slot</code></td><td>Economía, inventario y decoración</td></tr>
-<tr><td></td><td><code>Mision</code>, <code>GestorMisiones</code></td><td>Condiciones, avance y recompensa única</td></tr>
-<tr><td></td><td><code>Niveles</code>, <code>Evolucion</code>, <code>RutaEvolucion</code></td><td>Progresión, regla de evolución y ventajas</td></tr>
-<tr><td></td><td><code>Minijuego</code>, <code>Record</code>, <code>AlertaKaiju</code></td><td>Premios proporcionales, récords, mecánica exclusiva</td></tr>
-<tr><td><code>datos</code></td><td><code>BaseDatos</code> (Room), <code>JuegoDao</code>, 6 entidades, <code>Repositorio</code>, <code>Preferencias</code>, <code>Seguridad</code></td><td>Persistencia en hilo de fondo, guardado atómico (<code>@Transaction</code>)</td></tr>
-<tr><td><code>juego</code></td><td><code>Juego</code>, <code>Alertas</code>, <code>AlarmaReceiver</code>, <code>Sonidos</code></td><td>Partida en memoria, notificaciones locales, sonidos sintetizados (rugido)</td></tr>
-<tr><td><code>vista</code></td><td><code>KaijuPainter</code>, <code>PetView</code>, <code>GuaridaView</code>, <code>DefensaView</code>, <code>BarraView</code></td><td>Dibujo vectorial y animaciones</td></tr>
-<tr><td><code>ui</code></td><td>8 actividades y 5 fragmentos</td><td>Pantallas y navegación</td></tr>
+<tr><td><code>modelo</code> (Java puro, probado con JUnit)</td><td><code>Stat</code>, <code>Necesidades</code>, <code>Deterioro</code>, <code>EstadoAnimo</code>, <code>Etapa</code></td><td>6 indicadores (0–100; la radiación se evalúa por zona ideal), tiempo real, 10 estados</td></tr>
+<tr><td></td><td><code>Partida</code>, <code>Personaje</code>, <code>Contadores</code>, <code>Evento</code></td><td>Estado completo, fusión y generaciones, viajes, secretos, historial de hábitos</td></tr>
+<tr><td></td><td><code>Cuidados</code>, <code>Minijuego</code>, <code>Resultado</code>, <code>Reaccion</code></td><td>8 acciones (7 de cuidado + Aliento) con validaciones y minijuegos</td></tr>
+<tr><td></td><td><code>Articulo</code>, <code>Catalogo</code>, <code>TipoArticulo</code>, <code>Tienda</code>, <code>Inventario</code>, <code>Guarida</code>, <code>Slot</code></td><td>Economía, inventario y decoración en 4 posiciones</td></tr>
+<tr><td></td><td><code>Mision</code>, <code>GestorMisiones</code>, <code>Niveles</code></td><td>4 diarias y 7 logros; 6 niveles por experiencia</td></tr>
+<tr><td></td><td><code>Evolucion</code>, <code>RutaEvolucion</code>, <code>OrigenHuevo</code></td><td>Regla de evolución final, 4 formas finales y 4 orígenes de huevo</td></tr>
+<tr><td></td><td><code>Escenario</code>, <code>Secreto</code>, <code>Record</code>, <code>AlertaKaiju</code></td><td>8 escenarios, 12 secretos, récords y alertas kaiju</td></tr>
+<tr><td></td><td><code>ModoProfesor</code></td><td>Herramientas del modo evaluador (sección 15)</td></tr>
+<tr><td><code>datos</code></td><td><code>BaseDatos</code> (Room v2 y <code>MIGRACION_1_2</code>), <code>JuegoDao</code>, 6 entidades, <code>Instantanea</code>, <code>Repositorio</code>, <code>Preferencias</code>, <code>Seguridad</code></td><td>Persistencia en hilo de fondo, guardado atómico (<code>@Transaction</code>), respaldo del modo evaluador, hash de contraseñas</td></tr>
+<tr><td><code>juego</code></td><td><code>Juego</code>, <code>Alertas</code>, <code>AlarmaReceiver</code>, <code>DetectorAgitar</code>, <code>Microfono</code>, <code>Sonidos</code></td><td>Partida en memoria, notificaciones, sensor de agitar, micrófono que sólo mide volumen, rugido sintetizado</td></tr>
+<tr><td><code>vista</code></td><td><code>KaijuPainter</code>, <code>PetView</code>, <code>PosterPainter</code>, <code>Filtros</code>, <code>Clima</code>, <code>Escenas</code>, <code>GuaridaView</code>, <code>DefensaView</code>, <code>AnillosView</code>, <code>BarraView</code>, <code>Particulas</code></td><td>Dibujo vectorial, animaciones, filtros visuales, clima por estación, foto póster</td></tr>
+<tr><td><code>ui</code></td><td>13 actividades, 1 base de minijuegos y 5 fragmentos</td><td>Pantallas y navegación</td></tr>
 </table>
 
-<h3>Base de datos (Room, versión 1)</h3>
+<h3>Base de datos (Room, versión 2)</h3>
 <table>
 <tr><th>Tabla</th><th>Guarda</th></tr>
 <tr><td><code>usuarios</code></td><td>usuario (único), sal, hash</td></tr>
-<tr><td><code>partidas</code></td><td>personaje, etapa, ruta, 5 estadísticas, sueño, <b>ultimaActualizacion</b>, monedas, XP, carga de aliento, alerta kaiju, tiempos de espera y contadores de hábitos</td></tr>
+<tr><td><code>partidas</code></td><td>personaje, etapa, ruta, 6 indicadores, sueño, <b>ultimaActualizacion</b>, monedas, XP, aliento, alerta kaiju, esperas, contadores de hábitos y los datos de la versión 2 (abajo)</td></tr>
 <tr><td><code>inventario</code></td><td>artículo y cantidad por usuario</td></tr>
 <tr><td><code>decoraciones</code></td><td>decoración equipada en cada posición</td></tr>
 <tr><td><code>misiones</code></td><td>recompensas reclamadas (día o "LOGRO")</td></tr>
 <tr><td><code>records</code></td><td>mejor puntaje, victorias y partidas por minijuego</td></tr>
 </table>
-<p>Las preferencias simples (sesión, sonido, notificaciones, modo demo) van en <code>SharedPreferences</code>.</p>
+<p><b>Migración 1 → 2</b> (<code>MIGRACION_1_2</code>): agrega a <code>partidas</code> sin borrar datos las columnas <code>radiacion</code> (por defecto 55), <code>fusion</code>, <code>generacion</code>, <code>escenario</code>, <code>ultimaCentral</code>, <code>cCentrales</code>, <code>sumaRadiacion</code>, <code>entrenosBase</code>, <code>cuidadosBase</code>, <code>hoyMinutosZona</code>, <code>secretos</code>, <code>visitados</code> y <code>formas</code>. A las partidas antiguas se les rellena <code>sumaRadiacion</code> con 55 por minuto de su historial, para que el promedio de radiación no quede en cero.</p>
+<p>Las preferencias simples (sesión, sonido, notificaciones, agitar, micrófono, filtro, modo demostración y modo evaluador) van en <code>SharedPreferences</code>.</p>
 
 <h2>4. Reglas de tiempo real</h2>
 <table>
 <tr><th>Indicador</th><th>Despierto (por hora)</th><th>Dormido (por hora)</th></tr>
 <tr><td>🐟 Alimentación</td><td>−8</td><td>−4</td></tr>
 <tr><td>🫧 Higiene</td><td>−5</td><td>−2</td></tr>
-<tr><td>⚡ Energía</td><td>−4</td><td>+120</td></tr>
-<tr><td>😊 Felicidad</td><td>−4 (−8 si alimentación o higiene &lt; 30)</td><td>la mitad</td></tr>
-<tr><td>❤ Salud</td><td colspan="2">−6 si alimentación o higiene &lt; 20 o energía &lt; 10 · +2 si el promedio ≥ 60</td></tr>
+<tr><td>⚡ Energía</td><td>−4 (−2 más si la radiación está por debajo de 20)</td><td>+120</td></tr>
+<tr><td>😊 Felicidad</td><td>−4 (−8 si alimentación o higiene &lt; 30); 0 en la Isla de los Monstruos</td><td>la mitad</td></tr>
+<tr><td>❤ Salud</td><td>−6 si alimentación o higiene &lt; 20 o energía &lt; 10 · −5 si la radiación ≥ 85 · +2 si el promedio ≥ 60 y nada es crítico</td><td>igual</td></tr>
+<tr><td>☢ Radiación</td><td>−3 (la forma Burning sube +1)</td><td>−1,5</td></tr>
 </table>
-<div class="caja"><b>Caso obligatorio comprobado:</b> se cierra la app con 80 de alimentación y se abre 2 horas después → muestra <b>64</b> sin pulsar ningún botón (prueba <code>casoObligatorio_80DeAlimentacionBajaA64TrasDosHoras</code> y verificado en el emulador). El cálculo se hace en pasos de 1 minuto, separando el tramo dormido del despierto, con tope de 7 días.</div>
-<p><b>Modo demostración</b> (Configuración): el tiempo corre ×20 (1 min real = 20 min de juego) para poder mostrar el deterioro en clase. La ruta Salvaje multiplica el deterioro ×1.25 y la Guardián reduce a la mitad la pérdida de felicidad.</p>
+<div class="caja"><b>Caso obligatorio comprobado:</b> se cierra la app con 80 de alimentación y se abre 2 horas después → muestra <b>64</b> sin pulsar ningún botón (prueba <code>casoObligatorio_80DeAlimentacionBajaA64TrasDosHoras</code>, verificado también en el emulador). El cálculo se hace en pasos de 1 minuto, separando el tramo dormido del despierto, con tope de 7 días sin conexión.</div>
+<p>El huevo no se deteriora. <b>Modo demostración</b> (Configuración): el tiempo corre ×20 (1 min real = 20 min de juego) para mostrar el deterioro en clase. La ruta Showa reduce a la mitad la pérdida de felicidad; la Shin multiplica el deterioro por 1,25.</p>
 
-<h2>5. Estados (8, todos por reglas)</h2>
-<p>Prioridad: <b>Dormido</b> → <b>Enfermo</b> (salud &lt; 30) → <b>Hambriento</b> (alim. &lt; 25) → <b>Sucio</b> (higiene &lt; 25) → <b>Cansado</b> (energía &lt; 20) → <b>Triste</b> (felicidad &lt; 35) → <b>Feliz</b> (felicidad ≥ 75 y promedio ≥ 65) → <b>Normal</b>. Cada estado se ve distinto: ojos cerrados y "Zzz", piel pálida con párpados caídos, burbuja pensando en pescado, manchas y moscas, nube con lluvia y lágrima, notas musicales y rebote, etc. Debajo aparece un <b>mensaje contextual</b> que explica la reacción.</p>
+<h2>5. Estados (10, todos por reglas)</h2>
+<p>Se calculan con <code>EstadoAnimo.calcular</code>, nunca con un botón. Se aplica el primero que se cumpla:</p>
+<table>
+<tr><th>#</th><th>Estado</th><th>Condición</th><th>Mensaje en pantalla</th></tr>
+<tr><td>1</td><td>Dormido</td><td>Está durmiendo</td><td>Zzz… está recuperando energía.</td></tr>
+<tr><td>2</td><td>¡En fusión!</td><td>Radiación ≥ 85</td><td>Su núcleo se sobrecalienta. Enfríalo en el mar o con un misil de cadmio.</td></tr>
+<tr><td>3</td><td>Enfermo</td><td>Salud &lt; 30</td><td>Usa un botiquín de la Fuerza G.</td></tr>
+<tr><td>4</td><td>Sin radiación</td><td>Radiación &lt; 20</td><td>Sus placas no brillan. Llévalo a una central nuclear o dale un isótopo.</td></tr>
+<tr><td>5</td><td>Hambriento</td><td>Alimentación &lt; 25</td><td>Dale de comer.</td></tr>
+<tr><td>6</td><td>Sucio</td><td>Higiene &lt; 25</td><td>Necesita nadar en el mar.</td></tr>
+<tr><td>7</td><td>Cansado</td><td>Energía &lt; 20</td><td>Mándalo a dormir.</td></tr>
+<tr><td>8</td><td>Triste</td><td>Felicidad &lt; 35</td><td>Juega con él o llévalo a un minijuego.</td></tr>
+<tr><td>9</td><td>Feliz</td><td>Felicidad ≥ 75 y promedio ≥ 65</td><td>¡Está de excelente humor!</td></tr>
+<tr><td>10</td><td>Normal</td><td>Ninguna de las anteriores</td><td>Vigila la costa de Japón tranquilamente.</td></tr>
+</table>
 
 <h2>6. Acciones de cuidado</h2>
 <table>
 <tr><th>Acción</th><th>Efecto</th><th>Restricciones</th></tr>
-<tr><td>🐟 Alimentar</td><td>Según la comida (p. ej. atún +25 alim. +6 fel.)</td><td>Requiere comida en el inventario (la consume); no si está lleno (≥95) o dormido</td></tr>
-<tr><td>🎾 Jugar</td><td>+15 fel., −10 energía, −5 alim., −5 higiene</td><td>Energía ≥ 15, espera de 20 s, despierto</td></tr>
-<tr><td>💤 Dormir</td><td>+5 energía, +3 salud y recupera +120/h durante 20 min de juego</td><td>Energía &lt; 85. Si ya duerme, el botón cambia a "Despertar" (−5 fel.)</td></tr>
-<tr><td>🫧 Bañar</td><td>Con jabón: +40 higiene +5 fel. · sin jabón: +15 higiene −3 energía</td><td>Higiene &lt; 95; el baño gratis tiene espera de 60 s</td></tr>
-<tr><td>⛑ Curar</td><td>+35 salud, +5 energía, −4 fel.</td><td>Requiere Botiquín H.E.A.T.; salud &lt; 95</td></tr>
-<tr><td>💪 Entrenar</td><td>−20 energía, −10 alim., −10 higiene, +5 fel., +20 aliento, +15 XP</td><td>Energía ≥ 25, alim. ≥ 20, salud ≥ 30, espera 30 s</td></tr>
+<tr><td>🍙 Comer</td><td>Según la comida que se consuma del inventario (tabla de la sección 10)</td><td>Debe tener la comida; no si está dormido o si la alimentación es ≥ 95</td></tr>
+<tr><td>🎾 Jugar</td><td>+15 felicidad, −10 energía, −5 alimentación, −5 higiene</td><td>Energía ≥ 15, espera de 20 s, despierto</td></tr>
+<tr><td>💤 Dormir</td><td>+5 energía, +3 salud; duerme 20 min de juego recuperando +120/h</td><td>Energía &lt; 85. Si ya duerme, el botón cambia a "Despertar" (−5 felicidad)</td></tr>
+<tr><td>🌊 Nadar</td><td>Con jabón: +40 higiene, +5 felicidad. Sin jabón: +15 higiene, −3 energía. Siempre −12 radiación (−24 en la Bahía de Tokio)</td><td>Higiene &lt; 95; el baño gratis tiene espera de 60 s</td></tr>
+<tr><td>⛑ Curar</td><td>+35 salud, +5 energía, −4 felicidad</td><td>Requiere Botiquín Fuerza G; salud &lt; 95</td></tr>
+<tr><td>💪 Entrenar</td><td>−20 energía (×0,75 en Heisei), −10 alimentación, −10 higiene, +5 felicidad, +20 aliento, +15 XP</td><td>Energía ≥ costo + 5, alimentación ≥ 20, salud ≥ 30, espera de 30 s</td></tr>
+<tr><td>☢ Central</td><td>+25 radiación (×1,5 en Burning), +10 energía, +5 felicidad, −5 higiene, +10 aliento (la mitad antes de Junior)</td><td>Despierto; espera de 45 s para que la central se recargue</td></tr>
+<tr><td>🗺 Viajar</td><td>Cambia de escenario (sección 12); +10 XP la primera vez en cada uno</td><td>Nivel requerido; no con el huevo ni dormido</td></tr>
+<tr><td>🔥 Aliento</td><td>Se explica en la sección 8</td><td>Carga 100/100</td></tr>
 </table>
-<p>Cada acción reproduce una animación ("¡ÑAM!", burbujas, "¡POW!", corazones, cruces verdes), un sonido de éxito o error y se guarda de inmediato.</p>
+<p>Cada acción reproduce una animación ("¡ÑAM!", burbujas, "¡POW!", corazones, cruces verdes), un sonido de éxito o error, y se guarda de inmediato. Los errores muestran el motivo (por ejemplo, "Espera 12 s antes de repetirlo" o "Necesita 35 de energía para entrenar").</p>
 
-<h2>7. Mecánicas exclusivas del personaje</h2>
-<h3>☢ Mecánica 1 · Aliento Atómico</h3>
-<p>Inspirado en el "power breath" verde de Godzilla en la serie. Una barra de carga 0–100 se llena al <b>entrenar</b> (+20) y al comer <b>pescado radioactivo</b> (+25). Se desbloquea en el nivel 3. Con 100 aparece el botón <b>¡ALIENTO ATÓMICO!</b>: un rayo verde cruza la bahía con sacudida de pantalla y rugido (+25 felicidad, +20 XP). En el minijuego Defensa se puede usar una vez para destruir a todos los monstruos, y en una Alerta Kaiju garantiza la victoria. La ruta Atómico la carga al doble.</p>
-<h3>🚨 Mecánica 2 · Alertas Kaiju</h3>
-<p>Como en cada episodio de la serie, monstruos mutantes atacan Nueva York (cangrejo mutante, murciélago colosal, calamar radioactivo…). Desde el nivel 3, cada 10–25 min de juego aparece un aviso rojo con cuenta regresiva de 8 min. <b>DEFENDER</b> cuesta 20 de energía y requiere salud ≥ 30; la probabilidad de ganar depende de energía y salud (gana +40 monedas, +30 XP). Si se ignora —incluso con la app cerrada— la ciudad sufre daños: −15 felicidad y −5 salud al volver.</p>
+<h2>7. Mecánica característica: la Radiación ☢</h2>
+<p>En casi cualquier mascota virtual, un indicador sólo "más es mejor" o "menos es peor". Aquí la <b>radiación</b> (el sexto indicador) funciona al revés: <b>no se llena, se equilibra</b>. Su zona ideal es <b>40–70</b>, donde la calidad vale 100. Fuera de esa zona, la calidad baja 2,5 puntos por cada unidad de distancia. Por eso <b>el exceso también mata</b>: con 85 o más se sobrecalienta (−5 salud por hora) y con 95 o más, sostenido, el núcleo se funde.</p>
 
-<h2>8. Minijuegos</h2>
+<h3>Fuentes y sumideros de radiación</h3>
 <table>
-<tr><th></th><th>🌊 Defensa de la Bahía (reflejos)</th><th>🧠 Memoria H.E.A.T. (parejas)</th></tr>
-<tr><td>Acceso</td><td>Nivel 1, cuesta 15 de energía</td><td>Nivel 2, cuesta 10 de energía</td></tr>
-<tr><td>Interacción</td><td>Tocar monstruos antes de que escapen (aro de tiempo); cada vez salen más rápido</td><td>Voltear cartas 4×4 con animación</td></tr>
-<tr><td>Victoria / derrota</td><td>≥ 15 aciertos en 30 s</td><td>8 parejas antes de 60 s</td></tr>
-<tr><td>Puntaje</td><td>10 por acierto</td><td>10 por pareja + segundos restantes</td></tr>
-<tr><td>Premio</td><td>puntaje/5 monedas (+20 si gana)</td><td>puntaje/4 monedas (+15 si gana)</td></tr>
+<tr><th>Origen</th><th>Cambio de radiación</th></tr>
+<tr><td>Decaimiento natural</td><td>−3 por hora despierto; −1,5 por hora dormido</td></tr>
+<tr><td>Central nuclear</td><td>+25 (×1,5 en Burning)</td></tr>
+<tr><td>Pescado radioactivo / Isótopo energético</td><td>+20 / +25</td></tr>
+<tr><td>Nadar</td><td>−12 (−24 en la Bahía de Tokio)</td></tr>
+<tr><td>Misil de cadmio (tienda)</td><td>−35</td></tr>
+<tr><td>Aliento Atómico (desde Junior)</td><td>−15</td></tr>
+<tr><td>Forma Burning</td><td>+1 por hora, su núcleo nunca se enfría solo</td></tr>
 </table>
-<p>Ambos tienen instrucciones, inicio, opción <b>Repetir</b>, guardan mejor puntaje y victorias, y salir a mitad de la ronda cuenta como derrota con el puntaje parcial.</p>
+<p>Antes de Junior la radiación no puede pasar de 90 (el cuerpo de las crías no soporta más). La <b>fusión</b> sólo puede ocurrir desde Godzilla Junior en adelante.</p>
 
-<h2>9. Tienda, inventario y guarida</h2>
+<div class="caja"><b>Regla de fusión:</b> con radiación ≥ 95, un contador acumula minutos de juego. Al llegar a <b>30 minutos</b> se produce la fusión. Si la radiación baja, el contador se reduce al doble de velocidad. El jugador recibe avisos al empezar y, con la app cerrada, una notificación 2 minutos antes de que la radiación entre en zona de sobrecalentamiento.</div>
+
+<h3>Fusión y renacimiento (canon de Godzilla vs. Destoroyah, 1995)</h3>
+<p>Cuando Godzilla se funde, <b>Godzilla Junior absorbe su radiación</b> y empieza una <b>nueva generación</b>: vuelve a Junior con radiación 50, salud 80, energía 70 y felicidad 60, el aliento se llena y su experiencia se reduce al umbral de Junior. Cada generación da un bono de <b>+10 % de experiencia</b>, hasta un máximo de <b>+30 %</b> (tres fusiones). El evento se registra como secreto "Meltdown" en la Kaiju-pedia.</p>
+<p><b>Por qué es única:</b> ninguna otra mecánica del juego obliga a equilibrar un valor en lugar de maximizarlo, ni castiga el exceso con una transformación de la historia. El jugador debe decidir cuándo cargar la radiación (central, pescado, isótopo) y cuándo enfriarla (mar, cadmio) para llegar a Junior sin fundirlo, y a la vez puede aprovecharla para la forma Burning.</p>
+
+<h2>8. Otras mecánicas exclusivas</h2>
+<h3>🔥 Aliento Atómico</h3>
+<p>Una barra de carga 0–100 que se llena al <b>entrenar</b> (+20), al visitar una <b>central</b> (+10), con <b>pescado radioactivo</b> (+25), con <b>isótopo</b> (+10) y al ganar una Alerta Kaiju (+10). Con 100 aparece el botón del aliento (requiere energía ≥ 10). Lo que sale depende de la etapa: <b>De Baby o Little Godzilla sale un anillo de humo</b> (como Minilla en 1967): +15 felicidad, −5 energía y +10 XP. <b>Desde Godzilla Junior sale el rayo atómico</b>: +25 felicidad, −10 energía, −15 radiación y +20 XP. La forma Heisei carga el aliento al doble.</p>
+<h3>🚨 Alertas Kaiju</h3>
+<p>Como en cada película, un monstruo mutante ataca una ciudad japonesa (una mantis gigante, un pteranodón colosal, una langosta mutante, una polilla oscura, un robot de guerra o un dragón de tres cabezas, en Shinjuku, Shibuya, Yokohama, Shinagawa, Haneda u Osaka). Desde el nivel 3 aparece cada 10–25 min de juego y dura 8 min. <b>DEFENDER</b> cuesta 20 de energía y requiere salud ≥ 30. La probabilidad de ganar va de 30 % a 85 % según energía, salud y calidad de la radiación; con aliento al 100 % o en forma Burning siempre se gana. Una victoria da 40 monedas y 30 XP (45 XP en Burning). Una derrota le cuesta −10 felicidad y −10 salud. Si se ignora, incluso con la app cerrada, la ciudad sufre daños al volver: −15 felicidad y −5 salud.</p>
+
+<h2>9. Minijuegos</h2>
 <table>
-<tr><th>Tipo</th><th>Artículos (precio · nivel)</th></tr>
-<tr><td>Comida (3)</td><td>Lata de sardinas 8 · Atún gigante 15 · Pescado radioactivo 30 (nv 2)</td></tr>
-<tr><td>Cuidado (3)</td><td>Jabón marino 12 · Botiquín H.E.A.T. 35 · Isótopo energético 40 (nv 3)</td></tr>
-<tr><td>Decoración (10)</td><td><b>Ventanal:</b> Skyline de Manhattan 60, Arrecife 80 (nv 2), Isla Monstruo 110 (nv 3) · <b>Izquierda:</b> Helicóptero 50, Barco pesquero 70 (nv 2) · <b>Derecha:</b> Antena torcida 45, Mini Estatua de la Libertad 120 (nv 4) · <b>Suelo:</b> Alfombra de algas 35, Conos aplastados 25, Charco radioactivo 55 (nv 3)</td></tr>
+<tr><th></th><th>Defensa de Tokio (reflejos)</th><th>Anillos de Humo</th><th>Memoria Fuerza G (parejas)</th></tr>
+<tr><td>Acceso</td><td>Nivel 1 · 15 de energía</td><td>Nivel 1 · 10 de energía</td><td>Nivel 2 · 10 de energía</td></tr>
+<tr><td>Interacción</td><td>Tocar kaijus que emergen de la bahía antes de que escapen; cada vez salen más rápido. Con aliento al 100 % se puede arrasar una vez</td><td>Como Minilla: tocar la pantalla para soltar anillos de humo contra insectos gigantes que vuelan sobre la isla</td><td>Voltear cartas 4×4 con animación para encontrar las 8 parejas</td></tr>
+<tr><td>Duración</td><td>30 s</td><td>30 s</td><td>60 s</td></tr>
+<tr><td>Victoria</td><td>≥ 15 aciertos</td><td>≥ 10 aciertos</td><td>8 parejas antes de agotar el tiempo</td></tr>
+<tr><td>Puntaje</td><td>10 por acierto</td><td>10 por acierto</td><td>10 por pareja + segundos restantes si gana</td></tr>
+<tr><td>Premio (monedas)</td><td>puntaje/5 (+20 si gana)</td><td>puntaje/5 (+15 si gana)</td><td>puntaje/4 (+15 si gana)</td></tr>
+<tr><td>Experiencia</td><td colspan="3">puntaje/10 + 15 si gana (+3 si pierde). Al empezar cuesta energía y −3 higiene; al terminar, +15 felicidad si gana o +5 si pierde</td></tr>
 </table>
-<p>Compra bloqueada sin saldo (indica cuánto falta), por nivel, por decoración repetida o inventario lleno (99). Consumibles bajan su cantidad al usarse; decoraciones se equipan sin consumirse en <b>4 posiciones fijas</b> de la guarida, sólo si se poseen, y se ven igual al reabrir la app.</p>
+<p>Todos tienen instrucciones, inicio, opción <b>Repetir</b> y guardan mejor puntaje y victorias en la tabla <code>records</code>. Salir a mitad de la ronda cuenta como derrota con el puntaje parcial.</p>
 
-<h2>10. Niveles, misiones y evolución</h2>
+<h2>10. Tienda, inventario y guarida</h2>
+<table>
+<tr><th>Tipo</th><th>Artículos (precio · nivel) y efecto principal</th></tr>
+<tr><td>Comida (4)</td><td>Onigiri 8 · nv 1 (alim. +12, fel. +3) · Atún gigante 15 · nv 1 (alim. +25, fel. +6) · Ramen humeante 18 · nv 1 (alim. +22, fel. +10, ener. +3) · Pescado radioactivo 30 · nv 2 (alim. +15, fel. +4, ener. +10, salud −2, <b>aliento +25</b>, <b>radiación +20</b>)</td></tr>
+<tr><td>Cuidado (4)</td><td>Jabón marino 12 · nv 1 (higiene +40, fel. +5) · Botiquín Fuerza G 35 · nv 1 (salud +35, ener. +5, fel. −4) · Misil de cadmio 25 · nv 1 (<b>radiación −35</b>, salud −5, fel. −5) · Isótopo energético 40 · nv 2 (ener. +40, <b>radiación +25</b>, aliento +10, fel. +3)</td></tr>
+<tr><td>No se vende</td><td><b>Destructor de Oxígeno</b> (99 999 monedas): sólo se muestra como secreto; la tienda lo rechaza</td></tr>
+<tr><td>Decoración (11)</td><td><b>Ventanal:</b> Vista al Monte Fuji 60 (nv 1), Isla Odo de noche 80 (nv 2), Isla de los Monstruos 110 (nv 3) · <b>Rincón izquierdo:</b> Linterna de piedra 50 (nv 1), Torre de Tokio miniatura 120 (nv 4) · <b>Rincón derecho:</b> Muñeco Daruma 45 (nv 1), Bonsái de pino 70 (nv 2), Reloj de la torre Wako 90 (nv 3) · <b>Suelo:</b> Tatami 30 (nv 1), Alfombra La Gran Ola 65 (nv 2), Estanque koi 85 (nv 3)</td></tr>
+</table>
+<p>La compra se bloquea si no hay saldo (indica cuánto falta), si el nivel es insuficiente, si la decoración ya se posee o si el inventario llega a 99 unidades. Los consumibles bajan su cantidad al usarse; las decoraciones se equipan sin consumirse en <b>4 posiciones fijas</b> de la guarida, sólo si se poseen, y se ven igual al reabrir la app.</p>
+
+<h2>11. Niveles, misiones y evolución</h2>
+<h3>Niveles (6, por experiencia acumulada)</h3>
 <table>
 <tr><th>Nivel (XP)</th><th>Desbloqueo</th></tr>
-<tr><td>1 (0)</td><td>Defensa de la Bahía y tienda básica</td></tr>
-<tr><td>2 (60)</td><td>Memoria H.E.A.T., pescado radioactivo, arrecife</td></tr>
-<tr><td>3 (150)</td><td>Evoluciona a Juvenil, Aliento Atómico, Alertas Kaiju, isótopo</td></tr>
-<tr><td>4 (280)</td><td>Mini Estatua de la Libertad</td></tr>
-<tr><td>5 (450)</td><td>Evolución final</td></tr>
-<tr><td>6 (700)</td><td>Título "Rey de los Monstruos": +10 monedas por misión</td></tr>
+<tr><td>1 (0)</td><td>Isla Odo, Bahía de Tokio, Defensa de Tokio y Anillos de Humo</td></tr>
+<tr><td>2 (60)</td><td>Evoluciona a Little Godzilla · Memoria Fuerza G · Ginza 1954 · Monte Fuji</td></tr>
+<tr><td>3 (150)</td><td>Evoluciona a Godzilla Junior · Aliento Atómico real · Alertas Kaiju · Torre de Tokio</td></tr>
+<tr><td>4 (280)</td><td>Castillo de Osaka · Torre de Tokio en miniatura</td></tr>
+<tr><td>5 (450)</td><td>¡Forma final según cómo lo cuidaste! · Kamakura</td></tr>
+<tr><td>6 (700)</td><td>Isla de los Monstruos · título "Rey de los Monstruos" (+10 monedas por misión)</td></tr>
 </table>
-<p><b>Misiones diarias</b> (se renuevan a medianoche): alimentar 3 veces, jugar 2 minijuegos, entrenar 2 veces. <b>Logros</b> (permanentes): llegar a nivel 4, ganar 5 minijuegos, equipar 3 decoraciones, ganar 3 Alertas Kaiju, alcanzar una forma final. Cada recompensa se marca como reclamada (con el día, en las diarias), por lo que no puede cobrarse dos veces.</p>
-<div class="caja"><b>Regla medible de evolución</b> (al llegar a nivel 5 siendo Juvenil):<br>
-1) Bienestar promedio histórico &lt; 50 → <b>Godzilla Salvaje</b> — gana siempre las Alertas Kaiju y +50 % XP en ellas, pero sus necesidades bajan 25 % más rápido.<br>
-2) Entrenamientos ≥ 6 y entrenamientos × 2 ≥ cuidados → <b>Godzilla Atómico</b> — aliento carga ×2 y entrenar cuesta 25 % menos energía.<br>
-3) En otro caso → <b>Godzilla Guardián</b> — +25 % de monedas y la felicidad baja la mitad de rápido.<br>
-El bienestar promedio se pondera por minuto de juego. La pantalla Progreso muestra el historial y la ruta prevista en todo momento.</div>
 
-<h2>11. Alertas locales y validaciones</h2>
-<p><b>Notificaciones</b> (canal propio; en Android 13+ se pide el permiso <code>POST_NOTIFICATIONS</code>): al salir de la app se programan con <code>AlarmManager</code> inexacto (1) la <b>necesidad crítica</b>, calculando cuándo la alimentación o la higiene llegarán a 20, y (2) el <b>fin del descanso</b> si está dormido. Se cancelan al volver.</p>
-<p><b>Validaciones:</b> límites 0–100 en una sola clase; nombre y usuario con patrón; compras sin saldo; acciones imposibles con mensaje claro; recompensas duplicadas; <b>reinicio con doble confirmación</b> (hay que escribir REINICIAR); nueva partida pide confirmación si ya existe una.</p>
+<h3>Misiones</h3>
+<table>
+<tr><th>Tipo</th><th>Misión</th><th>Meta</th><th>Recompensa</th></tr>
+<tr><td>Diaria (se renuevan a medianoche)</td><td>Hora del almuerzo</td><td>Alimentarlo 3 veces</td><td>30 monedas, 20 XP</td></tr>
+<tr><td>Diaria</td><td>Reflejos de kaiju</td><td>Jugar 2 minijuegos</td><td>40 monedas, 25 XP</td></tr>
+<tr><td>Diaria</td><td>Rutina de combate</td><td>Entrenar 2 veces</td><td>30 monedas, 25 XP</td></tr>
+<tr><td>Diaria</td><td>Núcleo estable</td><td>Radiación en zona ideal (40–70) durante 60 min de juego</td><td>45 monedas, 30 XP</td></tr>
+<tr><td>Logro</td><td>Rey en ascenso</td><td>Alcanzar el nivel 4</td><td>100 monedas</td></tr>
+<tr><td>Logro</td><td>Campeón de Tokio</td><td>Ganar 5 minijuegos</td><td>120 monedas, 50 XP</td></tr>
+<tr><td>Logro</td><td>Decorador zen</td><td>Equipar 3 decoraciones a la vez</td><td>80 monedas, 30 XP</td></tr>
+<tr><td>Logro</td><td>Protector de Japón</td><td>Ganar 3 Alertas Kaiju</td><td>150 monedas, 60 XP</td></tr>
+<tr><td>Logro</td><td>Gira por Japón</td><td>Visitar 5 escenarios distintos</td><td>120 monedas, 40 XP</td></tr>
+<tr><td>Logro</td><td>Fan de Toho</td><td>Descubrir 5 secretos</td><td>150 monedas, 50 XP</td></tr>
+<tr><td>Logro</td><td>Forma definitiva</td><td>Alcanzar una forma final</td><td>200 monedas</td></tr>
+</table>
+<p>Cada recompensa se marca como reclamada (con el día, en las diarias), por lo que no puede cobrarse dos veces.</p>
 
-<h2>12. Pruebas</h2>
-<p>18 pruebas JUnit (<code>app/src/test</code>), todas en verde: límites de estadísticas, estados por reglas, caso obligatorio de tiempo, modo demo, eclosión, consumo de inventario, sueño y despertar automático, esperas, compras sin saldo, equipar sólo lo propio, misiones sin doble reclamo y renovación diaria, evolución Juvenil/Final y las 3 rutas. Además se probó todo el flujo en el emulador Android 14 (capturas abajo).</p>
+<h3>Regla medible de evolución final</h3>
+<div class="caja"><b>Se evalúa al llegar a nivel 5 siendo Godzilla Junior</b>, en este orden:<br>
+1) Bienestar promedio &lt; 45 → <b>Shin Godzilla</b>.<br>
+2) Radiación promedio ≥ 72 → <b>Burning Godzilla</b>.<br>
+3) Entrenamientos ≥ 6 y entrenamientos × 2 ≥ cuidados → <b>Godzilla Heisei</b>.<br>
+4) En otro caso → <b>Godzilla Showa</b>.<br>
+Los promedios se ponderan por minuto de juego y se cuentan desde la generación actual. La pantalla Progreso muestra el historial y la ruta prevista en todo momento.</div>
+<table>
+<tr><th>Forma final</th><th>Era / idea</th><th>Ventaja y desventaja</th></tr>
+<tr><td>Godzilla Showa 昭和</td><td>El héroe (1954-1975)</td><td>+25 % monedas · la felicidad baja un 50 % más lento</td></tr>
+<tr><td>Godzilla Heisei 平成</td><td>El guerrero (1984-1995)</td><td>Aliento Atómico carga ×2 · entrenar cuesta 25 % menos energía</td></tr>
+<tr><td>Burning Godzilla バーニング</td><td>Su núcleo al borde de la fusión (1995)</td><td>Gana siempre las Alertas Kaiju y +50 % XP en ellas · su radiación sube 50 % más rápido</td></tr>
+<tr><td>Shin Godzilla シン</td><td>Forma secreta (2016)</td><td>+25 % de experiencia · sus necesidades bajan 25 % más rápido</td></tr>
+</table>
+
+<h2>12. Escenarios (mapa de Japón)</h2>
+<table>
+<tr><th>Escenario</th><th>Película de referencia</th><th>Nivel</th><th>Qué tiene de especial</th></tr>
+<tr><td>Isla Odo 大戸島</td><td>Godzilla (1954)</td><td>1</td><td>La aldea pesquera donde todo comenzó</td></tr>
+<tr><td>Bahía de Tokio 東京湾</td><td>Godzilla (1954)</td><td>1</td><td>Nadar aquí enfría la radiación el doble (−24)</td></tr>
+<tr><td>Ginza 1954 銀座</td><td>Godzilla (1954)</td><td>2</td><td>La torre del reloj Wako marca la hora real del teléfono</td></tr>
+<tr><td>Monte Fuji 富士山</td><td>King Kong vs. Godzilla (1962)</td><td>2</td><td>El paisaje más clásico de Japón</td></tr>
+<tr><td>Torre de Tokio 東京タワー</td><td>Mothra vs. Godzilla (1964)</td><td>3</td><td>Tocar la punta de la torre activa el secreto "Visita de Mothra"</td></tr>
+<tr><td>Castillo de Osaka 大阪城</td><td>Godzilla Raids Again (1955)</td><td>4</td><td>Donde luchó contra Anguirus</td></tr>
+<tr><td>Kamakura 鎌倉</td><td>Shin Godzilla (2016)</td><td>5</td><td>El Gran Buda vigila la costa</td></tr>
+<tr><td>Isla de los Monstruos 怪獣島</td><td>Destroy All Monsters (1968)</td><td>6</td><td>La felicidad no baja aquí</td></tr>
+</table>
+
+<h2>13. Secretos (Kaiju-pedia)</h2>
+<p>Doce easter eggs para fans. Cada uno da 15 XP al descubrirse y aparece en la Kaiju-pedia con su dato cuando se encuentra; antes sólo se ve la pista.</p>
+<table>
+<tr><th>Secreto</th><th>Cómo encontrarlo</th><th>Dato</th></tr>
+<tr><td>¡Shie!</td><td>Tocar su cabeza 7 veces seguidas</td><td>Baile de la victoria de Godzilla en <i>Invasion of Astro-Monster</i> (1965)</td></tr>
+<tr><td>Anillos de humo</td><td>Usar el aliento siendo Baby o Little Godzilla</td><td>Minilla, el hijo de Godzilla (1967), soplaba anillos de humo</td></tr>
+<tr><td>Destructor de Oxígeno</td><td>Intentar comprarlo en la tienda</td><td>El arma del Dr. Serizawa, que derrotó al primer Godzilla en 1954</td></tr>
+<tr><td>Modo 1954</td><td>Activar el filtro en blanco y negro</td><td>La película original de Ishirō Honda se filmó en blanco y negro</td></tr>
+<tr><td>Visita de Mothra</td><td>Tocar la punta de la Torre de Tokio</td><td>Mothra tejió su capullo en la Torre de Tokio</td></tr>
+<tr><td>Gorira + Kujira</td><td>Tocar el título ゴジラ en la Kaiju-pedia</td><td>"Gojira" combina <i>gorira</i> (gorila) y <i>kujira</i> (ballena)</td></tr>
+<tr><td>El rugido</td><td>Rugir al micrófono o escuchar el rugido en la Kaiju-pedia</td><td>Akira Ifukube creó el rugido frotando una cuerda de contrabajo con un guante de resina</td></tr>
+<tr><td>Meltdown</td><td>Dejar que la radiación llegue a la fusión</td><td>En <i>Godzilla vs. Destoroyah</i> (1995) su núcleo se fundió y Junior heredó su poder</td></tr>
+<tr><td>¡Terremoto!</td><td>Agitar el teléfono</td><td>Cada paso de Godzilla hacía temblar Tokio</td></tr>
+<tr><td>Misil de cadmio</td><td>Usar un misil de cadmio</td><td>En <i>The Return of Godzilla</i> (1984) usaron cadmio para frenar su reactor</td></tr>
+<tr><td>Nueva York</td><td>Elegir el huevo de Nueva York</td><td>Homenaje a la serie animada de 1998, con rayas granate</td></tr>
+<tr><td>終</td><td>Reiniciar una partida</td><td>Las películas japonesas clásicas terminaban con el kanji 終 (Fin)</td></tr>
+</table>
+
+<h2>14. Funciones que lo distinguen</h2>
+<ul>
+  <li><b>Agitar = terremoto:</b> con el teléfono agitado (aceleración superior a 2,6 g) Godzilla da un pisotón que hace temblar la costa (+4 felicidad). Si estaba dormido, lo despierta de golpe (−8 felicidad). Se puede desactivar en Configuración.</li>
+  <li><b>Rugir al micrófono:</b> durante 4 segundos se mide sólo el volumen. Si supera un umbral, el kaiju responde (+6 felicidad). <b>Nada se graba ni se guarda</b>: el audio sólo existe en memoria. Pide permiso de micrófono y puede desactivarse.</li>
+  <li><b>Foto póster compartible:</b> genera una imagen tipo póster con el título ゴジラ, el nombre del kaiju, su forma y el lugar, y la comparte con el selector de Android.</li>
+  <li><b>Filtros visuales:</b> Normal, <i>Película 1954 (blanco y negro)</i>, <i>Póster retro</i> y <i>Televisor CRT</i>. El filtro en blanco y negro desbloquea el secreto "Modo 1954".</li>
+  <li><b>Clima por estación real:</b> sakura en primavera (marzo–mayo), sol en verano, lluvia en otoño y nieve en invierno, según el mes del teléfono.</li>
+  <li><b>Hora real:</b> la decoración del reloj de la torre Wako muestra la hora del teléfono.</li>
+  <li><b>Kaiju-pedia:</b> colección de formas (la forma sin descubrir aparece como "???"), escenarios visitados, secretos con su dato y un botón para escuchar el rugido sintetizado.</li>
+</ul>
+
+<h2>15. Modo profesor / evaluador</h2>
+<p><b>Cómo activarlo:</b> en la pantalla de título, tocar 7 veces seguidas el kanji ゴジラ; aparece el cuadro para introducir el código. Alternativamente, en <b>Configuración → Modo evaluador</b>. El código es <code>GOJIRA1954</code> (no distingue mayúsculas ni espacios). Requiere haber iniciado sesión y tener una partida creada.</p>
+<p><b>Seguridad de los datos:</b> al entrar, la partida real se copia a un respaldo (id negativo) en la base de datos. Todo lo que se haga en el panel es de prueba. Al pulsar <b>"Salir del modo evaluador"</b> y confirmar, la partida real se restaura y el respaldo se borra. Así el profesor puede mostrar cualquier parte del juego sin dañar la partida del alumno.</p>
+<p><b>Qué hace el panel:</b></p>
+<ul>
+  <li><b>Nivel:</b> botones NV 1 a NV 6 que fijan la experiencia y ajustan la etapa automáticamente.</li>
+  <li><b>Forma:</b> ocho botones (huevo, Baby, Little, Junior, Showa, Heisei, Burning y Shin) que lanzan la animación de evolución.</li>
+  <li><b>Escenario:</b> viaja a cualquier lugar sin requisito de nivel.</li>
+  <li><b>Necesidades:</b> deslizadores para fijar cada uno de los 6 indicadores.</li>
+  <li><b>Eventos y tiempo:</b> "Todo + 9999" (5 de cada consumible, todas las decoraciones, 9999 monedas y todos los escenarios), aliento al 100 %, provocar alerta Kaiju, provocar fusión (radiación 99 %), avanzar 1 hora o 1 día de juego, descubrir todos los secretos y activar el modo demostración.</li>
+</ul>
+
+<h3>Requisitos de la guía y cómo demostrarlos con el modo evaluador</h3>
+<table>
+<tr><th>Requisito de la guía</th><th>Cómo demostrarlo</th></tr>
+<tr><td>Estadísticas visibles (6 indicadores con número)</td><td>Hogar muestra cada barra con su valor; en el panel, "Necesidades" permite fijar cualquiera.</td></tr>
+<tr><td>Deterioro en tiempo real (caso 80 → 64)</td><td>En el panel, fijar alimentación en 80 y pulsar <b>"+1 hora"</b> dos veces. La alimentación baja a 64 sin tocar ningún botón de cuidado. Con la app cerrada se ve igual en la partida real.</td></tr>
+<tr><td>Al menos 5 estados</td><td>Fijar radiación 90 (¡En fusión!), salud 20 (Enfermo), radiación 10 (Sin radiación), alimentación 10 (Hambriento) o energía 10 (Cansado). Hay 10 estados en total.</td></tr>
+<tr><td>Al menos 6 acciones de cuidado</td><td>Hogar tiene 8 botones (Comer, Jugar, Dormir/Despertar, Nadar, Curar, Entrenar, Central y Aliento). Cada uno da retroalimentación y animación.</td></tr>
+<tr><td>Al menos 2 minijuegos</td><td>Pestaña Juegos: Defensa de Tokio y Anillos de Humo desde el nivel 1, Memoria Fuerza G desde el nivel 2 (NV 2 lo desbloquea).</td></tr>
+<tr><td>Tienda e inventario</td><td>"Todo + 9999" da artículos y 9999 monedas; comprar o equipar desde Tienda e Inventario.</td></tr>
+<tr><td>Niveles y progresión</td><td>Botones NV 1 a NV 6; cada nivel muestra su desbloqueo en la pantalla Progreso.</td></tr>
+<tr><td>Alertas (mecánica exclusiva)</td><td>"Alerta Kaiju" en el panel y luego DEFENDER en Hogar. Desde el nivel 3 también aparece sola con cuenta regresiva.</td></tr>
+<tr><td>Misiones</td><td>NV 4 completa el logro "Rey en ascenso" y deja reclamarlo; las diarias se completan con las acciones reales (3 comidas, 2 minijuegos, 2 entrenamientos o 60 min de radiación en zona ideal).</td></tr>
+<tr><td>Evolución con 2 o más rutas</td><td>Botones de forma Showa, Heisei, Burning y Shin; la pantalla Progreso muestra la regla y la ruta prevista.</td></tr>
+<tr><td>Dos mecánicas exclusivas</td><td>Aliento Atómico ("Aliento 100 %") y Alertas Kaiju; además la Radiación con "Provocar fusión".</td></tr>
+<tr><td>Persistencia (base de datos)</td><td>Cerrar la app tras un cambio y reabrirla: el estado sigue igual. Room guarda en <code>godzipet.db</code> con la migración 1 → 2.</td></tr>
+</table>
+
+<h2>16. Seguridad, alertas locales y validaciones</h2>
+<p><b>Contraseñas:</b> PBKDF2-HMAC-SHA256 con <b>120 000 iteraciones</b>, sal aleatoria por cuenta y 256 bits de salida. Las cuentas creadas con la versión 1 usaban PBKDF2-HMAC-SHA1 con 10 000 iteraciones; al iniciar sesión correctamente, su hash se <b>actualiza automáticamente</b> al formato nuevo con una sal nueva. Nunca se guarda la contraseña en texto plano.</p>
+<p><b>Notificaciones</b> (canal "Alertas del kaiju"; en Android 13+ se pide el permiso <code>POST_NOTIFICATIONS</code>): al salir de la app se programan con <code>AlarmManager</code> inexacto (1) el <b>fin del descanso</b> si está dormido, (2) la <b>necesidad crítica</b>, calculando cuándo la alimentación o la higiene llegarán a 20, y (3) el <b>sobrecalentamiento</b> si la radiación está en zona de peligro, dos minutos antes de la fusión. Se cancelan al volver a la app.</p>
+<p><b>Validaciones:</b> límites 0–100 en una sola clase (<code>Necesidades</code>); nombre y usuario con patrón; compras sin saldo; acciones imposibles con mensaje claro; recompensas duplicadas; <b>reinicio con doble confirmación</b> (hay que escribir REINICIAR); nueva partida pide confirmación si ya existe una. Los valores de entrada del modo evaluador también pasan por los mismos límites.</p>
+
+<h2>17. Pruebas (30 JUnit)</h2>
+<p>Pruebas unitarias de la capa <code>modelo</code>, en <code>app/src/test</code>. Se ejecutan sin emulador.</p>
+<table>
+<tr><th>Archivo</th><th>Nº</th><th>Pruebas</th></tr>
+<tr><td><code>NecesidadesTest</code></td><td>3</td><td>losValoresNuncaSalenDelRango · detectaElPeorIndicadorCritico · estadoDependeDeReglasNoDeBotones</td></tr>
+<tr><td><code>RadiacionTest</code></td><td>10</td><td>laRadiacionTieneZonaIdealNoMasEsMejor · laRadiacionBajaTresPorHora · laCentralSubeYNadarEnfria · elMisilDeCadmioEnfriaYEsSecreto · laFusionHaceRenacerAJuniorConLegado · antesDeJuniorNoPuedeFundirse · deCriaElAlientoEsUnAnilloDeHumo · elDestructorDeOxigenoNoSeVendePeroEsSecreto · viajarRequiereNivelYRegistraVisitas · modoProfesorPuedeMostrarCualquierForma</td></tr>
+<tr><td><code>PartidaTest</code></td><td>11</td><td>casoObligatorio_80DeAlimentacionBajaA64TrasDosHoras · elModoDemoAceleraElTiempo · elHuevoEclosionaConCincoToques · alimentarConsumeInventarioYValidaExistencias · dormirRecuperaEnergiaYDespiertaSolo · lasAccionesRespetanEsperasYEnergia · tiendaBloqueaCompraSinSaldoYDecoracionDuplicada · soloSePuedeEquiparLoQueSePosee · misionNoSePuedeReclamarDosVeces · misionDiariaSeRenuevaAlCambiarElDia · subirDeNivelHaceEvolucionarAJuvenilYLuegoAFinal</td></tr>
+<tr><td><code>EvolucionTest</code></td><td>6</td><td>descuidoLlevaAShinGodzilla · radiacionAltaSostenidaLlevaABurning · habitoDeEntrenarLlevaAHeisei · cuidadoEquilibradoLlevaAShowa · nivelesSeCalculanPorExperiencia · compatibilidadConNombresDeLaVersion1</td></tr>
+<tr><td><b>Total</b></td><td><b>30</b></td><td></td></tr>
+</table>
+<p>Además se probó el flujo completo en el emulador Android 14 (capturas en la sección 18).</p>
 
 <div class="salto"></div>
-<h2>13. Capturas</h2>
+<h2>18. Capturas</h2>
 <div class="galeria">
-  <figure><img src="capturas/login.jpg" width="150"><figcaption>Inicio de sesión</figcaption></figure>
-  <figure><img src="capturas/seleccion.jpg" width="150"><figcaption>Selección de huevo</figcaption></figure>
-  <figure><img src="capturas/huevo.jpg" width="150"><figcaption>Huevo por eclosionar</figcaption></figure>
-  <figure><img src="capturas/cria.jpg" width="150"><figcaption>La cría</figcaption></figure>
-  <figure><img src="capturas/pestanas.jpg" width="640"><figcaption>Tienda · Guarida · Misiones · Minijuegos</figcaption></figure>
-  <figure><img src="capturas/evolucion_atomico.jpg" width="340"><figcaption>Evento de evolución → Godzilla Atómico</figcaption></figure>
-  <figure><img src="capturas/formas_finales.jpg" width="640"><figcaption>Salvaje · Guardián · guarida decorada</figcaption></figure>
-  <figure><img src="capturas/alerta_progreso_ajustes.jpg" width="640"><figcaption>Alerta Kaiju · defensa · Progreso · Configuración</figcaption></figure>
-  <figure><img src="capturas/defensa.jpg" width="150"><figcaption>Defensa de la Bahía</figcaption></figure>
-  <figure><img src="capturas/memoria.jpg" width="150"><figcaption>Memoria H.E.A.T.</figcaption></figure>
-  <figure><img src="capturas/caso_obligatorio.jpg" width="300"><figcaption>Reabierta tras 2 h: 80 → 64</figcaption></figure>
+  <figure><img src="capturas/titulo.jpg" width="150"><figcaption>Título animado ゴジラ</figcaption></figure>
+  <figure><img src="capturas/hogar.jpg" width="150"><figcaption>Hogar: Heisei en la Torre de Tokio</figcaption></figure>
+  <figure><img src="capturas/cuidados.jpg" width="150"><figcaption>6 indicadores (radiación con zona ideal) y 8 cuidados</figcaption></figure>
+  <figure><img src="capturas/guarida.jpg" width="150"><figcaption>Guarida washitsu decorada</figcaption></figure>
+  <figure><img src="capturas/formas.jpg" width="680"><figcaption>Baby · Little · Junior · Showa · Heisei · Burning · Shin · Showa — en 8 escenarios japoneses</figcaption></figure>
+  <figure><img src="capturas/mapa.jpg" width="150"><figcaption>Mapa para viajar por Japón</figcaption></figure>
+  <figure><img src="capturas/kaijupedia.jpg" width="150"><figcaption>Kaiju-pedia</figcaption></figure>
+  <figure><img src="capturas/anillos.jpg" width="150"><figcaption>Minijuego Anillos de Humo</figcaption></figure>
+  <figure><img src="capturas/profesor.jpg" width="150"><figcaption>Panel del modo evaluador</figcaption></figure>
+  <figure><img src="capturas/poster.jpg" width="230"><figcaption>Modo foto: póster compartible</figcaption></figure>
+  <figure><img src="capturas/migracion_v1.jpg" width="150"><figcaption>Partida de la v1 migrada a la v2</figcaption></figure>
 </div>
 
-<h2>14. Guion sugerido para la demostración en vivo</h2>
+<h2>19. Guion sugerido para la demostración en vivo</h2>
 <ol>
-  <li>Crear cuenta, elegir huevo, nombrarlo y tocar el huevo hasta que nazca.</li>
-  <li>Mostrar las 6 acciones, incluyendo un error (p. ej. curar sin botiquín o jugar sin energía).</li>
-  <li>Comprar comida y una decoración; colocarla en la guarida.</li>
+  <li>Crear cuenta, elegir un huevo (por ejemplo, el de Nueva York), nombrarlo y tocarlo hasta que nazca.</li>
+  <li>Mostrar las 6 acciones básicas más el aliento, incluyendo un error (p. ej., curar sin botiquín o jugar sin energía).</li>
+  <li>Explicar la <b>radiación</b>: llevarla a una central (sube), nadar (baja) y mostrar la zona ideal de 40–70.</li>
+  <li>Comprar comida y una decoración; colocarla en la guarida. Mostrar que el misil de cadmio es el único que enfría de golpe.</li>
   <li>Jugar un minijuego y reclamar una misión (intentar reclamarla otra vez → bloqueado).</li>
   <li>Activar el modo demostración, cerrar la app 1–2 minutos y reabrir: las barras bajaron solas.</li>
-  <li>Explicar en Progreso la regla de evolución y las 2 mecánicas exclusivas (Aliento Atómico y Alertas Kaiju).</li>
+  <li>Agitar el teléfono (terremoto) y rugir al micrófono; abrir la Kaiju-pedia.</li>
+  <li>Activar el <b>modo evaluador</b> (7 toques en ゴジラ, código <code>GOJIRA1954</code>): fijar 80 de alimentación, pulsar +1 hora dos veces (→ 64), provocar una alerta Kaiju y una fusión, y mostrar las formas finales.</li>
+  <li>Salir del modo evaluador para demostrar que la partida real se restaura intacta.</li>
 </ol>
-<p><b>Ejecutar:</b> abrir la carpeta <code>GodziPet90</code> en Android Studio y pulsar Run, o instalar <code>app/build/outputs/apk/debug/app-debug.apk</code>.</p>
+<p><b>Ejecutar:</b> abrir la carpeta <code>GodziPet90</code> en Android Studio y pulsar Run, o instalar <code>app/build/outputs/apk/debug/app-debug.apk</code>. Las pruebas se ejecutan con <code>./gradlew test</code>.</p>
 </body>
 </html>

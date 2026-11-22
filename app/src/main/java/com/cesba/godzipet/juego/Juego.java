@@ -76,29 +76,43 @@ public final class Juego {
 
     // ------------------------------------------------------------ modo profesor
 
-    /** Respalda la partida real y activa el modo profesor. */
-    public void activarProfesor(Runnable listo) {
-        if (partida == null || uid <= 0 || prefs.profesor()) {
-            listo.run();
+    /**
+     * Respalda la partida real y activa el modo profesor SÓLO si el respaldo se verificó.
+     * El callback recibe true si el modo quedó activo.
+     */
+    public void activarProfesor(Repositorio.Callback<Boolean> listo) {
+        if (prefs.profesor()) {
+            listo.listo(true);
             return;
         }
-        repo.respaldar(uid, partida, () -> {
-            prefs.setProfesor(true);
-            listo.run();
+        if (partida == null || uid <= 0) {
+            listo.listo(false);
+            return;
+        }
+        repo.respaldar(uid, partida, ok -> {
+            if (ok) prefs.setProfesor(true);
+            listo.listo(ok);
         });
     }
 
-    /** Restaura la partida real y sale del modo profesor. */
-    public void desactivarProfesor(Runnable listo) {
+    /**
+     * Restaura la partida real y sale del modo profesor. Si no se encuentra el respaldo, NO se
+     * sobrescribe nada y el modo sigue activo (callback con false).
+     */
+    public void desactivarProfesor(Repositorio.Callback<Boolean> listo) {
         if (!prefs.profesor() || uid <= 0) {
             prefs.setProfesor(false);
-            listo.run();
+            listo.listo(true);
             return;
         }
         repo.restaurarRespaldo(uid, p -> {
-            if (p != null) partida = p;
+            if (p == null) {
+                listo.listo(false);
+                return;
+            }
+            partida = p;
             prefs.setProfesor(false);
-            listo.run();
+            listo.listo(true);
         });
     }
 

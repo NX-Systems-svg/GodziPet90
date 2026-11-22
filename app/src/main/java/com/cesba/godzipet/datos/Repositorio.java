@@ -191,16 +191,20 @@ public final class Repositorio {
     // ------------------------------------------------------------ modo profesor: respaldo
 
     /** Copia la partida real a un espacio de respaldo (id negativo) antes del modo profesor. */
-    public void respaldar(long uid, Partida p, Runnable listo) {
+    public void respaldar(long uid, Partida p, Callback<Boolean> listo) {
         Instantanea s = instantanea(-uid, p);
         disco.execute(() -> {
+            boolean ok;
             try {
                 dao.borrarTodo(-uid);
                 dao.guardarTodo(s);
+                ok = dao.partida(-uid) != null; // verifica que el respaldo exista
             } catch (Exception e) {
                 Log.e(TAG, "respaldar", e);
+                ok = false;
             }
-            principal.post(listo);
+            boolean r = ok;
+            principal.post(() -> listo.listo(r));
         });
     }
 

@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         juego.asegurar(() -> {
             if (juego.prefs().profesorSolicitado()) {
                 juego.prefs().setProfesorSolicitado(false);
-                juego.activarProfesor(() -> startActivity(new Intent(this, ProfesorActivity.class)));
+                startActivity(new Intent(this, ProfesorActivity.class)); // el panel respalda y activa
             }
             findViewById(R.id.bannerProfesor).setVisibility(juego.prefs().profesor() ? View.VISIBLE : View.GONE);
             activo = true;

@@ -36,8 +36,14 @@ public class ProfesorActivity extends AppCompatActivity {
         lista = findViewById(R.id.lista);
         juego = Juego.get(this);
         juego.asegurar(() -> {
-            if (juego.prefs().profesor()) construir();
-            else juego.activarProfesor(this::construir);
+            juego.activarProfesor(ok -> {
+                if (ok) {
+                    construir();
+                } else {
+                    Ui.mensaje(this, "No se pudo respaldar tu partida. El modo evaluador no se activó.", 0xFFB3122E);
+                    lista.postDelayed(this::finish, 2500);
+                }
+            });
         }, this::finish);
     }
 
@@ -131,9 +137,14 @@ public class ProfesorActivity extends AppCompatActivity {
         salir.setOnClickListener(v -> new AlertDialog.Builder(this)
                 .setTitle("Salir del modo evaluador")
                 .setMessage("Se descartarán los cambios de prueba y volverá tu partida real.")
-                .setPositiveButton("Restaurar", (d, w) -> juego.desactivarProfesor(() -> {
-                    Sonidos.ok(this);
-                    finish();
+                .setPositiveButton("Restaurar", (d, w) -> juego.desactivarProfesor(ok -> {
+                    if (ok) {
+                        Sonidos.ok(this);
+                        finish();
+                    } else {
+                        Sonidos.error(this);
+                        Ui.mensaje(this, "No se encontró el respaldo: no se modificó nada y el modo sigue activo.", 0xFFB3122E);
+                    }
                 }))
                 .setNegativeButton("Cancelar", null)
                 .show());

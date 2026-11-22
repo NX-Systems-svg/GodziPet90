@@ -69,8 +69,8 @@ public final class PosterPainter {
         t.setStrokeJoin(Paint.Join.ROUND);
         t.setTextSize(100f);
         float tam = 100f * 900f / Math.max(1f, t.measureText(TITULO));
-        t.setTextSize(Math.min(tam, 300f));
-        float yTit = 235f;
+        t.setTextSize(Math.min(tam, 210f));
+        float yTit = 245f;
         t.setStyle(Paint.Style.STROKE);
         t.setStrokeWidth(t.getTextSize() * 0.16f);
         t.setColor(TINTA);
@@ -81,8 +81,10 @@ public final class PosterPainter {
         c.drawText(TITULO, cx, yTit, t);
 
         // Nombre, forma y lugar
-        texto(c, t, nombreKaiju, cx, 1118f, 92f, 900f, TINTA, true);
-        texto(c, t, forma, cx, 1180f, 44f, 900f, ROJO, true);
+        p.setColor(0xEEF2E6C9); // franja crema para que el texto se lea sobre el sol rojo
+        c.drawRect(80, 1040, 1000, 1250, p);
+        texto(c, t, nombreKaiju, cx, 1112f, 78f, 900f, TINTA, true);
+        texto(c, t, forma, cx, 1172f, 44f, 900f, ROJO, true);
         texto(c, t, lugar, cx, 1232f, 38f, 900f, TINTA, false);
 
         // Pie
