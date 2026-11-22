@@ -16,9 +16,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/** Minijuego 2 (memoria por parejas con temporizador). */
+/** Minijuego (memoria por parejas con temporizador). */
 public class MemoriaActivity extends MinijuegoActivity {
-    private static final String[] SIMBOLOS = {"🐟", "🚁", "🥚", "⚡", "🦀", "🗽", "⚓", "☢"};
+    private static final String[] SIMBOLOS = {"🗻", "🗼", "🍙", "☢", "🦋", "🏯", "⛩", "🐟"};
     private static final int SEGUNDOS = 60;
     private static final int PARES = SIMBOLOS.length;
 

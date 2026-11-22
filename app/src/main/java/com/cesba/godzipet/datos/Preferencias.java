@@ -40,6 +40,10 @@ public final class Preferencias {
     public boolean profesor() { return sp.getBoolean("profesor", false); }
     public void setProfesor(boolean v) { sp.edit().putBoolean("profesor", v).apply(); }
 
+    /** Se ingresó el código en la pantalla de título: activar al cargar la partida. */
+    public boolean profesorSolicitado() { return sp.getBoolean("profesor_solicitado", false); }
+    public void setProfesorSolicitado(boolean v) { sp.edit().putBoolean("profesor_solicitado", v).apply(); }
+
     /** Minutos de juego por minuto real. */
     public double velocidad() { return modoDemo() ? VELOCIDAD_DEMO : 1.0; }
 }

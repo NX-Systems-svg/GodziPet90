@@ -16,6 +16,13 @@
         <item name="alertDialogTheme">@style/Dialogo</item>
     </style>
 
+    <!-- Pantalla de título a pantalla completa -->
+    <style name="Theme.GodziPet.Titulo" parent="Theme.GodziPet">
+        <item name="android:windowBackground">@color/tinta</item>
+        <item name="android:statusBarColor">@color/tinta</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
     <!-- Diálogos con el mismo estilo de cómic que el resto de la app -->
     <style name="Dialogo" parent="Theme.Material3.Dark.Dialog.Alert">
         <item name="android:windowBackground">@drawable/bg_dialogo</item>

@@ -33,6 +33,7 @@ public final class Alertas {
     static final String EXTRA_ID = "id";
     private static final int ID_CRITICA = 1001;
     private static final int ID_DESPERTAR = 1002;
+    private static final int ID_FUSION = 1003;
 
     private Alertas() { }
 
@@ -62,6 +63,10 @@ public final class Alertas {
                     "Terminó su descanso. Ya puede jugar y entrenar.");
         }
         Necesidades n = p.getNecesidades();
+        if (n.get(Stat.RADIACION) >= Necesidades.RAD_ALTA) {
+            alarma(c, ID_FUSION, ahora + (long) (2 * 60000 / velocidad), "☢ ¡" + nombre + " se está sobrecalentando!",
+                    "Su radiación está en zona de peligro. Nada en el mar o usa un misil de cadmio antes de la fusión.");
+        }
         double mult = p.getPersonaje().getRuta().multDeterioro;
         double minAlim = minutosHastaCritico(n.get(Stat.ALIMENTACION), Deterioro.ALIM_HORA * mult);
         double minHig = minutosHastaCritico(n.get(Stat.HIGIENE), Deterioro.HIGIENE_HORA * mult);
@@ -95,6 +100,7 @@ public final class Alertas {
         if (am == null) return;
         am.cancel(intent(c, ID_CRITICA, "", ""));
         am.cancel(intent(c, ID_DESPERTAR, "", ""));
+        am.cancel(intent(c, ID_FUSION, "", ""));
     }
 
     static void mostrar(Context c, int id, String titulo, String texto) {

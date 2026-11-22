@@ -7,7 +7,7 @@
         android:background="@color/contorno" android:orientation="horizontal" android:padding="10dp"
         android:gravity="center_vertical">
         <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
-            android:text="🧠 Memoria H.E.A.T." android:fontFamily="sans-serif-black"
+            android:text="🧠 Memoria Fuerza G" android:fontFamily="sans-serif-black"
             android:textColor="@color/amarillo" android:textSize="17sp" />
         <TextView android:id="@+id/tvTiempo" style="@style/Chip" android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:text="⏱ 60" />

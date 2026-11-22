@@ -50,6 +50,27 @@ public final class Ui {
         s.show();
     }
 
+    /** true si el usuario desactivó las animaciones del sistema (accesibilidad). */
+    public static boolean movimientoReducido(Context c) {
+        try {
+            return android.provider.Settings.Global.getFloat(c.getContentResolver(),
+                    android.provider.Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /** "Aplasta" un botón al pulsarlo (squash) y da respuesta háptica. */
+    public static void pulsar(View v) {
+        v.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY);
+        if (movimientoReducido(v.getContext())) return;
+        v.animate().cancel();
+        v.setScaleX(0.9f);
+        v.setScaleY(0.86f);
+        v.animate().scaleX(1f).scaleY(1f).setDuration(260)
+                .setInterpolator(new android.view.animation.OvershootInterpolator(3f)).start();
+    }
+
     public static TextView boton(Context c, String texto, int fondo) {
         TextView b = new TextView(c, null, 0, R.style.Boton);
         b.setText(texto);

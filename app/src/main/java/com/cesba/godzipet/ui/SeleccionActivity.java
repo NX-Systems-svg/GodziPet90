@@ -81,6 +81,11 @@ public class SeleccionActivity extends AppCompatActivity {
         Juego juego = Juego.get(this);
         long uid = juego.prefs().usuarioId();
         Partida p = Partida.nueva(nombre, elegido, System.currentTimeMillis());
+        if (getIntent().getBooleanExtra(InicioActivity.EXTRA_FIN, false)) {
+            p.descubrir(com.cesba.godzipet.modelo.Secreto.FIN);
+            p.consumirEventos();
+        }
+        juego.prefs().setProfesor(false);
         juego.repo().borrarPartida(uid, () -> {
             juego.establecer(uid, p);
             juego.guardar();

@@ -13,7 +13,7 @@ public class PartidaTest {
     private static final long HORA = 3_600_000L;
 
     private Partida nacida() {
-        Partida p = Partida.nueva("Zilla", OrigenHuevo.MANHATTAN, T0);
+        Partida p = Partida.nueva("Zilla", OrigenHuevo.ISLA_ODO, T0);
         for (int i = 0; i < Personaje.TOQUES_PARA_ECLOSIONAR; i++) p.tocarHuevo();
         p.setAzar(new Random(1));
         return p;
@@ -37,12 +37,12 @@ public class PartidaTest {
 
     @Test
     public void elHuevoEclosionaConCincoToques() {
-        Partida p = Partida.nueva("Zilla", OrigenHuevo.POLINESIA, T0);
+        Partida p = Partida.nueva("Zilla", OrigenHuevo.ADONOA, T0);
         assertEquals(Etapa.HUEVO, p.getPersonaje().getEtapa());
         for (int i = 0; i < 4; i++) p.tocarHuevo();
         assertEquals(Etapa.HUEVO, p.getPersonaje().getEtapa());
         p.tocarHuevo();
-        assertEquals(Etapa.CRIA, p.getPersonaje().getEtapa());
+        assertEquals(Etapa.BEBE, p.getPersonaje().getEtapa());
     }
 
     @Test
@@ -79,9 +79,9 @@ public class PartidaTest {
     @Test
     public void tiendaBloqueaCompraSinSaldoYDecoracionDuplicada() {
         Partida p = nacida();
-        assertTrue(Tienda.comprar(p, "s_conos").ok);
-        assertFalse(Tienda.comprar(p, "s_conos").ok);
-        while (p.getMonedas() >= 8) Tienda.comprar(p, Catalogo.SARDINAS);
+        assertTrue(Tienda.comprar(p, "s_tatami").ok);
+        assertFalse(Tienda.comprar(p, "s_tatami").ok);
+        while (p.getMonedas() >= 8) Tienda.comprar(p, Catalogo.ONIGIRI);
         int monedas = p.getMonedas();
         assertFalse(Tienda.comprar(p, Catalogo.ATUN).ok);
         assertEquals(monedas, p.getMonedas());
@@ -90,10 +90,10 @@ public class PartidaTest {
     @Test
     public void soloSePuedeEquiparLoQueSePosee() {
         Partida p = nacida();
-        assertFalse(Guarida.equipar(p, Slot.SUELO, "s_algas").ok);
-        Tienda.comprar(p, "s_algas");
-        assertFalse(Guarida.equipar(p, Slot.VENTANA, "s_algas").ok);
-        assertTrue(Guarida.equipar(p, Slot.SUELO, "s_algas").ok);
+        assertFalse(Guarida.equipar(p, Slot.SUELO, "s_tatami").ok);
+        Tienda.comprar(p, "s_tatami");
+        assertFalse(Guarida.equipar(p, Slot.VENTANA, "s_tatami").ok);
+        assertTrue(Guarida.equipar(p, Slot.SUELO, "s_tatami").ok);
         assertTrue(Guarida.retirar(p, Slot.SUELO).ok);
     }
 
@@ -120,7 +120,7 @@ public class PartidaTest {
     public void subirDeNivelHaceEvolucionarAJuvenilYLuegoAFinal() {
         Partida p = nacida();
         p.sumarXp(Niveles.UMBRALES[2]);
-        assertEquals(Etapa.JUVENIL, p.getPersonaje().getEtapa());
+        assertEquals(Etapa.JUNIOR, p.getPersonaje().getEtapa());
         p.sumarXp(Niveles.UMBRALES[4]);
         assertEquals(Etapa.FINAL, p.getPersonaje().getEtapa());
         assertTrue(p.getPersonaje().getRuta() != RutaEvolucion.NINGUNA);

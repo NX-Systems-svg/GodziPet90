@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private static final long TICK_MS = 1000;
     private static final int GUARDAR_CADA = 10;
     private static final String[][] PESTANAS = {
-            {"🏠", "Hogar"}, {"🎮", "Juegos"}, {"🛒", "Tienda"}, {"🛋", "Guarida"}, {"🎯", "Misiones"}};
+            {"🏯", "Hogar"}, {"🎮", "Juegos"}, {"🛒", "Tienda"}, {"🎎", "Guarida"}, {"🎯", "Misiones"}};
 
     private final Handler reloj = new Handler(Looper.getMainLooper());
     private final TextView[] tabs = new TextView[PESTANAS.length];
@@ -66,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
         if (b != null) pestana = b.getInt("pestana", 0);
         construirBarra();
         findViewById(R.id.btnAjustes).setOnClickListener(v -> startActivity(new Intent(this, AjustesActivity.class)));
+        findViewById(R.id.btnKaijupedia).setOnClickListener(v -> startActivity(new Intent(this, KaijupediaActivity.class)));
+        findViewById(R.id.bannerProfesor).setOnClickListener(v -> startActivity(new Intent(this, ProfesorActivity.class)));
         findViewById(R.id.chipNivel).setOnClickListener(v -> startActivity(new Intent(this, ProgresoActivity.class)));
         findViewById(R.id.btnDefender).setOnClickListener(v -> defender());
         juego.asegurar(() -> mostrarPestana(pestana, true), this::volverAlInicio);
@@ -94,6 +96,11 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         Alertas.cancelar(this);
         juego.asegurar(() -> {
+            if (juego.prefs().profesorSolicitado()) {
+                juego.prefs().setProfesorSolicitado(false);
+                juego.activarProfesor(() -> startActivity(new Intent(this, ProfesorActivity.class)));
+            }
+            findViewById(R.id.bannerProfesor).setVisibility(juego.prefs().profesor() ? View.VISIBLE : View.GONE);
             activo = true;
             reloj.removeCallbacks(tick);
             reloj.post(tick);
@@ -238,6 +245,19 @@ public class MainActivity extends AppCompatActivity {
                 case ALERTA_FALLIDA:
                     Sonidos.error(this);
                     Ui.mensaje(this, e.mensaje, 0xFFB3122E);
+                    break;
+                case FUSION:
+                    Sonidos.rugido(this);
+                    if (pestana != 0) mostrarPestana(0, false);
+                    Ui.mensaje(this, e.mensaje, 0xFFC8102E);
+                    break;
+                case FUSION_INMINENTE:
+                    Sonidos.error(this);
+                    Ui.mensaje(this, e.mensaje, 0xFFC8102E);
+                    break;
+                case SECRETO:
+                    Sonidos.moneda(this);
+                    Ui.mensaje(this, e.mensaje, 0xFF6A3DB8);
                     break;
                 case SUBIO_NIVEL:
                     Sonidos.moneda(this);

@@ -3,6 +3,10 @@
 
     <!-- Android 13+: permiso en tiempo de ejecución para las alertas locales -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Rugirle al kaiju: sólo se mide el volumen en memoria, nunca se graba -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-feature android:name="android.hardware.microphone" android:required="false" />
+    <uses-feature android:name="android.hardware.sensor.accelerometer" android:required="false" />
 
     <application
         android:allowBackup="true"
@@ -12,13 +16,25 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GodziPet">
 
-        <activity android:name=".ui.LoginActivity" android:exported="true"
-            android:screenOrientation="portrait" android:windowSoftInputMode="adjustResize">
+        <activity android:name=".ui.TituloActivity" android:exported="true"
+            android:screenOrientation="portrait" android:theme="@style/Theme.GodziPet.Titulo">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".ui.LoginActivity" android:exported="false"
+            android:screenOrientation="portrait" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".ui.AnillosActivity" android:exported="false" android:screenOrientation="portrait" />
+        <activity android:name=".ui.MapaActivity" android:exported="false" android:screenOrientation="portrait" />
+        <activity android:name=".ui.KaijupediaActivity" android:exported="false" android:screenOrientation="portrait" />
+        <activity android:name=".ui.ProfesorActivity" android:exported="false" android:screenOrientation="portrait" />
+
+        <provider android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fotos" android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/rutas_fotos" />
+        </provider>
         <activity android:name=".ui.InicioActivity" android:exported="false" android:screenOrientation="portrait"
             android:launchMode="singleTop" />
         <activity android:name=".ui.SeleccionActivity" android:exported="false" android:screenOrientation="portrait"

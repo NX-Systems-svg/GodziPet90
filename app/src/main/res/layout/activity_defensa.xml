@@ -6,8 +6,8 @@
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
         android:background="@color/contorno" android:orientation="horizontal" android:padding="10dp"
         android:gravity="center_vertical">
-        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
-            android:text="🌊 Defensa de la Bahía" android:fontFamily="sans-serif-black"
+        <TextView android:id="@+id/tvTituloJuego" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:text="🏙 Defensa de Tokio" android:fontFamily="sans-serif-black"
             android:textColor="@color/amarillo" android:textSize="17sp" />
         <TextView android:id="@+id/tvTiempo" style="@style/Chip" android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:text="⏱ 30" />
@@ -31,7 +31,7 @@
         android:orientation="horizontal" android:padding="10dp">
         <TextView android:id="@+id/btnAliento" style="@style/Boton" android:layout_width="0dp"
             android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginEnd="6dp"
-            android:text="☢ ALIENTO" />
+            android:text="🔥 ALIENTO" />
         <TextView android:id="@+id/btnSalir" style="@style/Boton" android:layout_width="0dp"
             android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="6dp"
             android:background="@drawable/bg_boton_gris" android:textColor="@color/texto" android:text="SALIR" />

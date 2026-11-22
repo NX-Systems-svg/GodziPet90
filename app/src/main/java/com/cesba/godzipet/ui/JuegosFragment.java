@@ -71,7 +71,8 @@ public class JuegosFragment extends Fragment implements Refrescable {
             Ui.aviso(requireActivity(), acceso);
             return;
         }
-        Class<?> destino = m == Minijuego.DEFENSA ? DefensaActivity.class : MemoriaActivity.class;
+        Class<?> destino = m == Minijuego.DEFENSA ? DefensaActivity.class
+                : m == Minijuego.ANILLOS ? AnillosActivity.class : MemoriaActivity.class;
         startActivity(new Intent(requireContext(), destino));
     }
 

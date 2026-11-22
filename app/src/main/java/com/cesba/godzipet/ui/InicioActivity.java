@@ -21,6 +21,9 @@ import com.cesba.godzipet.vista.KaijuMiniView;
 
 /** Pantalla de partida: continuar, nueva partida, configuración y cierre de sesión. */
 public class InicioActivity extends AppCompatActivity {
+    /** Viene de reiniciar la partida: el próximo juego registra el secreto 終. */
+    public static final String EXTRA_FIN = "fin";
+    private boolean vieneDeFin;
     private Juego juego;
     private Partida guardada;
 
@@ -34,6 +37,7 @@ public class InicioActivity extends AppCompatActivity {
             return;
         }
         setContentView(R.layout.activity_inicio);
+        vieneDeFin = getIntent().getBooleanExtra(EXTRA_FIN, false);
         findViewById(R.id.btnContinuar).setOnClickListener(v -> continuar());
         findViewById(R.id.btnNueva).setOnClickListener(v -> nueva());
         findViewById(R.id.btnAjustes).setOnClickListener(v -> startActivity(new Intent(this, AjustesActivity.class)));
@@ -87,14 +91,14 @@ public class InicioActivity extends AppCompatActivity {
 
     private void nueva() {
         if (guardada == null) {
-            startActivity(new Intent(this, SeleccionActivity.class));
+            startActivity(new Intent(this, SeleccionActivity.class).putExtra(EXTRA_FIN, vieneDeFin));
             return;
         }
         new AlertDialog.Builder(this)
                 .setTitle("¿Empezar de nuevo?")
                 .setMessage("Se borrará a " + guardada.getPersonaje().getNombre()
                         + " con todo su progreso, monedas e inventario. Esta acción no se puede deshacer.")
-                .setPositiveButton("Sí, nueva partida", (d, w) -> startActivity(new Intent(this, SeleccionActivity.class)))
+                .setPositiveButton("Sí, nueva partida", (d, w) -> startActivity(new Intent(this, SeleccionActivity.class).putExtra(EXTRA_FIN, true)))
                 .setNegativeButton("Cancelar", null)
                 .show();
     }

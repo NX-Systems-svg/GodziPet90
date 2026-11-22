@@ -74,6 +74,34 @@ public final class Juego {
         });
     }
 
+    // ------------------------------------------------------------ modo profesor
+
+    /** Respalda la partida real y activa el modo profesor. */
+    public void activarProfesor(Runnable listo) {
+        if (partida == null || uid <= 0 || prefs.profesor()) {
+            listo.run();
+            return;
+        }
+        repo.respaldar(uid, partida, () -> {
+            prefs.setProfesor(true);
+            listo.run();
+        });
+    }
+
+    /** Restaura la partida real y sale del modo profesor. */
+    public void desactivarProfesor(Runnable listo) {
+        if (!prefs.profesor() || uid <= 0) {
+            prefs.setProfesor(false);
+            listo.run();
+            return;
+        }
+        repo.restaurarRespaldo(uid, p -> {
+            if (p != null) partida = p;
+            prefs.setProfesor(false);
+            listo.run();
+        });
+    }
+
     public void olvidar() {
         partida = null;
         uid = -1;
