@@ -36,6 +36,16 @@ public final class Preferencias {
     public boolean agitar() { return sp.getBoolean("agitar", true); }
     public void setAgitar(boolean v) { sp.edit().putBoolean("agitar", v).apply(); }
 
+    public boolean musica() { return sp.getBoolean("musica", true); }
+    public void setMusica(boolean v) { sp.edit().putBoolean("musica", v).apply(); }
+
+    public boolean vibracion() { return sp.getBoolean("vibracion", true); }
+    public void setVibracion(boolean v) { sp.edit().putBoolean("vibracion", v).apply(); }
+
+    /** Parallax por giroscopio (fondos con profundidad). */
+    public boolean inclinacion() { return sp.getBoolean("inclinacion", true); }
+    public void setInclinacion(boolean v) { sp.edit().putBoolean("inclinacion", v).apply(); }
+
     /** Modo profesor activo (la partida real está respaldada). */
     public boolean profesor() { return sp.getBoolean("profesor", false); }
     public void setProfesor(boolean v) { sp.edit().putBoolean("profesor", v).apply(); }

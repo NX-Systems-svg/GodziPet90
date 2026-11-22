@@ -21,6 +21,10 @@ import com.cesba.godzipet.modelo.EstadoAnimo;
 import com.cesba.godzipet.modelo.Escenario;
 import com.cesba.godzipet.modelo.Etapa;
 import com.cesba.godzipet.modelo.Reaccion;
+import com.cesba.godzipet.juego.Inclinacion;
+
+import java.util.Calendar;
+import java.util.Random;
 
 /**
  * Escena principal animada: escenario japonés, clima, el kaiju, su estado de ánimo,
@@ -32,7 +36,14 @@ public class PetView extends View {
         void tocado();
         void toqueCabeza(int seguidos);
         void toqueTorre();
+        /** El jugador frotó al kaiju (caricia). */
+        void caricia();
+        /** Un paso pesado mientras camina. */
+        void pisada();
     }
+
+    private static final int HUELLAS = 10;
+    private static final float VELOCIDAD_PASEO = 0.04f; // fracción del ancho por segundo
 
     private static final long VENTANA_TOQUES_MS = 1300;
 
@@ -61,6 +72,35 @@ public class PetView extends View {
     private float trauma;
     private boolean movimientoReducido;
 
+    // ---- motor 2.5D
+    private final Parallax parallax;
+    private final Efectos3D efectos = new Efectos3D();
+    private final Efectos3D.Params fx = new Efectos3D.Params();
+    private final Render25D render = new Render25D();
+    private final Render25D.Pose pose = new Render25D.Pose();
+    private final Random azar = new Random();
+    private Inclinacion inclinacion;
+    private float noche, atardecer, luzX;
+    private long choqueEn = -1, ondaEn = -1, relampagoEn, proximoRelampago;
+    private float choqueX, choqueY, ondaX, ondaY;
+    // paseo por el escenario
+    private float desplaz, objetivoDesplaz;
+    private boolean caminando, mirandoIzq;
+    private long proximoPaseo = System.currentTimeMillis() + 6000, ultimaPisada;
+    private final float[] huellaX = new float[HUELLAS], huellaY = new float[HUELLAS];
+    private final long[] huellaT = new long[HUELLAS];
+    private int huellaSig;
+    private boolean pieIzq;
+    // comida para arrastrar
+    private String comidaIcono;
+    private Runnable alComer;
+    private float comidaX, comidaY;
+    private boolean arrastrando;
+    private long comidaHasta;
+    // caricias
+    private float recorridoCaricia, ultX, ultY;
+    private long inicioCaricia, ultimaCaricia;
+
     public PetView(Context c) { this(c, null); }
 
     public PetView(Context c, AttributeSet a) {
@@ -69,6 +109,43 @@ public class PetView extends View {
         texto.setTextAlign(Paint.Align.CENTER);
         setContentDescription("Tu kaiju en Japón");
         setHapticFeedbackEnabled(true);
+        parallax = new Parallax(c);
+    }
+
+    public void setInclinacion(Inclinacion i) { inclinacion = i; }
+
+    /** Ofrece una comida que el jugador debe arrastrar hasta la boca del kaiju. */
+    public void ofrecerComida(String icono, Runnable alComer) {
+        this.comidaIcono = icono;
+        this.alComer = alComer;
+        this.arrastrando = false;
+        this.comidaHasta = System.currentTimeMillis() + 15000;
+        comidaX = getWidth() * 0.84f;
+        comidaY = getHeight() * 0.78f;
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int ow, int oh) {
+        super.onSizeChanged(w, h, ow, oh);
+        prepararFondo();
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        parallax.liberar();
+        efectos.quitar(this);
+    }
+
+    private boolean necesitaDia, necesitaNoche;
+
+    /** Carga las capas 3D del escenario (sólo día, sólo noche o ambas en la transición). */
+    private void prepararFondo() {
+        if (getWidth() == 0) return;
+        calcularLuz(apariencia != null && apariencia.animo == EstadoAnimo.DORMIDO);
+        necesitaDia = noche < 1f;
+        necesitaNoche = noche > 0f;
+        parallax.preparar(escenario, getWidth(), getHeight(), necesitaDia, necesitaNoche);
     }
 
     public void setApariencia(Apariencia a) {
@@ -77,7 +154,14 @@ public class PetView extends View {
                 + ", radiación " + Math.round(a.radiacion) + ", en " + escenario.nombre);
     }
 
-    public void setEscenario(Escenario e) { if (e != null) escenario = e; }
+    public void setEscenario(Escenario e) {
+        if (e == null || e == escenario) return;
+        escenario = e;
+        desplaz = 0;
+        objetivoDesplaz = 0;
+        caminando = false;
+        prepararFondo();
+    }
     public void setFiltro(Filtro f) { filtro = f == null ? Filtro.NINGUNO : f; }
     public void setOyente(Oyente o) { oyente = o; }
     public void setMovimientoReducido(boolean r) { movimientoReducido = r; }
@@ -85,7 +169,10 @@ public class PetView extends View {
     public void reaccionar(Reaccion r) {
         reaccion = r;
         reaccionInicio = System.currentTimeMillis();
+        caminando = false;
+        mirandoIzq = false; // se gira hacia el jugador para reaccionar
         emitirInicio(r);
+        iniciarOndas(r);
         switch (r) {
             case TERREMOTO: sacudir(1f); break;
             case ENTRENAR: case FUSION: sacudir(0.5f); break;
@@ -136,21 +223,90 @@ public class PetView extends View {
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent e) {
+        float x = e.getX(), y = e.getY();
         switch (e.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
+                if (comidaIcono != null && Math.hypot(x - comidaX, y - comidaY) < getHeight() * 0.12f) {
+                    arrastrando = true;
+                    comidaHasta = System.currentTimeMillis() + 15000;
+                    return true;
+                }
+                recorridoCaricia = 0;
+                inicioCaricia = System.currentTimeMillis();
+                ultX = x;
+                ultY = y;
+                apuntar(x, y);
+                return true;
             case MotionEvent.ACTION_MOVE:
-                apuntar(e.getX(), e.getY());
+                if (arrastrando) {
+                    comidaX = x;
+                    comidaY = y;
+                    apuntar(x, y);
+                    return true;
+                }
+                acumularCaricia(x, y);
+                apuntar(x, y);
                 return true;
             case MotionEvent.ACTION_UP:
-                apuntar(e.getX(), e.getY());
-                toqueX = e.getX();
-                toqueY = e.getY();
+                if (arrastrando) {
+                    soltarComida();
+                    return true;
+                }
+                apuntar(x, y);
+                toqueX = x;
+                toqueY = y;
                 toqueEn = System.currentTimeMillis();
-                procesarToque(e.getX(), e.getY());
+                if (recorridoCaricia < getWidth() * 0.15f) procesarToque(x, y);
                 performClick();
                 return true;
             default:
                 return super.onTouchEvent(e);
+        }
+    }
+
+    /** Frotar el cuerpo del kaiju (recorrido largo en poco tiempo) cuenta como caricia. */
+    private void acumularCaricia(float x, float y) {
+        if (apariencia == null || apariencia.etapa == Etapa.HUEVO) return;
+        float u = tam() / 100f * apariencia.escalaEtapa();
+        float cx = centroX(), suelo = pies();
+        boolean sobreCuerpo = x > cx - 40 * u && x < cx + 40 * u && y > suelo - 95 * u && y < suelo;
+        if (sobreCuerpo) recorridoCaricia += (float) Math.hypot(x - ultX, y - ultY);
+        ultX = x;
+        ultY = y;
+        long ahora = System.currentTimeMillis();
+        if (recorridoCaricia > getWidth() * 0.9f && ahora - inicioCaricia < 2500 && ahora - ultimaCaricia > 1500) {
+            ultimaCaricia = ahora;
+            recorridoCaricia = 0;
+            inicioCaricia = ahora;
+            if (oyente != null) oyente.caricia();
+        }
+    }
+
+    private final RectF torre3D = new RectF();
+
+    /** Punta de la Torre de Tokio en el render 3D (≈30% del ancho, 12% del alto de la imagen). */
+    private RectF puntaTorre3D() {
+        if (escenario != Escenario.TORRE_TOKIO) return null;
+        float h = getHeight(), anchoImagen = Math.max(getWidth() * 1.25f, h * 1.5f);
+        float x = getWidth() / 2f + (0.30f - 0.5f) * anchoImagen;
+        float y = h * 0.12f;
+        float r = getWidth() * 0.1f;
+        torre3D.set(x - r, y - r, x + r, y + r * 1.4f);
+        return torre3D;
+    }
+
+    private void soltarComida() {
+        arrastrando = false;
+        if (apariencia == null) return;
+        PointF boca = KaijuPainter.boca(centroX(), pies(), tam(), apariencia);
+        if (Math.hypot(comidaX - boca.x, comidaY - boca.y) < tam() * apariencia.escalaEtapa() * 0.3f) {
+            Runnable r = alComer;
+            comidaIcono = null;
+            alComer = null;
+            if (r != null) r.run();
+        } else {
+            comidaX = getWidth() * 0.84f;  // vuelve a su lugar
+            comidaY = getHeight() * 0.78f;
         }
     }
 
@@ -164,7 +320,8 @@ public class PetView extends View {
 
     private void procesarToque(float x, float y) {
         if (oyente == null || apariencia == null) return;
-        RectF torre = escena.puntaTorre(getWidth(), getHeight(), escenario);
+        RectF torre = parallax.disponible(escenario) && parallax.listo()
+                ? puntaTorre3D() : escena.puntaTorre(getWidth(), getHeight(), escenario);
         if (torre != null && torre.contains(x, y)) {
             oyente.toqueTorre();
             return;
@@ -193,7 +350,7 @@ public class PetView extends View {
 
     private float centroX() {
         float u = apariencia == null ? 0 : tam() / 100f * apariencia.escalaEtapa();
-        return getWidth() * 0.5f + (apariencia != null && apariencia.etapa == Etapa.HUEVO ? 0 : 8 * u);
+        return getWidth() * (0.5f + desplaz) + (apariencia != null && apariencia.etapa == Etapa.HUEVO ? 0 : 8 * u);
     }
 
     // ------------------------------------------------------------ dibujo
@@ -212,42 +369,220 @@ public class PetView extends View {
         }
         boolean dormido = apariencia.animo == EstadoAnimo.DORMIDO;
         int momento = EscenaPainter.momento();
+        calcularLuz(dormido);
+        if ((noche < 1f) != necesitaDia || (noche > 0f) != necesitaNoche) prepararFondo();
 
         float pr = reaccion == Reaccion.NINGUNA ? 1f : (ahora - reaccionInicio) / (float) duracion(reaccion);
         if (pr >= 1f) reaccion = Reaccion.NINGUNA;
         actualizarMirada(ahora, dt);
+        actualizarPaseo(ahora, dt);
+        float ix = 0, iy = 0;
+        if (inclinacion != null && !movimientoReducido) {
+            ix = inclinacion.x();
+            iy = inclinacion.y();
+        }
 
         int capa = Filtros.inicio(c, w, h, filtro);
         c.save();
         trauma = Math.max(0, trauma - dt * 1.4f);
         float sac = trauma * trauma;
         c.translate((float) Math.sin(t * 61) * 14 * sac, (float) Math.cos(t * 53) * 10 * sac);
+        aplicarCamaraCine(c, pr);
 
-        escena.dibujarEscenario(c, w, h, escenario, t, momento, dormido);
+        boolean capas3D = parallax.disponible(escenario) && parallax.listo();
+        if (capas3D) parallax.dibujarFondo(c, w, h, ix, iy, t, noche, atardecer);
+        else escena.dibujarEscenario(c, w, h, escenario, t, momento, dormido);
 
         float suelo = pies(), tam = tam(), cx = centroX();
-        float u = tam / 100f * apariencia.escalaEtapa();
-        p.setColor(0x55000000);
-        c.drawOval(cx - 45 * u, suelo - 4 * u, cx + 35 * u, suelo + 3 * u, p);
-
+        dibujarHuellas(c, ahora);
         if (evolucionAntes != null) {
             dibujarEvolucion(c, w, h, cx, suelo, tam, t, ahora);
         } else {
-            dibujarKaiju(c, cx, suelo, tam, t, pr);
+            dibujarKaiju(c, cx, suelo, tam, t, pr, ix, iy);
             if (apariencia.etapa != Etapa.HUEVO) dibujarAnimo(c, cx, suelo, tam, t, ahora);
             dibujarReaccion(c, w, h, cx, suelo, tam, pr);
         }
+        if (capas3D) parallax.dibujarFrente(c, w, h, ix, iy, t, noche);
         if (!movimientoReducido) escena.dibujarClima(c, w, h, clima, t);
+        dibujarRelampago(c, w, h, ahora);
         particulas.dibujar(c, dt);
         if (dormido && evolucionAntes == null) {
             p.setColor(0x44000022);
             c.drawRect(0, 0, w, h, p);
         }
         dibujarSobrecalentamiento(c, w, h, t);
+        dibujarComida(c, t, ahora);
         dibujarToque(c, ahora);
         c.restore();
         Filtros.fin(c, capa, w, h, filtro, t);
+        aplicarEfectosGpu(ahora, t, pr);
         postInvalidateOnAnimation();
+    }
+
+    // ------------------------------------------------------------ luz del día real
+
+    /** noche 0..1 y atardecer 0..1 según el minuto real; también la dirección del sol. */
+    private void calcularLuz(boolean dormido) {
+        Calendar cal = Calendar.getInstance();
+        float hora = cal.get(Calendar.HOUR_OF_DAY) + cal.get(Calendar.MINUTE) / 60f;
+        float n;
+        if (hora >= 7f && hora <= 17.5f) n = 0f;
+        else if (hora > 17.5f && hora < 20f) n = (hora - 17.5f) / 2.5f;
+        else if (hora >= 5f && hora < 7f) n = 1f - (hora - 5f) / 2f;
+        else n = 1f;
+        noche = dormido ? 1f : n;
+        float tarde = 1f - Math.min(1f, Math.abs(hora - 18.5f) / 1.6f);
+        float alba = 0.6f * (1f - Math.min(1f, Math.abs(hora - 6f) / 1.2f));
+        atardecer = dormido ? 0f : Math.max(tarde, alba);
+        luzX = hora >= 6f && hora <= 19f ? Math.max(-1f, Math.min(1f, (hora - 12.5f) / 6f)) : 0.45f;
+    }
+
+    // ------------------------------------------------------------ paseo y huellas
+
+    /** El kaiju pasea solo por el escenario: camina, se detiene y vuelve a pasear. */
+    private void actualizarPaseo(long ahora, float dt) {
+        boolean puede = !movimientoReducido && reaccion == Reaccion.NINGUNA && evolucionAntes == null
+                && apariencia.etapa != Etapa.HUEVO && apariencia.animo != EstadoAnimo.DORMIDO
+                && apariencia.animo != EstadoAnimo.FUSION && apariencia.animo != EstadoAnimo.ENFERMO
+                && comidaIcono == null;
+        if (!puede) {
+            caminando = false;
+            return;
+        }
+        if (!caminando && ahora > proximoPaseo) {
+            objetivoDesplaz = (azar.nextFloat() * 2 - 1) * 0.16f;
+            caminando = Math.abs(objetivoDesplaz - desplaz) > 0.03f;
+            mirandoIzq = objetivoDesplaz < desplaz;
+            proximoPaseo = ahora + 7000 + azar.nextInt(8000);
+        }
+        if (!caminando) {
+            if (ahora > proximoPaseo - 5000) mirandoIzq = false; // vuelve a mirar al jugador
+            return;
+        }
+        float paso = VELOCIDAD_PASEO * dt * (mirandoIzq ? -1 : 1);
+        desplaz += paso;
+        if ((mirandoIzq && desplaz <= objetivoDesplaz) || (!mirandoIzq && desplaz >= objetivoDesplaz)) {
+            desplaz = objetivoDesplaz;
+            caminando = false;
+        }
+        if (ahora - ultimaPisada > 520) {
+            ultimaPisada = ahora;
+            pieIzq = !pieIzq;
+            float u = tam() / 100f * apariencia.escalaEtapa();
+            huellaX[huellaSig] = centroX() + (pieIzq ? -10 : 8) * u;
+            huellaY[huellaSig] = pies() - 1 * u;
+            huellaT[huellaSig] = ahora;
+            huellaSig = (huellaSig + 1) % HUELLAS;
+            sacudir(apariencia.etapa == Etapa.FINAL ? 0.18f : 0.08f);
+            particulas.emitir(Particulas.Tipo.HUMO, centroX(), pies(), 1, u);
+            if (oyente != null && apariencia.etapa.ordinal() >= Etapa.JUNIOR.ordinal()) oyente.pisada();
+        }
+    }
+
+    private void dibujarHuellas(Canvas c, long ahora) {
+        if (apariencia == null) return;
+        float u = tam() / 100f * apariencia.escalaEtapa();
+        for (int i = 0; i < HUELLAS; i++) {
+            long edad = ahora - huellaT[i];
+            if (huellaT[i] == 0 || edad > 9000) continue;
+            p.setColor(Color.argb((int) (70 * (1 - edad / 9000f)), 20, 14, 10));
+            c.drawOval(huellaX[i] - 6 * u, huellaY[i] - 1.6f * u, huellaX[i] + 6 * u, huellaY[i] + 1.6f * u, p);
+        }
+    }
+
+    // ------------------------------------------------------------ cámara de cine
+
+    /** Acercamiento suave durante el aliento atómico y la evolución. */
+    private void aplicarCamaraCine(Canvas c, float pr) {
+        float zoom = 1f;
+        if (reaccion == Reaccion.ALIENTO) {
+            zoom = pr < 0.45f ? 1f + 0.14f * (pr / 0.45f) : 1.14f - 0.14f * Math.min(1f, (pr - 0.45f) / 0.55f);
+        } else if (evolucionAntes != null) {
+            zoom = 1.06f;
+        }
+        if (zoom > 1.001f && apariencia != null) {
+            PointF cab = KaijuPainter.cabeza(centroX(), pies(), tam(), apariencia);
+            c.scale(zoom, zoom, cab.x, cab.y + tam() * 0.2f);
+        }
+    }
+
+    private void dibujarRelampago(Canvas c, float w, float h, long ahora) {
+        if (clima != Clima.LLUVIA || movimientoReducido) return;
+        if (proximoRelampago == 0) proximoRelampago = ahora + 6000 + azar.nextInt(9000);
+        if (ahora > proximoRelampago) {
+            relampagoEn = ahora;
+            proximoRelampago = ahora + 7000 + azar.nextInt(12000);
+            sacudir(0.12f);
+        }
+        float f = (ahora - relampagoEn) / 450f;
+        if (f < 0 || f > 1) return;
+        boolean doble = f > 0.35f && f < 0.5f;
+        p.setColor(Color.argb((int) ((doble ? 140 : 190) * (1 - f)), 225, 235, 255));
+        c.drawRect(0, 0, w, h, p);
+    }
+
+    private void dibujarComida(Canvas c, float t, long ahora) {
+        if (comidaIcono == null) return;
+        if (!arrastrando && ahora > comidaHasta) {
+            comidaIcono = null;
+            alComer = null;
+            return;
+        }
+        float s = tam() / 100f;
+        float bob = arrastrando ? 0 : (float) Math.sin(t * 4) * s * 2;
+        p.setColor(0x55000000);
+        c.drawOval(comidaX - s * 9, comidaY + s * 7, comidaX + s * 9, comidaY + s * 10, p);
+        texto.setTextSize(s * 20);
+        textoContorno(c, comidaIcono, comidaX, comidaY + bob + s * 6, Color.WHITE, 255);
+        if (!arrastrando) {
+            texto.setTextSize(s * 6.5f);
+            textoContorno(c, "¡Arrástralo a su boca!", comidaX - s * 6, comidaY - s * 14, 0xFFFFD23F,
+                    (int) (180 + 75 * Math.sin(t * 5)));
+        }
+    }
+
+    // ------------------------------------------------------------ efectos de GPU (AGSL)
+
+    private void iniciarOndas(Reaccion r) {
+        if (apariencia == null || getWidth() == 0) return;
+        long ahora = System.currentTimeMillis();
+        PointF boca = KaijuPainter.boca(centroX(), pies(), tam(), apariencia);
+        switch (r) {
+            case TERREMOTO: case SHIE:
+                choqueEn = ahora; choqueX = centroX(); choqueY = pies(); break;
+            case RUGIDO: case EVOLUCION:
+                choqueEn = ahora; choqueX = boca.x; choqueY = boca.y; break;
+            case ALIENTO:
+                choqueEn = ahora + 1260; choqueX = getWidth() * 0.92f; choqueY = boca.y; break;
+            case BANAR: case ENFRIAR:
+                ondaEn = ahora; ondaX = centroX(); ondaY = pies(); break;
+            default: break;
+        }
+    }
+
+    private void aplicarEfectosGpu(long ahora, float t, float pr) {
+        if (!Efectos3D.soportado() || movimientoReducido) {
+            efectos.quitar(this);
+            return;
+        }
+        float rad = apariencia.radiacion;
+        fx.calor = (apariencia.etapa == Etapa.FINAL && apariencia.ruta == com.cesba.godzipet.modelo.RutaEvolucion.BURNING ? 0.3f : 0f)
+                + (rad >= 85 ? (rad - 85) / 15f * 0.7f : 0f);
+        fx.choqueX = choqueX;
+        fx.choqueY = choqueY;
+        fx.choqueProgreso = choqueEn < 0 || ahora < choqueEn ? -1 : (ahora - choqueEn) / 750f;
+        if (fx.choqueProgreso > 1) { fx.choqueProgreso = -1; choqueEn = -1; }
+        fx.ondaX = ondaX;
+        fx.ondaY = ondaY;
+        fx.ondaProgreso = ondaEn < 0 ? -1 : (ahora - ondaEn) / 1300f;
+        if (fx.ondaProgreso > 1) { fx.ondaProgreso = -1; ondaEn = -1; }
+        fx.rayos = noche < 0.6f && clima != Clima.LLUVIA ? 0.28f * (1 - noche) : 0f;
+        fx.solX = getWidth() * (0.5f + luzX * 0.4f);
+        fx.solY = getHeight() * 0.1f;
+        boolean disparo = reaccion == Reaccion.ALIENTO && pr > 0.45f && pr < 0.9f;
+        fx.bloom = disparo ? 0.85f : reaccion == Reaccion.CENTRAL ? 0.45f : rad >= 85 ? 0.3f : noche * 0.15f;
+        fx.vineta = evolucionAntes != null ? 0.7f : 0.3f;
+        efectos.aplicar(this, t, fx);
     }
 
     private void actualizarMirada(long ahora, float dt) {
@@ -261,7 +596,7 @@ public class PetView extends View {
         kaiju.setMirada(miradaX, miradaY);
     }
 
-    private void dibujarKaiju(Canvas c, float cx, float suelo, float tam, float t, float pr) {
+    private void dibujarKaiju(Canvas c, float cx, float suelo, float tam, float t, float pr, float ix, float iy) {
         float saltoY = 0, jaw = 0, sx = 0, giro = 0, carga = 0;
         float s = tam / 100f;
         switch (reaccion) {
@@ -276,6 +611,7 @@ public class PetView extends View {
             case ENTRENAR: saltoY = -(float) Math.abs(Math.sin(pr * Math.PI * 3)) * 10; jaw = 0.6f; break;
             case TERREMOTO: saltoY = pr < 0.25f ? -pr * 4 * 30 * s : 0; jaw = 0.5f; break;
             case RUGIDO: jaw = pr < 0.85f ? 1f : 0; break;
+            case CARICIA: saltoY = -(float) Math.abs(Math.sin(pr * Math.PI * 4)) * 4; break;
             case SHIE:
                 saltoY = -(float) Math.sin(Math.min(1, pr * 1.6f) * Math.PI) * 28 * s;
                 giro = (float) Math.sin(Math.min(1, pr * 1.6f) * Math.PI) * -14;
@@ -284,10 +620,29 @@ public class PetView extends View {
             case ERROR: sx = (float) Math.sin(pr * 40) * 6 * (1 - pr); break;
             default: break;
         }
+        if (caminando) saltoY -= (float) Math.abs(Math.sin((System.currentTimeMillis() - ultimaPisada) / 520f * Math.PI)) * 2.5f * s;
         kaiju.setCargaPlacas(carga);
+
+        pose.cx = cx + sx;
+        pose.suelo = suelo + saltoY;
+        pose.tam = tam;
+        pose.t = t;
+        pose.mandibula = jaw;
+        pose.luzX = luzX;
+        pose.fuerzaSombra = (1 - noche * 0.6f) * (saltoY < -2 ? 0.7f : 1f);
+        pose.fuerzaContraluz = apariencia.etapa == Etapa.HUEVO ? 0.35f : 0.75f;
+        pose.inclX = ix;
+        pose.inclY = iy;
+        pose.espejo = mirandoIzq;
+        pose.sueloMojado = clima == Clima.LLUVIA || (noche > 0.5f && (escenario == Escenario.GINZA
+                || escenario == Escenario.BAHIA_TOKIO));
+        int colorLuz = reaccion == Reaccion.ALIENTO || apariencia.radiacion >= 85 ? 0xFF7FEBFF
+                : noche > 0.6f ? 0xFF9FC8FF : atardecer > 0.4f ? 0xFFFFB070 : 0xFFFFF2C0;
+        render.setColorContraluz(colorLuz);
+
         c.save();
         if (giro != 0) c.rotate(giro, cx, suelo);
-        kaiju.dibujar(c, cx + sx, suelo + saltoY, tam, apariencia, t, jaw, false);
+        render.dibujar(c, kaiju, apariencia, pose);
         c.restore();
     }
 
@@ -373,6 +728,7 @@ public class PetView extends View {
         int n = movimientoReducido ? 4 : 1;
         switch (r) {
             case JUGAR: particulas.emitir(Particulas.Tipo.CORAZON, cx, suelo - s * 60, 8 / n, s); break;
+            case CARICIA: particulas.emitir(Particulas.Tipo.CORAZON, cx, suelo - s * 70, 5 / n, s); break;
             case BANAR: particulas.emitir(Particulas.Tipo.BURBUJA, cx, suelo - s * 30, 18 / n, s); break;
             case CURAR: particulas.emitir(Particulas.Tipo.CORAZON, cx, suelo - s * 50, 6 / n, s); break;
             case ENTRENAR: case TERREMOTO:

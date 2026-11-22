@@ -19,6 +19,8 @@ import androidx.fragment.app.Fragment;
 import com.cesba.godzipet.R;
 import com.cesba.godzipet.juego.Alertas;
 import com.cesba.godzipet.juego.Juego;
+import com.cesba.godzipet.juego.Musica;
+import com.cesba.godzipet.juego.WidgetKaiju;
 import com.cesba.godzipet.juego.Sonidos;
 import com.cesba.godzipet.modelo.AlertaKaiju;
 import com.cesba.godzipet.modelo.Evento;
@@ -101,6 +103,10 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(this, ProfesorActivity.class)); // el panel respalda y activa
             }
             findViewById(R.id.bannerProfesor).setVisibility(juego.prefs().profesor() ? View.VISIBLE : View.GONE);
+            if (juego.prefs().musica() && juego.prefs().sonido()) {
+                Musica.get().setEscenario(juego.partida().getEscenario());
+                Musica.get().iniciar();
+            }
             activo = true;
             reloj.removeCallbacks(tick);
             reloj.post(tick);
@@ -112,6 +118,7 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
         activo = false;
         reloj.removeCallbacks(tick);
+        Musica.get().detener();
         if (juego.partida() != null) {
             juego.tick();
             juego.guardar();
@@ -122,6 +129,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         if (juego.partida() != null) Alertas.programar(this, juego.partida(), juego.velocidad());
+        WidgetKaiju.actualizar(this);
     }
 
     // ------------------------------------------------------------ navegación

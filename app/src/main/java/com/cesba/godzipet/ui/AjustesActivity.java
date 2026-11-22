@@ -46,6 +46,11 @@ public class AjustesActivity extends AppCompatActivity {
                     pr.setModoDemo(on);
                     juego.guardar();
                 }));
+        panel.addView(interruptor("🎵 Música japonesa", "Koto y taiko sintetizados, distintos en cada escenario",
+                pr.musica(), (v, on) -> pr.setMusica(on)));
+        panel.addView(interruptor("📳 Vibración", "Pisadas, rugidos y ronroneo", pr.vibracion(), (v, on) -> pr.setVibracion(on)));
+        panel.addView(interruptor("🌀 Profundidad 3D", "Los fondos se mueven al inclinar el teléfono (giroscopio)",
+                pr.inclinacion(), (v, on) -> pr.setInclinacion(on)));
         panel.addView(interruptor("📳 Agitar = terremoto", "Agita el teléfono para que Godzilla dé un pisotón",
                 pr.agitar(), (v, on) -> pr.setAgitar(on)));
         panel.addView(interruptor("🎤 Micrófono", "Rugirle al teléfono (sólo mide el volumen, no graba nada)",

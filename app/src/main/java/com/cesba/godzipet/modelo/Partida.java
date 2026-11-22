@@ -332,6 +332,15 @@ public final class Partida {
         return Resultado.exito("¡GRAAAOOOR! Te reconoció como parte de su manada (+6 😊).", Reaccion.RUGIDO);
     }
 
+    /** Acariciarlo frotando la pantalla: ronronea (+3 felicidad, espera de 20 s). */
+    public Resultado acariciar(long ahora) {
+        if (personaje.getEtapa() == Etapa.HUEVO) return Resultado.error("El huevo está tibio…");
+        if (personaje.isDormido()) return Resultado.exito("Lo acaricias mientras duerme. Sonríe en sueños.", Reaccion.CARICIA);
+        if (!esperaLibre(ahora)) return Resultado.exito("Ronronea como un volcán dormido.", Reaccion.CARICIA);
+        necesidades.cambiar(Stat.FELICIDAD, 3);
+        return Resultado.exito("¡Le encantan las caricias! Ronronea como un volcán dormido (+3 😊).", Reaccion.CARICIA);
+    }
+
     /** Easter egg: 7 toques en la cabeza → el baile ¡Shie! de 1965. */
     public Resultado shie() {
         if (personaje.getEtapa() == Etapa.HUEVO) return Resultado.error("Aún es un huevo.");

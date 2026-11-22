@@ -1,8 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- CONTRATO: el agente de widget rediseña este layout. -->
+<!-- Widget de inicio: tarjeta azul marino con el kaiju y tres barras. Sólo vistas permitidas en RemoteViews. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widgetRaiz" android:layout_width="match_parent" android:layout_height="match_parent"
-    android:orientation="vertical" android:background="#FF0E1630" android:padding="8dp">
-    <TextView android:id="@+id/widgetTexto" android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:textColor="#FFF3F6FF" android:text="Godzi-Pet 90" />
+    android:orientation="horizontal" android:gravity="center_vertical"
+    android:background="@drawable/widget_fondo" android:padding="10dp">
+
+    <ImageView android:id="@+id/widgetKaiju" android:layout_width="84dp" android:layout_height="84dp"
+        android:scaleType="fitCenter" android:contentDescription="Tu kaiju" />
+
+    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+        android:orientation="vertical" android:layout_marginStart="8dp">
+        <TextView android:id="@+id/widgetNombre" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textColor="#FFF3F6FF" android:textSize="15sp" android:textStyle="bold"
+            android:maxLines="1" android:ellipsize="end" android:text="Godzi-Pet 90" />
+        <TextView android:id="@+id/widgetEstado" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textColor="#FFB8C4E6" android:textSize="11sp" android:maxLines="2" android:ellipsize="end" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="3dp">
+            <TextView android:id="@+id/widgetComidaTxt" android:layout_width="34dp" android:layout_height="wrap_content"
+                android:textColor="#FFF3F6FF" android:textSize="11sp" android:text="🍙" />
+            <ProgressBar android:id="@+id/widgetComidaBarra" style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="0dp" android:layout_height="8dp" android:layout_weight="1"
+                android:max="100" android:progressDrawable="@drawable/widget_barra_comida" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="3dp">
+            <TextView android:id="@+id/widgetFelizTxt" android:layout_width="34dp" android:layout_height="wrap_content"
+                android:textColor="#FFF3F6FF" android:textSize="11sp" android:text="😊" />
+            <ProgressBar android:id="@+id/widgetFelizBarra" style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="0dp" android:layout_height="8dp" android:layout_weight="1"
+                android:max="100" android:progressDrawable="@drawable/widget_barra_feliz" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="3dp">
+            <TextView android:id="@+id/widgetRadTxt" android:layout_width="34dp" android:layout_height="wrap_content"
+                android:textColor="#FFF3F6FF" android:textSize="11sp" android:text="☢" />
+            <ProgressBar android:id="@+id/widgetRadBarra" style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="0dp" android:layout_height="8dp" android:layout_weight="1"
+                android:max="100" android:progressDrawable="@drawable/widget_barra_rad" />
+        </LinearLayout>
+        <TextView android:id="@+id/widgetRadTexto" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="2dp" android:textColor="#FF7CFF4F" android:textSize="11sp" android:maxLines="1" />
+    </LinearLayout>
 </LinearLayout>

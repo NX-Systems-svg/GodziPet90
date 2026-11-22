@@ -22,6 +22,9 @@ import androidx.fragment.app.Fragment;
 
 import com.cesba.godzipet.R;
 import com.cesba.godzipet.juego.DetectorAgitar;
+import com.cesba.godzipet.juego.Inclinacion;
+import com.cesba.godzipet.juego.Musica;
+import com.cesba.godzipet.juego.Vibracion;
 import com.cesba.godzipet.juego.Juego;
 import com.cesba.godzipet.juego.Microfono;
 import com.cesba.godzipet.juego.Sonidos;
@@ -63,6 +66,7 @@ public class HogarFragment extends Fragment implements Refrescable, PetView.Oyen
     private long mensajeHasta;
     private DetectorAgitar agitar;
     private final Microfono microfono = new Microfono();
+    private Inclinacion inclinacion;
 
     private final ActivityResultLauncher<String> permisoMic =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), ok -> {
@@ -86,6 +90,8 @@ public class HogarFragment extends Fragment implements Refrescable, PetView.Oyen
         btnAliento.setOnClickListener(x -> ejecutar(Cuidados.alientoAtomico(partida())));
         tvLugar.setOnClickListener(x -> startActivity(new Intent(requireContext(), MapaActivity.class)));
         agitar = new DetectorAgitar(requireContext(), this::terremoto);
+        inclinacion = new Inclinacion(requireContext());
+        petView.setInclinacion(inclinacion);
         return v;
     }
 
@@ -93,6 +99,7 @@ public class HogarFragment extends Fragment implements Refrescable, PetView.Oyen
     public void onResume() {
         super.onResume();
         if (Juego.get(requireContext()).prefs().agitar()) agitar.iniciar();
+        if (Juego.get(requireContext()).prefs().inclinacion()) inclinacion.iniciar();
         petView.setFiltro(Filtro.desde(Juego.get(requireContext()).prefs().filtro()));
         refrescar();
     }
@@ -101,6 +108,7 @@ public class HogarFragment extends Fragment implements Refrescable, PetView.Oyen
     public void onPause() {
         super.onPause();
         agitar.detener();
+        inclinacion.detener();
         microfono.detener();
     }
 
@@ -168,14 +176,21 @@ public class HogarFragment extends Fragment implements Refrescable, PetView.Oyen
     private void construirExtras(LinearLayout fila) {
         TextView foto = Ui.boton(requireContext(), "📷 Foto póster", R.drawable.bg_boton_amarillo);
         TextView rugir = Ui.boton(requireContext(), "🎤 Rugirle", R.drawable.bg_boton_rosa);
+        TextView ar = Ui.boton(requireContext(), "📱 En tu cuarto", R.drawable.bg_boton_verde);
+        foto.setText("📷 Póster");
         foto.setTextSize(13);
         rugir.setTextSize(13);
+        ar.setTextSize(13);
         LinearLayout.LayoutParams a = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
         a.setMarginEnd(Ui.dp(requireContext(), 6));
         LinearLayout.LayoutParams bp = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
         bp.setMarginStart(Ui.dp(requireContext(), 6));
+        LinearLayout.LayoutParams cp = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
+        cp.setMarginStart(Ui.dp(requireContext(), 6));
         fila.addView(foto, a);
         fila.addView(rugir, bp);
+        fila.addView(ar, cp);
+        ar.setOnClickListener(x -> startActivity(new Intent(requireContext(), CamaraActivity.class)));
         foto.setOnClickListener(x -> compartirFoto());
         rugir.setOnClickListener(x -> pedirRugido());
     }
@@ -223,9 +238,34 @@ public class HogarFragment extends Fragment implements Refrescable, PetView.Oyen
         }
         new AlertDialog.Builder(requireContext())
                 .setTitle("¿Qué le das de comer?")
-                .setItems(opciones, (d, w) -> ejecutar(Cuidados.alimentar(p, comidas.get(w).id)))
+                .setItems(opciones, (d, w) -> ofrecer(p, comidas.get(w)))
                 .setNegativeButton("Cancelar", null)
                 .show();
+    }
+
+    /** La comida aparece en la escena y el jugador la arrastra hasta la boca del kaiju. */
+    private void ofrecer(Partida p, Articulo a) {
+        if (p.getPersonaje().isDormido() || Ui.movimientoReducido(requireContext())) {
+            ejecutar(Cuidados.alimentar(p, a.id));
+            return;
+        }
+        mostrarMensaje("👆 Arrastra " + a.icono + " " + a.nombre + " hasta su boca.");
+        petView.ofrecerComida(a.icono, () -> {
+            if (isAdded()) ejecutar(Cuidados.alimentar(partida(), a.id));
+        });
+    }
+
+    @Override
+    public void caricia() {
+        Partida p = partida();
+        if (p == null) return;
+        Vibracion.ronroneo(requireContext());
+        ejecutar(p.acariciar(System.currentTimeMillis()));
+    }
+
+    @Override
+    public void pisada() {
+        if (isAdded()) Vibracion.pisada(requireContext());
     }
 
     private void terremoto() {
@@ -299,8 +339,10 @@ public class HogarFragment extends Fragment implements Refrescable, PetView.Oyen
         if (r == null || !isAdded()) return;
         reaccionar(r);
         if (r.reaccion == Reaccion.ALIENTO || r.reaccion == Reaccion.ECLOSION || r.reaccion == Reaccion.TERREMOTO
-                || r.reaccion == Reaccion.SHIE || r.reaccion == Reaccion.ANILLO_HUMO) {
+                || r.reaccion == Reaccion.SHIE || r.reaccion == Reaccion.ANILLO_HUMO || r.reaccion == Reaccion.RUGIDO) {
             Sonidos.rugido(requireContext());
+            if (r.reaccion == Reaccion.TERREMOTO) Vibracion.terremoto(requireContext());
+            else Vibracion.rugido(requireContext());
         }
         ((MainActivity) requireActivity()).despuesDeAccion(r);
     }
@@ -361,6 +403,7 @@ public class HogarFragment extends Fragment implements Refrescable, PetView.Oyen
         }
         petView.setApariencia(ap);
         petView.setEscenario(p.getEscenario());
+        Musica.get().setEscenario(p.getEscenario());
         boolean huevo = p.getPersonaje().getEtapa() == Etapa.HUEVO;
         tvEstado.setText(huevo ? "🥚 Huevo" : p.getPersonaje().nombreForma() + " · " + p.getEstado().nombre);
         tvLugar.setText("📍 " + p.getEscenario().nombre + " " + p.getEscenario().kanji);

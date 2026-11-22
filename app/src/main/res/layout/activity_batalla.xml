@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/raiz" android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@color/fondo" android:fitsSystemWindows="true">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:background="@color/contorno" android:orientation="horizontal" android:padding="10dp"
+        android:gravity="center_vertical">
+        <TextView android:id="@+id/tvTituloJuego" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:text="🤖 Batalla Mecha-Kaiju" android:fontFamily="sans-serif-black"
+            android:textColor="@color/amarillo" android:textSize="17sp" />
+        <TextView android:id="@+id/tvTiempo" style="@style/Chip" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="⏱ 60" />
+    </LinearLayout>
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:paddingStart="12dp" android:paddingEnd="12dp"
+        android:paddingTop="8dp" android:paddingBottom="8dp">
+        <TextView android:id="@+id/tvJefe" style="@style/Chip" android:layout_width="0dp"
+            android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center"
+            android:textColor="@color/rojo" android:layout_marginEnd="6dp" />
+        <TextView android:id="@+id/tvVida" style="@style/Chip" android:layout_width="0dp"
+            android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center"
+            android:textColor="@color/atomico" android:layout_marginStart="6dp" />
+    </LinearLayout>
+
+    <com.cesba.godzipet.vista.BatallaView android:id="@+id/juego" android:layout_width="match_parent"
+        android:layout_height="0dp" android:layout_weight="1" />
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:padding="10dp">
+        <TextView android:id="@+id/btnAliento" style="@style/Boton" android:layout_width="0dp"
+            android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginEnd="6dp"
+            android:text="🔥 ALIENTO 100%" />
+        <TextView android:id="@+id/btnSalir" style="@style/Boton" android:layout_width="0dp"
+            android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="6dp"
+            android:background="@drawable/bg_boton_gris" android:textColor="@color/texto" android:text="SALIR" />
+    </LinearLayout>
+</LinearLayout>
