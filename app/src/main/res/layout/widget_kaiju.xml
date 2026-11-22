@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- CONTRATO: el agente de widget rediseña este layout. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widgetRaiz" android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="#FF0E1630" android:padding="8dp">
+    <TextView android:id="@+id/widgetTexto" android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:textColor="#FFF3F6FF" android:text="Godzi-Pet 90" />
+</LinearLayout>

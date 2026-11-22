@@ -14,7 +14,12 @@ public enum Minijuego {
     MEMORIA("memoria", "Memoria Fuerza G", "🧠",
             "Encuentra las 8 parejas de cartas de la Fuerza G antes de que se acaben los 60 segundos. "
                     + "Mientras más rápido termines, mayor el premio.",
-            2, 10);
+            2, 10),
+    BATALLA("batalla", "Batalla contra Mecha-Kaiju", "🤖",
+            "Un robot gigante ataca Tokio. Toca sus misiles para destruirlos antes de que te alcancen y "
+                    + "mantén presionado para cargar el aliento atómico: suéltalo para dispararle. "
+                    + "Derrótalo en 60 segundos sin quedarte sin vida.",
+            3, 25);
 
     public final String id;
     public final String nombre;
@@ -36,6 +41,7 @@ public enum Minijuego {
     public int monedas(int puntaje, boolean gano) {
         if (this == DEFENSA) return puntaje / 5 + (gano ? 20 : 0);
         if (this == ANILLOS) return puntaje / 5 + (gano ? 15 : 0);
+        if (this == BATALLA) return puntaje / 5 + (gano ? 40 : 0);
         return puntaje / 4 + (gano ? 15 : 0);
     }
 
