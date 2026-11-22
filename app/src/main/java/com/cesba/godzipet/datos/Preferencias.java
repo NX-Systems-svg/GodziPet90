@@ -42,6 +42,10 @@ public final class Preferencias {
     public boolean vibracion() { return sp.getBoolean("vibracion", true); }
     public void setVibracion(boolean v) { sp.edit().putBoolean("vibracion", v).apply(); }
 
+    /** Efectos de GPU (shaders AGSL: calor, ondas, rayos de luz, resplandor). */
+    public boolean efectosGpu() { return sp.getBoolean("efectos_gpu", true); }
+    public void setEfectosGpu(boolean v) { sp.edit().putBoolean("efectos_gpu", v).apply(); }
+
     /** Parallax por giroscopio (fondos con profundidad). */
     public boolean inclinacion() { return sp.getBoolean("inclinacion", true); }
     public void setInclinacion(boolean v) { sp.edit().putBoolean("inclinacion", v).apply(); }

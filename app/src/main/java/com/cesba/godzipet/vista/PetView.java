@@ -96,7 +96,7 @@ public class PetView extends View {
     private Runnable alComer;
     private float comidaX, comidaY;
     private boolean arrastrando;
-    private long comidaHasta;
+    private long comidaHasta, comidaArrastradaEn;
     // caricias
     private float recorridoCaricia, ultX, ultY;
     private long inicioCaricia, ultimaCaricia;
@@ -114,14 +114,27 @@ public class PetView extends View {
 
     public void setInclinacion(Inclinacion i) { inclinacion = i; }
 
+    private boolean efectosGpu = true;
+    private float ultCalor = -1, ultRayos = -1, ultBloom = -1, ultVineta = -1;
+
+    /** Activa o desactiva los shaders de GPU (ajuste del jugador). */
+    public void setEfectosGpu(boolean activos) {
+        efectosGpu = activos;
+        if (!activos) efectos.quitar(this);
+    }
+
+    /** Los emuladores de Android Studio pierden el contexto gráfico con RenderEffect animado. */
+    private static final boolean EMULADOR = android.os.Build.HARDWARE.contains("ranchu")
+            || android.os.Build.HARDWARE.contains("goldfish") || android.os.Build.FINGERPRINT.contains("generic");
+
     /** Ofrece una comida que el jugador debe arrastrar hasta la boca del kaiju. */
     public void ofrecerComida(String icono, Runnable alComer) {
         this.comidaIcono = icono;
         this.alComer = alComer;
         this.arrastrando = false;
         this.comidaHasta = System.currentTimeMillis() + 15000;
-        comidaX = getWidth() * 0.84f;
-        comidaY = getHeight() * 0.78f;
+        comidaX = getWidth() * 0.15f;
+        comidaY = getHeight() * 0.8f;
     }
 
     @Override
@@ -227,10 +240,13 @@ public class PetView extends View {
         switch (e.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
                 if (comidaIcono != null && Math.hypot(x - comidaX, y - comidaY) < getHeight() * 0.12f) {
+                    if (getParent() != null) getParent().requestDisallowInterceptTouchEvent(true);
                     arrastrando = true;
                     comidaHasta = System.currentTimeMillis() + 15000;
                     return true;
                 }
+                // sobre el kaiju la escena se queda con el gesto (caricias); fuera de él se puede hacer scroll
+                if (sobreKaiju(x, y) && getParent() != null) getParent().requestDisallowInterceptTouchEvent(true);
                 recorridoCaricia = 0;
                 inicioCaricia = System.currentTimeMillis();
                 ultX = x;
@@ -262,6 +278,13 @@ public class PetView extends View {
             default:
                 return super.onTouchEvent(e);
         }
+    }
+
+    private boolean sobreKaiju(float x, float y) {
+        if (apariencia == null || apariencia.etapa == Etapa.HUEVO) return false;
+        float u = tam() / 100f * apariencia.escalaEtapa();
+        float cx = centroX(), suelo = pies();
+        return x > cx - 40 * u && x < cx + 40 * u && y > suelo - 95 * u && y < suelo;
     }
 
     /** Frotar el cuerpo del kaiju (recorrido largo en poco tiempo) cuenta como caricia. */
@@ -301,12 +324,13 @@ public class PetView extends View {
         PointF boca = KaijuPainter.boca(centroX(), pies(), tam(), apariencia);
         if (Math.hypot(comidaX - boca.x, comidaY - boca.y) < tam() * apariencia.escalaEtapa() * 0.3f) {
             Runnable r = alComer;
+            comidaArrastradaEn = System.currentTimeMillis();
             comidaIcono = null;
             alComer = null;
             if (r != null) r.run();
         } else {
-            comidaX = getWidth() * 0.84f;  // vuelve a su lugar
-            comidaY = getHeight() * 0.78f;
+            comidaX = getWidth() * 0.15f;  // vuelve a su lugar
+            comidaY = getHeight() * 0.8f;
         }
     }
 
@@ -536,7 +560,7 @@ public class PetView extends View {
         textoContorno(c, comidaIcono, comidaX, comidaY + bob + s * 6, Color.WHITE, 255);
         if (!arrastrando) {
             texto.setTextSize(s * 6.5f);
-            textoContorno(c, "¡Arrástralo a su boca!", comidaX - s * 6, comidaY - s * 14, 0xFFFFD23F,
+            textoContorno(c, "¡Arrástralo a su boca!", comidaX + s * 14, comidaY - s * 14, 0xFFFFD23F,
                     (int) (180 + 75 * Math.sin(t * 5)));
         }
     }
@@ -561,8 +585,9 @@ public class PetView extends View {
     }
 
     private void aplicarEfectosGpu(long ahora, float t, float pr) {
-        if (!Efectos3D.soportado() || movimientoReducido) {
-            efectos.quitar(this);
+        if (!Efectos3D.soportado() || movimientoReducido || !efectosGpu || EMULADOR) {
+            if (ultVineta >= 0) efectos.quitar(this);
+            ultVineta = -1;
             return;
         }
         float rad = apariencia.radiacion;
@@ -582,6 +607,15 @@ public class PetView extends View {
         boolean disparo = reaccion == Reaccion.ALIENTO && pr > 0.45f && pr < 0.9f;
         fx.bloom = disparo ? 0.85f : reaccion == Reaccion.CENTRAL ? 0.45f : rad >= 85 ? 0.3f : noche * 0.15f;
         fx.vineta = evolucionAntes != null ? 0.7f : 0.3f;
+        // sólo se recrea el efecto si algo cambia o hay una animación que depende del tiempo
+        boolean animado = fx.calor > 0 || fx.choqueProgreso >= 0 || fx.ondaProgreso >= 0;
+        boolean cambio = Math.abs(fx.calor - ultCalor) > 0.01f || Math.abs(fx.rayos - ultRayos) > 0.01f
+                || Math.abs(fx.bloom - ultBloom) > 0.01f || Math.abs(fx.vineta - ultVineta) > 0.01f;
+        if (!animado && !cambio) return;
+        ultCalor = fx.calor;
+        ultRayos = fx.rayos;
+        ultBloom = fx.bloom;
+        ultVineta = fx.vineta;
         efectos.aplicar(this, t, fx);
     }
 
@@ -784,7 +818,7 @@ public class PetView extends View {
                 float f = Math.min(1f, pr * 2.2f);
                 float fx = w * 0.95f + (boca.x - w * 0.95f) * f;
                 float fy = h * 0.3f + (boca.y - h * 0.3f) * f - (float) Math.sin(f * Math.PI) * h * 0.12f;
-                if (f < 1f) {
+                if (f < 1f && System.currentTimeMillis() - comidaArrastradaEn > 2500) {
                     texto.setTextSize(s * 14);
                     textoContorno(c, "🍙", fx, fy, Color.WHITE, 255);
                 }

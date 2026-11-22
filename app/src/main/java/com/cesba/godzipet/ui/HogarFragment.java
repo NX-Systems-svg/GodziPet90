@@ -101,6 +101,7 @@ public class HogarFragment extends Fragment implements Refrescable, PetView.Oyen
         if (Juego.get(requireContext()).prefs().agitar()) agitar.iniciar();
         if (Juego.get(requireContext()).prefs().inclinacion()) inclinacion.iniciar();
         petView.setFiltro(Filtro.desde(Juego.get(requireContext()).prefs().filtro()));
+        petView.setEfectosGpu(Juego.get(requireContext()).prefs().efectosGpu());
         refrescar();
     }
 
@@ -274,7 +275,8 @@ public class HogarFragment extends Fragment implements Refrescable, PetView.Oyen
     }
 
     private void pedirRugido() {
-        if (!Juego.get(requireContext()).prefs().microfono() || microfono.escuchando()) {
+        if (partida() == null || microfono.escuchando()) return;
+        if (!Juego.get(requireContext()).prefs().microfono()) {
             ejecutar(partida().rugidoEscuchado(System.currentTimeMillis()));
             return;
         }

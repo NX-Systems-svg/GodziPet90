@@ -22,6 +22,8 @@ public final class Musica {
 
     private static Musica instancia;
 
+    /** Bandera de la sesión de música actual: cada hilo tiene la suya, así nunca suenan dos. */
+    private java.util.concurrent.atomic.AtomicBoolean sesion;
     private volatile boolean sonando;
     private volatile Escenario escenario = Escenario.ISLA_ODO;
     private Thread hilo;
@@ -38,13 +40,17 @@ public final class Musica {
     public synchronized void iniciar() {
         if (sonando) return;
         sonando = true;
-        hilo = new Thread(this::bucle, "musica");
+        final java.util.concurrent.atomic.AtomicBoolean activa = new java.util.concurrent.atomic.AtomicBoolean(true);
+        sesion = activa;
+        hilo = new Thread(() -> bucle(activa), "musica");
         hilo.setPriority(Thread.MIN_PRIORITY + 1);
         hilo.start();
     }
 
     public synchronized void detener() {
         sonando = false;
+        if (sesion != null) sesion.set(false); // el hilo viejo termina aunque se reinicie enseguida
+        sesion = null;
         hilo = null;
     }
 
@@ -65,7 +71,7 @@ public final class Musica {
         }
     }
 
-    private void bucle() {
+    private void bucle(java.util.concurrent.atomic.AtomicBoolean activa) {
         AudioTrack pista = null;
         try {
             int min = AudioTrack.getMinBufferSize(TASA, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
@@ -77,7 +83,7 @@ public final class Musica {
                     .setBufferSizeInBytes(Math.max(min, 8192))
                     .setTransferMode(AudioTrack.MODE_STREAM).build();
             pista.play();
-            generar(pista);
+            generar(pista, activa);
         } catch (Exception e) {
             Log.w("Musica", "Sin música ambiental", e);
         } finally {
@@ -89,14 +95,14 @@ public final class Musica {
     }
 
     /** Mezcla dos voces de koto + taiko en bloques de un "tiempo" musical. */
-    private void generar(AudioTrack pista) {
+    private void generar(AudioTrack pista, java.util.concurrent.atomic.AtomicBoolean activa) {
         Random azar = new Random();
         float[] cuerdaA = new float[TASA / 40];
         float[] cuerdaB = new float[TASA / 40];
         int largoA = 1, largoB = 1, posA = 0, posB = 0;
         float taiko = 0, faseTaiko = 0;
         int paso = 0, nota = 4;
-        while (sonando) {
+        while (activa.get()) {
             Escenario e = escenario;
             int muestras = TASA * tempoMs(e) / 1000;
             short[] bloque = new short[muestras];
