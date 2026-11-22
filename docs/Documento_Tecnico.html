@@ -33,7 +33,9 @@
   <p>
     <span class="badge">Android Studio</span><span class="badge">Java 11</span><span class="badge">Room v2 con migración</span>
     <span class="badge">Sin internet</span><span class="badge">30 pruebas JUnit</span>
+    <span class="badge">Motor 2.5D</span><span class="badge">Blender 3D</span><span class="badge">Shaders AGSL</span>
   </p>
+  <p><b>Versión 3</b> · motor visual 2.5D, funciones especiales y minijuego de batalla contra Mecha-Kaiju</p>
   <p><b>Alumno:</b> Emilio Garduño Servín &nbsp;·&nbsp; <b>Modalidad:</b> individual &nbsp;·&nbsp; <b>Paquete:</b> <code>com.cesba.godzipet</code> &nbsp;·&nbsp; minSdk 24 / targetSdk 36</p>
 </div>
 
@@ -48,35 +50,35 @@
 <tr><td>Forma final</td><td>Una de cuatro eras: <b>Showa</b> (1954-1975), <b>Heisei</b> (1984-1995), <b>Burning</b> (el núcleo al borde de la fusión) o <b>Shin</b> (2016)</td></tr>
 </table>
 <p>Sus necesidades bajan con el tiempo real, aunque la app esté cerrada. Cada decisión cambia su estado, su economía y la forma final en la que evolucionará. La mecánica que lo distingue es la <b>radiación</b>, que no se llena sino que se equilibra (sección 7).</p>
-<div class="caja"><b>Propiedad intelectual:</b> todo el arte (Godzilla, escenarios, guarida y monstruos) está <b>dibujado por código con Canvas</b>. No se usan fotografías, fotogramas ni el logotipo de Toho. El rugido se <b>sintetiza</b> en el dispositivo (onda de sierra con ruido), no es una grabación de la película.</div>
+<div class="caja"><b>Propiedad intelectual:</b> el kaiju, la guarida y los monstruos están <b>dibujados por código con Canvas</b>. Los fondos 2.5D son <b>renders propios hechos en Blender</b>, sin fotografías, fotogramas, personajes ni logotipos con derechos. No se usa el logotipo de Toho. El rugido se <b>sintetiza</b> en el dispositivo (onda de sierra con ruido), no es una grabación de la película.</div>
 
 <h2>2. Flujo del jugador (cumplimiento de la guía)</h2>
 <table>
 <tr><th>#</th><th>Experiencia pedida</th><th>Dónde se cumple</th></tr>
 <tr><td>01</td><td>Nueva partida: elegir huevo y nombre</td><td><code>InicioActivity</code> → <code>SeleccionActivity</code>: 4 orígenes con bono distinto y nombre validado de 2–14 caracteres</td></tr>
 <tr><td>02</td><td>Consultar necesidades y cuidarlo</td><td><code>HogarFragment</code>: 6 indicadores con valor numérico, mensaje contextual, 8 acciones (incluye Aliento)</td></tr>
-<tr><td>03</td><td>Minijuegos por monedas y XP</td><td><code>DefensaActivity</code>, <code>AnillosActivity</code> y <code>MemoriaActivity</code> (3 minijuegos)</td></tr>
+<tr><td>03</td><td>Minijuegos por monedas y XP</td><td><code>DefensaActivity</code>, <code>AnillosActivity</code>, <code>MemoriaActivity</code> y <code>BatallaActivity</code> (4 minijuegos)</td></tr>
 <tr><td>04</td><td>Comprar y administrar inventario</td><td><code>TiendaFragment</code> con pestañas Tienda / Inventario</td></tr>
 <tr><td>05</td><td>Decorar, viajar, misiones, evolución</td><td><code>GuaridaFragment</code>, <code>MapaActivity</code>, <code>MisionesFragment</code>, <code>ProgresoActivity</code>, <code>KaijupediaActivity</code></td></tr>
 <tr><td>06</td><td>Cerrar y reabrir sin perder la partida</td><td>Room (<code>godzipet.db</code>) + marca <code>ultimaActualizacion</code>; guardado tras cada acción, cada 10 s (<code>MainActivity</code>) y en <code>onPause</code></td></tr>
 </table>
-<p><b>Inicio de sesión:</b> cuentas locales (<code>LoginActivity</code>), sin internet. La contraseña se guarda como hash <b>PBKDF2-HMAC-SHA256</b> con sal aleatoria (sección 16). Cada usuario tiene su propia partida.</p>
+<p><b>Inicio de sesión:</b> cuentas locales (<code>LoginActivity</code>), sin internet. La contraseña se guarda como hash <b>PBKDF2-HMAC-SHA256</b> con sal aleatoria (sección 17). Cada usuario tiene su propia partida.</p>
 
 <h2>3. Arquitectura y clases</h2>
 <table>
 <tr><th>Capa / paquete</th><th>Clases</th><th>Responsabilidad</th></tr>
 <tr><td><code>modelo</code> (Java puro, probado con JUnit)</td><td><code>Stat</code>, <code>Necesidades</code>, <code>Deterioro</code>, <code>EstadoAnimo</code>, <code>Etapa</code></td><td>6 indicadores (0–100; la radiación se evalúa por zona ideal), tiempo real, 10 estados</td></tr>
-<tr><td></td><td><code>Partida</code>, <code>Personaje</code>, <code>Contadores</code>, <code>Evento</code></td><td>Estado completo, fusión y generaciones, viajes, secretos, historial de hábitos</td></tr>
-<tr><td></td><td><code>Cuidados</code>, <code>Minijuego</code>, <code>Resultado</code>, <code>Reaccion</code></td><td>8 acciones (7 de cuidado + Aliento) con validaciones y minijuegos</td></tr>
+<tr><td></td><td><code>Partida</code>, <code>Personaje</code>, <code>Contadores</code>, <code>Evento</code></td><td>Estado completo, fusión y generaciones, viajes, secretos, historial de hábitos, caricias</td></tr>
+<tr><td></td><td><code>Cuidados</code>, <code>Minijuego</code>, <code>Resultado</code>, <code>Reaccion</code></td><td>8 acciones (7 de cuidado + Aliento) con validaciones y 4 minijuegos (incluye la Batalla contra Mecha-Kaiju)</td></tr>
 <tr><td></td><td><code>Articulo</code>, <code>Catalogo</code>, <code>TipoArticulo</code>, <code>Tienda</code>, <code>Inventario</code>, <code>Guarida</code>, <code>Slot</code></td><td>Economía, inventario y decoración en 4 posiciones</td></tr>
 <tr><td></td><td><code>Mision</code>, <code>GestorMisiones</code>, <code>Niveles</code></td><td>4 diarias y 7 logros; 6 niveles por experiencia</td></tr>
 <tr><td></td><td><code>Evolucion</code>, <code>RutaEvolucion</code>, <code>OrigenHuevo</code></td><td>Regla de evolución final, 4 formas finales y 4 orígenes de huevo</td></tr>
 <tr><td></td><td><code>Escenario</code>, <code>Secreto</code>, <code>Record</code>, <code>AlertaKaiju</code></td><td>8 escenarios, 12 secretos, récords y alertas kaiju</td></tr>
-<tr><td></td><td><code>ModoProfesor</code></td><td>Herramientas del modo evaluador (sección 15)</td></tr>
+<tr><td></td><td><code>ModoProfesor</code></td><td>Herramientas del modo evaluador (sección 16)</td></tr>
 <tr><td><code>datos</code></td><td><code>BaseDatos</code> (Room v2 y <code>MIGRACION_1_2</code>), <code>JuegoDao</code>, 6 entidades, <code>Instantanea</code>, <code>Repositorio</code>, <code>Preferencias</code>, <code>Seguridad</code></td><td>Persistencia en hilo de fondo, guardado atómico (<code>@Transaction</code>), respaldo del modo evaluador, hash de contraseñas</td></tr>
-<tr><td><code>juego</code></td><td><code>Juego</code>, <code>Alertas</code>, <code>AlarmaReceiver</code>, <code>DetectorAgitar</code>, <code>Microfono</code>, <code>Sonidos</code></td><td>Partida en memoria, notificaciones, sensor de agitar, micrófono que sólo mide volumen, rugido sintetizado</td></tr>
-<tr><td><code>vista</code></td><td><code>KaijuPainter</code>, <code>PetView</code>, <code>PosterPainter</code>, <code>Filtros</code>, <code>Clima</code>, <code>Escenas</code>, <code>GuaridaView</code>, <code>DefensaView</code>, <code>AnillosView</code>, <code>BarraView</code>, <code>Particulas</code></td><td>Dibujo vectorial, animaciones, filtros visuales, clima por estación, foto póster</td></tr>
-<tr><td><code>ui</code></td><td>13 actividades, 1 base de minijuegos y 5 fragmentos</td><td>Pantallas y navegación</td></tr>
+<tr><td><code>juego</code></td><td><code>Juego</code>, <code>Alertas</code>, <code>AlarmaReceiver</code>, <code>DetectorAgitar</code>, <code>Microfono</code>, <code>Sonidos</code>, <b>Musica</b>, <b>Inclinacion</b>, <b>Vibracion</b>, <b>WidgetKaiju</b></td><td>Partida en memoria, notificaciones, sensor de agitar, micrófono que sólo mide volumen, rugido sintetizado, música japonesa (koto y taiko), sensor de inclinación, vibraciones y widget de inicio</td></tr>
+<tr><td><code>vista</code></td><td><code>KaijuPainter</code>, <code>PetView</code>, <b>Parallax</b>, <b>Render25D</b>, <b>Efectos3D</b> (AGSL), <b>BatallaView</b>, <code>PosterPainter</code>, <code>Filtros</code>, <code>Clima</code>, <code>Escenas</code>, <code>GuaridaView</code>, <code>DefensaView</code>, <code>AnillosView</code>, <code>BarraView</code>, <code>Particulas</code></td><td>Dibujo vectorial, motor 2.5D (capas, sombra, perspectiva y shaders), animaciones, filtros, clima, foto póster y batalla</td></tr>
+<tr><td><code>ui</code></td><td>15 actividades (incluye <b>CamaraActivity</b> y <b>BatallaActivity</b>), 1 base de minijuegos, 5 fragmentos y la vista <b>KaijuArView</b> (realidad aumentada casera)</td><td>Pantallas, navegación y "Godzilla en tu cuarto"</td></tr>
 </table>
 
 <h3>Base de datos (Room, versión 2)</h3>
@@ -91,6 +93,16 @@
 </table>
 <p><b>Migración 1 → 2</b> (<code>MIGRACION_1_2</code>): agrega a <code>partidas</code> sin borrar datos las columnas <code>radiacion</code> (por defecto 55), <code>fusion</code>, <code>generacion</code>, <code>escenario</code>, <code>ultimaCentral</code>, <code>cCentrales</code>, <code>sumaRadiacion</code>, <code>entrenosBase</code>, <code>cuidadosBase</code>, <code>hoyMinutosZona</code>, <code>secretos</code>, <code>visitados</code> y <code>formas</code>. A las partidas antiguas se les rellena <code>sumaRadiacion</code> con 55 por minuto de su historial, para que el promedio de radiación no quede en cero.</p>
 <p>Las preferencias simples (sesión, sonido, notificaciones, agitar, micrófono, filtro, modo demostración y modo evaluador) van en <code>SharedPreferences</code>.</p>
+
+<h3>Permisos declarados</h3>
+<table>
+<tr><th>Permiso</th><th>Para qué se usa</th><th>Cuándo se pide y si es opcional</th></tr>
+<tr><td><code>CAMERA</code></td><td>"Godzilla en tu cuarto" (<code>CamaraActivity</code>): vista previa de la cámara trasera sobre la que se dibuja el kaiju. La foto sólo se guarda en la caché de la app para compartirla.</td><td>En tiempo de ejecución, al abrir la función desde Hogar. Sin permiso, la pantalla avisa y no muestra la cámara.</td></tr>
+<tr><td><code>RECORD_AUDIO</code></td><td>Rugirle al teléfono (<code>Microfono</code>): durante 4 segundos sólo se mide el volumen. Nada se graba ni se guarda.</td><td>En tiempo de ejecución, al activar el micrófono en Ajustes. Opcional: se puede desactivar.</td></tr>
+<tr><td><code>VIBRATE</code></td><td>Vibraciones de <code>Vibracion</code>: pisadas, terremoto, rugido y ronroneo.</td><td>Permiso normal (sin diálogo). Opcional: interruptor "Vibración" en Ajustes.</td></tr>
+<tr><td><code>POST_NOTIFICATIONS</code></td><td>Avisos del kaiju (necesidades críticas, sobrecalentamiento y fin del descanso).</td><td>En Android 13 o superior, al primer aviso. Opcional: preferencia de notificaciones.</td></tr>
+</table>
+<p>Las funciones de cámara, micrófono, giroscopio y acelerómetro se declaran con <code>required="false"</code>, así que la app se puede instalar en dispositivos que no tengan esos sensores.</p>
 
 <h2>4. Reglas de tiempo real</h2>
 <table>
@@ -166,14 +178,14 @@
 
 <h2>9. Minijuegos</h2>
 <table>
-<tr><th></th><th>Defensa de Tokio (reflejos)</th><th>Anillos de Humo</th><th>Memoria Fuerza G (parejas)</th></tr>
-<tr><td>Acceso</td><td>Nivel 1 · 15 de energía</td><td>Nivel 1 · 10 de energía</td><td>Nivel 2 · 10 de energía</td></tr>
-<tr><td>Interacción</td><td>Tocar kaijus que emergen de la bahía antes de que escapen; cada vez salen más rápido. Con aliento al 100 % se puede arrasar una vez</td><td>Como Minilla: tocar la pantalla para soltar anillos de humo contra insectos gigantes que vuelan sobre la isla</td><td>Voltear cartas 4×4 con animación para encontrar las 8 parejas</td></tr>
-<tr><td>Duración</td><td>30 s</td><td>30 s</td><td>60 s</td></tr>
-<tr><td>Victoria</td><td>≥ 15 aciertos</td><td>≥ 10 aciertos</td><td>8 parejas antes de agotar el tiempo</td></tr>
-<tr><td>Puntaje</td><td>10 por acierto</td><td>10 por acierto</td><td>10 por pareja + segundos restantes si gana</td></tr>
-<tr><td>Premio (monedas)</td><td>puntaje/5 (+20 si gana)</td><td>puntaje/5 (+15 si gana)</td><td>puntaje/4 (+15 si gana)</td></tr>
-<tr><td>Experiencia</td><td colspan="3">puntaje/10 + 15 si gana (+3 si pierde). Al empezar cuesta energía y −3 higiene; al terminar, +15 felicidad si gana o +5 si pierde</td></tr>
+<tr><th></th><th>Defensa de Tokio (reflejos)</th><th>Anillos de Humo</th><th>Memoria Fuerza G (parejas)</th><th>Batalla contra Mecha-Kaiju</th></tr>
+<tr><td>Acceso</td><td>Nivel 1 · 15 de energía</td><td>Nivel 1 · 10 de energía</td><td>Nivel 2 · 10 de energía</td><td>Nivel 3 · 25 de energía</td></tr>
+<tr><td>Interacción</td><td>Tocar kaijus que emergen de la bahía antes de que escapen; cada vez salen más rápido. Con aliento al 100 % se puede arrasar una vez</td><td>Como Minilla: tocar la pantalla para soltar anillos de humo contra insectos gigantes que vuelan sobre la isla</td><td>Voltear cartas 4×4 con animación para encontrar las 8 parejas</td><td>Toca los misiles antes de que impacten. Mantén presionado para cargar el aliento atómico (1,3 s) y suéltalo para disparar. Un láser avisa antes de disparar. Con el aliento al 100 % se puede usar una vez el disparo máximo</td></tr>
+<tr><td>Duración</td><td>30 s</td><td>30 s</td><td>60 s</td><td>60 s</td></tr>
+<tr><td>Victoria</td><td>≥ 15 aciertos</td><td>≥ 10 aciertos</td><td>8 parejas antes de agotar el tiempo</td><td>Dejar la vida del robot en 0 antes de que se acabe el tiempo. Pierde si se queda sin vida o si se acaba el tiempo</td></tr>
+<tr><td>Puntaje</td><td>10 por acierto</td><td>10 por acierto</td><td>10 por pareja + segundos restantes si gana</td><td>Daño causado (% de la vida del robot) + vida que te queda + 2 por cada segundo sobrante si gana</td></tr>
+<tr><td>Premio (monedas)</td><td>puntaje/5 (+20 si gana)</td><td>puntaje/5 (+15 si gana)</td><td>puntaje/4 (+15 si gana)</td><td>puntaje/5 (+40 si gana)</td></tr>
+<tr><td>Experiencia</td><td colspan="4">puntaje/10 + 15 si gana (+3 si pierde). Al empezar cuesta energía y −3 higiene; al terminar, +15 felicidad si gana o +5 si pierde</td></tr>
 </table>
 <p>Todos tienen instrucciones, inicio, opción <b>Repetir</b> y guardan mejor puntaje y victorias en la tabla <code>records</code>. Salir a mitad de la ronda cuenta como derrota con el puntaje parcial.</p>
 
@@ -262,7 +274,42 @@ Los promedios se ponderan por minuto de juego y se cuentan desde la generación 
 <tr><td>終</td><td>Reiniciar una partida</td><td>Las películas japonesas clásicas terminaban con el kanji 終 (Fin)</td></tr>
 </table>
 
-<h2>14. Funciones que lo distinguen</h2>
+<h2>14. Motor visual 2.5D (versión 3)</h2>
+<p>La versión 3 da profundidad a la escena sin un motor 3D en tiempo real. Los <b>fondos</b> se pre-renderizan en <b>Blender</b> como capas de parallax; el <b>kaiju</b> sigue dibujado con Canvas y recibe sombra, contraluz y perspectiva en código; los efectos de GPU son un único <b>shader AGSL</b>.</p>
+<table>
+<tr><th>Técnica</th><th>Qué hace</th><th>Clase</th></tr>
+<tr><td>Parallax de 5 capas</td><td>Cielo, lejos, medio, cerca y primer plano se desplazan a distinta velocidad (2, 5, 9, 14 y 22 % del ancho). El primer plano se dibuja delante del kaiju. Hay una deriva lenta automática del fondo.</td><td><code>Parallax</code></td></tr>
+<tr><td>Parallax por inclinación</td><td>Al inclinar el teléfono las capas se mueven. Usa el sensor de gravedad (no exige giroscopio), se suaviza y toma la postura inicial como referencia.</td><td><code>Inclinacion</code>, <code>PetView</code></td></tr>
+<tr><td>Día, noche y atardecer reales</td><td>Según la hora y los minutos del teléfono, la noche mezcla la versión de día y de noche de cada capa; el atardecer añade un tinte cálido; la posición del sol o de la luna define la dirección de la luz.</td><td><code>PetView</code> (<code>calcularLuz</code>), <code>Parallax</code></td></tr>
+<tr><td>Sombra proyectada</td><td>Sombra aplanada y sesgada sobre el suelo, en dirección contraria a la luz del momento.</td><td><code>Render25D</code></td></tr>
+<tr><td>Contraluz (rim light)</td><td>Borde de luz del color ambiente que se desplaza según la dirección de la luz.</td><td><code>Render25D</code></td></tr>
+<tr><td>Perspectiva 3D</td><td>El kaiju gira hasta 16° en horizontal y 7° en vertical con <code>android.graphics.Camera</code>, siguiendo la inclinación del teléfono.</td><td><code>Render25D</code></td></tr>
+<tr><td>Reflejo en suelo mojado</td><td>Reflejo invertido y tenue bajo los pies con lluvia y, de noche, en Ginza y Bahía de Tokio.</td><td><code>Render25D</code></td></tr>
+<tr><td>Shader AGSL (GPU)</td><td>Un solo shader (Android 13+) con calor (Burning y fusión), onda de choque con aberración cromática, ondas en el agua, rayos de luz volumétricos, resplandor y viñeta. Si todos sus parámetros son neutros, el efecto se retira.</td><td><code>Efectos3D</code></td></tr>
+<tr><td>Cámara cinematográfica</td><td>Acercamiento de hasta 14 % durante el aliento atómico y de 6 % durante la evolución.</td><td><code>PetView</code></td></tr>
+<tr><td>Paseo con huellas</td><td>El kaiju camina por el escenario, deja huellas que duran 9 s y levanta polvo; se detiene y vuelve a pasear.</td><td><code>PetView</code></td></tr>
+<tr><td>Lluvia y relámpagos</td><td>Con lluvia aparecen destellos de relámpago a intervalos aleatorios, con sacudida de cámara.</td><td><code>PetView</code>, <code>Escenas</code></td></tr>
+</table>
+
+<h3>Pipeline de fondos (Blender → Android)</h3>
+<ul>
+  <li><b>Escenas:</b> 8 (uno por escenario del mapa), cada una en <b>día y noche</b> con <b>5 capas</b> de parallax: 80 imágenes en total.</li>
+  <li><b>Render:</b> Blender 5.2 con el motor Cycles en GPU (CUDA).</li>
+  <li><b>Estilo:</b> diorama 3D estilizado, luz suave y niebla atmosférica; sin personajes ni logotipos con derechos de autor.</li>
+  <li><b>Formato:</b> WebP con alfa, 1536 × 1024 px, calidad cercana a 80 y menos de 180 KB por archivo, en <code>app/src/main/assets/escenas/&lt;ESCENARIO&gt;/&lt;dia|noche&gt;_&lt;capa&gt;.webp</code> (capas 0 a 4).</li>
+  <li><b>Respaldo:</b> si faltan los archivos, la app dibuja los escenarios con Canvas y el juego funciona igual.</li>
+</ul>
+<div class="caja"><b>Estado de este repositorio:</b> la carpeta <code>tools/blender/</code> todavía no existe y <code>app/src/main/assets/escenas/</code> está vacía. Por eso hoy la app usa las escenas de Canvas; los renders se añadirán después.</div>
+
+<h3>Memoria y accesibilidad</h3>
+<ul>
+  <li><b>Memoria:</b> sólo se cargan las imágenes que se necesitan (día, noche o ambas durante la transición). Se conservan como máximo 10 imágenes (5 de día y 5 de noche) del escenario actual; al cambiar de escenario se libera lo anterior antes de cargar lo nuevo. La capa del cielo usa RGB_565 (sin transparencia) y el resto ARGB_8888. La decodificación corre en un único hilo de carga.</li>
+  <li><b>Accesibilidad:</b> si el sistema tiene activado <b>"Quitar animaciones"</b> (escala de animación 0), no se usan el parallax por inclinación, el paseo y sus huellas, el clima animado, los relámpagos, la sacudida de cámara ni los shaders de GPU. Dar de comer arrastrando se sustituye por un botón de alimentación directa (también si el kaiju duerme).</li>
+  <li>Con "Quitar animaciones" también se detienen la deriva lenta del fondo y el zoom cinematográfico; sólo quedan las animaciones breves de reacción a cada acción (retroalimentación requerida por la guía).</li>
+  <li><b>Estabilidad:</b> en emuladores de Android Studio los shaders de GPU se desactivan solos, porque el contexto gráfico se pierde con un RenderEffect animado.</li>
+</ul>
+
+<h2>15. Funciones que lo distinguen</h2>
 <ul>
   <li><b>Agitar = terremoto:</b> con el teléfono agitado (aceleración superior a 2,6 g) Godzilla da un pisotón que hace temblar la costa (+4 felicidad). Si estaba dormido, lo despierta de golpe (−8 felicidad). Se puede desactivar en Configuración.</li>
   <li><b>Rugir al micrófono:</b> durante 4 segundos se mide sólo el volumen. Si supera un umbral, el kaiju responde (+6 felicidad). <b>Nada se graba ni se guarda</b>: el audio sólo existe en memoria. Pide permiso de micrófono y puede desactivarse.</li>
@@ -271,9 +318,17 @@ Los promedios se ponderan por minuto de juego y se cuentan desde la generación 
   <li><b>Clima por estación real:</b> sakura en primavera (marzo–mayo), sol en verano, lluvia en otoño y nieve en invierno, según el mes del teléfono.</li>
   <li><b>Hora real:</b> la decoración del reloj de la torre Wako muestra la hora del teléfono.</li>
   <li><b>Kaiju-pedia:</b> colección de formas (la forma sin descubrir aparece como "???"), escenarios visitados, secretos con su dato y un botón para escuchar el rugido sintetizado.</li>
+  <li><b>Godzilla en tu cuarto (AR):</b> desde Hogar se abre la cámara trasera (puede cambiarse a la frontal) y el kaiju aparece sobre la imagen en vivo. Se arrastra, se pellizca para cambiar su tamaño y se gira con dos dedos. El botón de foto compone la imagen con una leyenda y la comparte con el selector de Android.</li>
+  <li><b>Widget de pantalla de inicio:</b> muestra al kaiju, su estado de ánimo y tres barras de estado; se actualiza al salir de la app.</li>
+  <li><b>Batalla contra Mecha-Kaiju:</b> minijuego de 60 segundos (nivel 3). Toca los misiles antes de que impacten, mantén presionado para cargar el aliento atómico y suéltalo para disparar. Gana si reduce la vida del robot a cero; pierde si se queda sin vida o si se acaba el tiempo.</li>
+  <li><b>Música japonesa sintetizada:</b> cuerdas tipo koto (algoritmo Karplus-Strong) sobre la escala japonesa "In" y un tambor taiko. Cada escenario tiene su nota base y su tempo. Se genera en tiempo real; no hay archivos de audio.</li>
+  <li><b>Vibraciones con ritmo:</b> pisadas, terremoto de tres golpes, rugido creciente y ronroneo al acariciarlo.</li>
+  <li><b>Caricias:</b> frotar el cuerpo del kaiju con un recorrido largo y rápido cuenta como caricia: +3 de felicidad y ronroneo. Si duerme, sonríe en sueños.</li>
+  <li><b>Comida arrastrable:</b> al dar de comer desde Hogar, la comida aparece en la escena y hay que arrastrarla hasta la boca del kaiju durante 15 segundos. Si el kaiju duerme o está activado el "Quitar animaciones", la comida se da directamente.</li>
+  <li><b>Paseo:</b> cuando está tranquilo, el kaiju pasea por el escenario y deja huellas.</li>
 </ul>
 
-<h2>15. Modo profesor / evaluador</h2>
+<h2>16. Modo profesor / evaluador</h2>
 <p><b>Cómo activarlo:</b> en la pantalla de título, tocar 7 veces seguidas el kanji ゴジラ; aparece el cuadro para introducir el código. Alternativamente, en <b>Configuración → Modo evaluador</b>. El código es <code>GOJIRA1954</code> (no distingue mayúsculas ni espacios). Requiere haber iniciado sesión y tener una partida creada.</p>
 <p><b>Seguridad de los datos:</b> al entrar, la partida real se copia a un respaldo (id negativo) en la base de datos. Todo lo que se haga en el panel es de prueba. Al pulsar <b>"Salir del modo evaluador"</b> y confirmar, la partida real se restaura y el respaldo se borra. Así el profesor puede mostrar cualquier parte del juego sin dañar la partida del alumno.</p>
 <p><b>Qué hace el panel:</b></p>
@@ -292,7 +347,7 @@ Los promedios se ponderan por minuto de juego y se cuentan desde la generación 
 <tr><td>Deterioro en tiempo real (caso 80 → 64)</td><td>En el panel, fijar alimentación en 80 y pulsar <b>"+1 hora"</b> dos veces. La alimentación baja a 64 sin tocar ningún botón de cuidado. Con la app cerrada se ve igual en la partida real.</td></tr>
 <tr><td>Al menos 5 estados</td><td>Fijar radiación 90 (¡En fusión!), salud 20 (Enfermo), radiación 10 (Sin radiación), alimentación 10 (Hambriento) o energía 10 (Cansado). Hay 10 estados en total.</td></tr>
 <tr><td>Al menos 6 acciones de cuidado</td><td>Hogar tiene 8 botones (Comer, Jugar, Dormir/Despertar, Nadar, Curar, Entrenar, Central y Aliento). Cada uno da retroalimentación y animación.</td></tr>
-<tr><td>Al menos 2 minijuegos</td><td>Pestaña Juegos: Defensa de Tokio y Anillos de Humo desde el nivel 1, Memoria Fuerza G desde el nivel 2 (NV 2 lo desbloquea).</td></tr>
+<tr><td>Al menos 2 minijuegos</td><td>Pestaña Juegos: Defensa de Tokio y Anillos de Humo desde el nivel 1, Memoria Fuerza G desde el nivel 2 y Batalla contra Mecha-Kaiju desde el nivel 3 (NV 1, NV 2 y NV 3 los desbloquean).</td></tr>
 <tr><td>Tienda e inventario</td><td>"Todo + 9999" da artículos y 9999 monedas; comprar o equipar desde Tienda e Inventario.</td></tr>
 <tr><td>Niveles y progresión</td><td>Botones NV 1 a NV 6; cada nivel muestra su desbloqueo en la pantalla Progreso.</td></tr>
 <tr><td>Alertas (mecánica exclusiva)</td><td>"Alerta Kaiju" en el panel y luego DEFENDER en Hogar. Desde el nivel 3 también aparece sola con cuenta regresiva.</td></tr>
@@ -300,14 +355,17 @@ Los promedios se ponderan por minuto de juego y se cuentan desde la generación 
 <tr><td>Evolución con 2 o más rutas</td><td>Botones de forma Showa, Heisei, Burning y Shin; la pantalla Progreso muestra la regla y la ruta prevista.</td></tr>
 <tr><td>Dos mecánicas exclusivas</td><td>Aliento Atómico ("Aliento 100 %") y Alertas Kaiju; además la Radiación con "Provocar fusión".</td></tr>
 <tr><td>Persistencia (base de datos)</td><td>Cerrar la app tras un cambio y reabrirla: el estado sigue igual. Room guarda en <code>godzipet.db</code> con la migración 1 → 2.</td></tr>
+<tr><td>Motor visual 2.5D (capas, sombra, perspectiva)</td><td>Inclinar el teléfono mueve las capas (Ajustes → Profundidad 3D). Con la hora real del teléfono cambian el día, la noche y el atardecer. Los shaders de GPU se activan en Android 13 o superior (Ajustes → Efectos de GPU).</td></tr>
+<tr><td>Funciones especiales (AR, widget, música, vibración, caricias, comida, paseo)</td><td>Hogar → "Godzilla en tu cuarto" (cámara y foto); widget en la pantalla de inicio; Ajustes para música y vibración; caricias frotando al kaiju; comida arrastrada a su boca; paseo con huellas cuando está tranquilo.</td></tr>
+<tr><td>Batalla (cuarto minijuego)</td><td>NV 3 (o modo evaluador → NV 3) y Juegos → Batalla contra Mecha-Kaiju. Con "Todo + 9999" hay energía de sobra para jugar.</td></tr>
 </table>
 
-<h2>16. Seguridad, alertas locales y validaciones</h2>
+<h2>17. Seguridad, alertas locales y validaciones</h2>
 <p><b>Contraseñas:</b> PBKDF2-HMAC-SHA256 con <b>120 000 iteraciones</b>, sal aleatoria por cuenta y 256 bits de salida. Las cuentas creadas con la versión 1 usaban PBKDF2-HMAC-SHA1 con 10 000 iteraciones; al iniciar sesión correctamente, su hash se <b>actualiza automáticamente</b> al formato nuevo con una sal nueva. Nunca se guarda la contraseña en texto plano.</p>
 <p><b>Notificaciones</b> (canal "Alertas del kaiju"; en Android 13+ se pide el permiso <code>POST_NOTIFICATIONS</code>): al salir de la app se programan con <code>AlarmManager</code> inexacto (1) el <b>fin del descanso</b> si está dormido, (2) la <b>necesidad crítica</b>, calculando cuándo la alimentación o la higiene llegarán a 20, y (3) el <b>sobrecalentamiento</b> si la radiación está en zona de peligro, dos minutos antes de la fusión. Se cancelan al volver a la app.</p>
 <p><b>Validaciones:</b> límites 0–100 en una sola clase (<code>Necesidades</code>); nombre y usuario con patrón; compras sin saldo; acciones imposibles con mensaje claro; recompensas duplicadas; <b>reinicio con doble confirmación</b> (hay que escribir REINICIAR); nueva partida pide confirmación si ya existe una. Los valores de entrada del modo evaluador también pasan por los mismos límites.</p>
 
-<h2>17. Pruebas (30 JUnit)</h2>
+<h2>18. Pruebas (30 JUnit)</h2>
 <p>Pruebas unitarias de la capa <code>modelo</code>, en <code>app/src/test</code>. Se ejecutan sin emulador.</p>
 <table>
 <tr><th>Archivo</th><th>Nº</th><th>Pruebas</th></tr>
@@ -317,10 +375,10 @@ Los promedios se ponderan por minuto de juego y se cuentan desde la generación 
 <tr><td><code>EvolucionTest</code></td><td>6</td><td>descuidoLlevaAShinGodzilla · radiacionAltaSostenidaLlevaABurning · habitoDeEntrenarLlevaAHeisei · cuidadoEquilibradoLlevaAShowa · nivelesSeCalculanPorExperiencia · compatibilidadConNombresDeLaVersion1</td></tr>
 <tr><td><b>Total</b></td><td><b>30</b></td><td></td></tr>
 </table>
-<p>Además se probó el flujo completo en el emulador Android 14 (capturas en la sección 18).</p>
+<p>Además se probó el flujo completo en el emulador Android 14 (capturas en la sección 19).</p>
 
 <div class="salto"></div>
-<h2>18. Capturas</h2>
+<h2>19. Capturas</h2>
 <div class="galeria">
   <figure><img src="capturas/titulo.jpg" width="150"><figcaption>Título animado ゴジラ</figcaption></figure>
   <figure><img src="capturas/hogar.jpg" width="150"><figcaption>Hogar: Heisei en la Torre de Tokio</figcaption></figure>
@@ -335,15 +393,20 @@ Los promedios se ponderan por minuto de juego y se cuentan desde la generación 
   <figure><img src="capturas/migracion_v1.jpg" width="150"><figcaption>Partida de la v1 migrada a la v2</figcaption></figure>
 </div>
 
-<h2>19. Guion sugerido para la demostración en vivo</h2>
+<h2>20. Guion sugerido para la demostración en vivo</h2>
 <ol>
   <li>Crear cuenta, elegir un huevo (por ejemplo, el de Nueva York), nombrarlo y tocarlo hasta que nazca.</li>
-  <li>Mostrar las 6 acciones básicas más el aliento, incluyendo un error (p. ej., curar sin botiquín o jugar sin energía).</li>
+  <li>Mostrar las 8 acciones (incluido el aliento), incluyendo un error (p. ej., curar sin botiquín o jugar sin energía).</li>
   <li>Explicar la <b>radiación</b>: llevarla a una central (sube), nadar (baja) y mostrar la zona ideal de 40–70.</li>
   <li>Comprar comida y una decoración; colocarla en la guarida. Mostrar que el misil de cadmio es el único que enfría de golpe.</li>
   <li>Jugar un minijuego y reclamar una misión (intentar reclamarla otra vez → bloqueado).</li>
   <li>Activar el modo demostración, cerrar la app 1–2 minutos y reabrir: las barras bajaron solas.</li>
-  <li>Agitar el teléfono (terremoto) y rugir al micrófono; abrir la Kaiju-pedia.</li>
+  <li><b>Motor 2.5D:</b> inclinar el teléfono para ver el parallax de las capas, la sombra y la perspectiva del kaiju. Mostrar que el fondo cambia con la hora real. En Ajustes, desactivar y activar "Efectos de GPU" y "Profundidad 3D".</li>
+  <li><b>Caricias y comida:</b> frotar el cuerpo del kaiju (ronronea), dar de comer arrastrando la comida a su boca y dejar que pasee por el escenario.</li>
+  <li><b>Sonido y sensores:</b> activar la música japonesa en Ajustes, agitar el teléfono (terremoto), rugir al micrófono y abrir la Kaiju-pedia.</li>
+  <li><b>Godzilla en tu cuarto:</b> desde Hogar, abrir la función AR, arrastrar y pellizcar al kaiju, tomar la foto y compartirla.</li>
+  <li><b>Widget:</b> añadir el widget Godzi-Pet 90 a la pantalla de inicio y mostrar su estado.</li>
+  <li><b>Batalla:</b> con el modo evaluador, fijar nivel 3 y jugar la Batalla contra Mecha-Kaiju (60 s).</li>
   <li>Activar el <b>modo evaluador</b> (7 toques en ゴジラ, código <code>GOJIRA1954</code>): fijar 80 de alimentación, pulsar +1 hora dos veces (→ 64), provocar una alerta Kaiju y una fusión, y mostrar las formas finales.</li>
   <li>Salir del modo evaluador para demostrar que la partida real se restaura intacta.</li>
 </ol>

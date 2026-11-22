@@ -414,7 +414,8 @@ public class PetView extends View {
         aplicarCamaraCine(c, pr);
 
         boolean capas3D = parallax.disponible(escenario) && parallax.listo();
-        if (capas3D) parallax.dibujarFondo(c, w, h, ix, iy, t, noche, atardecer);
+        float tFondo = movimientoReducido ? 0f : t; // sin deriva del fondo si se redujo el movimiento
+        if (capas3D) parallax.dibujarFondo(c, w, h, ix, iy, tFondo, noche, atardecer);
         else escena.dibujarEscenario(c, w, h, escenario, t, momento, dormido);
 
         float suelo = pies(), tam = tam(), cx = centroX();
@@ -426,7 +427,7 @@ public class PetView extends View {
             if (apariencia.etapa != Etapa.HUEVO) dibujarAnimo(c, cx, suelo, tam, t, ahora);
             dibujarReaccion(c, w, h, cx, suelo, tam, pr);
         }
-        if (capas3D) parallax.dibujarFrente(c, w, h, ix, iy, t, noche);
+        if (capas3D) parallax.dibujarFrente(c, w, h, ix, iy, tFondo, noche);
         if (!movimientoReducido) escena.dibujarClima(c, w, h, clima, t);
         dibujarRelampago(c, w, h, ahora);
         particulas.dibujar(c, dt);
@@ -518,6 +519,7 @@ public class PetView extends View {
 
     /** Acercamiento suave durante el aliento atómico y la evolución. */
     private void aplicarCamaraCine(Canvas c, float pr) {
+        if (movimientoReducido) return;
         float zoom = 1f;
         if (reaccion == Reaccion.ALIENTO) {
             zoom = pr < 0.45f ? 1f + 0.14f * (pr / 0.45f) : 1.14f - 0.14f * Math.min(1f, (pr - 0.45f) / 0.55f);

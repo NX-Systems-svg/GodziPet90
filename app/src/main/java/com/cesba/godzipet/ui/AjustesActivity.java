@@ -51,7 +51,7 @@ public class AjustesActivity extends AppCompatActivity {
         panel.addView(interruptor("📳 Vibración", "Pisadas, rugidos y ronroneo", pr.vibracion(), (v, on) -> pr.setVibracion(on)));
         panel.addView(interruptor("✨ Efectos de GPU", "Calor, ondas, rayos de luz y resplandor (Android 13+)",
                 pr.efectosGpu(), (v, on) -> pr.setEfectosGpu(on)));
-        panel.addView(interruptor("🌀 Profundidad 3D", "Los fondos se mueven al inclinar el teléfono (giroscopio)",
+        panel.addView(interruptor("🌀 Profundidad 3D", "Los fondos se mueven al inclinar el teléfono (sensor de movimiento)",
                 pr.inclinacion(), (v, on) -> pr.setInclinacion(on)));
         panel.addView(interruptor("📳 Agitar = terremoto", "Agita el teléfono para que Godzilla dé un pisotón",
                 pr.agitar(), (v, on) -> pr.setAgitar(on)));
