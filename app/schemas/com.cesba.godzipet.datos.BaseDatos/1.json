@@ -1,0 +1,472 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "6b1e5dba7b2272156f18185cf3ceba8e",
+    "entities": [
+      {
+        "tableName": "usuarios",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `usuario` TEXT NOT NULL, `sal` TEXT NOT NULL, `hash` TEXT NOT NULL, `creado` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "usuario",
+            "columnName": "usuario",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sal",
+            "columnName": "sal",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hash",
+            "columnName": "hash",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "creado",
+            "columnName": "creado",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_usuarios_usuario",
+            "unique": true,
+            "columnNames": [
+              "usuario"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_usuarios_usuario` ON `${TABLE_NAME}` (`usuario`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "partidas",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`usuarioId` INTEGER NOT NULL, `nombre` TEXT NOT NULL, `origen` TEXT NOT NULL, `etapa` TEXT NOT NULL, `ruta` TEXT NOT NULL, `dormido` INTEGER NOT NULL, `despertarEn` INTEGER NOT NULL, `toquesHuevo` INTEGER NOT NULL, `alimentacion` REAL NOT NULL, `felicidad` REAL NOT NULL, `energia` REAL NOT NULL, `higiene` REAL NOT NULL, `salud` REAL NOT NULL, `monedas` INTEGER NOT NULL, `xp` INTEGER NOT NULL, `cargaAliento` REAL NOT NULL, `ultimaActualizacion` INTEGER NOT NULL, `evolucionPendiente` INTEGER NOT NULL, `alertaMonstruo` TEXT, `alertaLugar` TEXT, `alertaExpira` INTEGER NOT NULL, `proximaAlerta` INTEGER NOT NULL, `ultimoJugar` INTEGER NOT NULL, `ultimoEntrenar` INTEGER NOT NULL, `ultimoBanoGratis` INTEGER NOT NULL, `cAlimentar` INTEGER NOT NULL, `cJugar` INTEGER NOT NULL, `cDormir` INTEGER NOT NULL, `cBanar` INTEGER NOT NULL, `cCurar` INTEGER NOT NULL, `cEntrenar` INTEGER NOT NULL, `cMinijuegos` INTEGER NOT NULL, `cVictorias` INTEGER NOT NULL, `cDefensas` INTEGER NOT NULL, `cAlientos` INTEGER NOT NULL, `sumaBienestar` REAL NOT NULL, `minutosBienestar` REAL NOT NULL, `diaClave` TEXT NOT NULL, `hoyAlimentar` INTEGER NOT NULL, `hoyMinijuegos` INTEGER NOT NULL, `hoyEntrenar` INTEGER NOT NULL, PRIMARY KEY(`usuarioId`))",
+        "fields": [
+          {
+            "fieldPath": "usuarioId",
+            "columnName": "usuarioId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombre",
+            "columnName": "nombre",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "origen",
+            "columnName": "origen",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "etapa",
+            "columnName": "etapa",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ruta",
+            "columnName": "ruta",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dormido",
+            "columnName": "dormido",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "despertarEn",
+            "columnName": "despertarEn",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "toquesHuevo",
+            "columnName": "toquesHuevo",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "alimentacion",
+            "columnName": "alimentacion",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "felicidad",
+            "columnName": "felicidad",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "energia",
+            "columnName": "energia",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "higiene",
+            "columnName": "higiene",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "salud",
+            "columnName": "salud",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "monedas",
+            "columnName": "monedas",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "xp",
+            "columnName": "xp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cargaAliento",
+            "columnName": "cargaAliento",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ultimaActualizacion",
+            "columnName": "ultimaActualizacion",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "evolucionPendiente",
+            "columnName": "evolucionPendiente",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "alertaMonstruo",
+            "columnName": "alertaMonstruo",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "alertaLugar",
+            "columnName": "alertaLugar",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "alertaExpira",
+            "columnName": "alertaExpira",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "proximaAlerta",
+            "columnName": "proximaAlerta",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ultimoJugar",
+            "columnName": "ultimoJugar",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ultimoEntrenar",
+            "columnName": "ultimoEntrenar",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ultimoBanoGratis",
+            "columnName": "ultimoBanoGratis",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cAlimentar",
+            "columnName": "cAlimentar",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cJugar",
+            "columnName": "cJugar",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cDormir",
+            "columnName": "cDormir",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cBanar",
+            "columnName": "cBanar",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cCurar",
+            "columnName": "cCurar",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cEntrenar",
+            "columnName": "cEntrenar",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cMinijuegos",
+            "columnName": "cMinijuegos",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cVictorias",
+            "columnName": "cVictorias",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cDefensas",
+            "columnName": "cDefensas",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cAlientos",
+            "columnName": "cAlientos",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sumaBienestar",
+            "columnName": "sumaBienestar",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "minutosBienestar",
+            "columnName": "minutosBienestar",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "diaClave",
+            "columnName": "diaClave",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hoyAlimentar",
+            "columnName": "hoyAlimentar",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hoyMinijuegos",
+            "columnName": "hoyMinijuegos",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hoyEntrenar",
+            "columnName": "hoyEntrenar",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "usuarioId"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "inventario",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`usuarioId` INTEGER NOT NULL, `articuloId` TEXT NOT NULL, `cantidad` INTEGER NOT NULL, PRIMARY KEY(`usuarioId`, `articuloId`))",
+        "fields": [
+          {
+            "fieldPath": "usuarioId",
+            "columnName": "usuarioId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "articuloId",
+            "columnName": "articuloId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cantidad",
+            "columnName": "cantidad",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "usuarioId",
+            "articuloId"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "decoraciones",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`usuarioId` INTEGER NOT NULL, `slot` TEXT NOT NULL, `articuloId` TEXT NOT NULL, PRIMARY KEY(`usuarioId`, `slot`))",
+        "fields": [
+          {
+            "fieldPath": "usuarioId",
+            "columnName": "usuarioId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "slot",
+            "columnName": "slot",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "articuloId",
+            "columnName": "articuloId",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "usuarioId",
+            "slot"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "misiones",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`usuarioId` INTEGER NOT NULL, `misionId` TEXT NOT NULL, `reclamadaEn` TEXT NOT NULL, PRIMARY KEY(`usuarioId`, `misionId`))",
+        "fields": [
+          {
+            "fieldPath": "usuarioId",
+            "columnName": "usuarioId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "misionId",
+            "columnName": "misionId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reclamadaEn",
+            "columnName": "reclamadaEn",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "usuarioId",
+            "misionId"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "records",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`usuarioId` INTEGER NOT NULL, `juegoId` TEXT NOT NULL, `mejorPuntaje` INTEGER NOT NULL, `victorias` INTEGER NOT NULL, `jugadas` INTEGER NOT NULL, PRIMARY KEY(`usuarioId`, `juegoId`))",
+        "fields": [
+          {
+            "fieldPath": "usuarioId",
+            "columnName": "usuarioId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "juegoId",
+            "columnName": "juegoId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mejorPuntaje",
+            "columnName": "mejorPuntaje",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "victorias",
+            "columnName": "victorias",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "jugadas",
+            "columnName": "jugadas",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "usuarioId",
+            "juegoId"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6b1e5dba7b2272156f18185cf3ceba8e')"
+    ]
+  }
+}

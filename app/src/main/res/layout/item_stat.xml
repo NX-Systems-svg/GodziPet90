@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:orientation="horizontal" android:gravity="center_vertical"
+    android:paddingTop="4dp" android:paddingBottom="4dp">
+    <TextView android:id="@+id/tvEtiqueta" android:layout_width="112dp" android:layout_height="wrap_content"
+        android:textColor="@color/texto" android:textSize="13sp" android:fontFamily="sans-serif-condensed"
+        android:textStyle="bold" android:maxLines="1" />
+    <com.cesba.godzipet.vista.BarraView android:id="@+id/barra" android:layout_width="0dp"
+        android:layout_height="20dp" android:layout_weight="1" />
+    <TextView android:id="@+id/tvValor" android:layout_width="42dp" android:layout_height="wrap_content"
+        android:gravity="end" android:fontFamily="monospace" android:textStyle="bold"
+        android:textColor="@color/texto" android:textSize="14sp" />
+</LinearLayout>

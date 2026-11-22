@@ -1,0 +1,6 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
+    <!-- tres aletas dorsales -->
+    <path android:fillColor="#FFFFFFFF"
+        android:pathData="M3,21 L6,12 L7.5,15 L10,6 L12,12 L14,3 L16,11 L18,8 L19,14 L21,21 Z" />
+</vector>

@@ -1,0 +1,90 @@
+<resources>
+    <style name="Theme.GodziPet" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">@color/atomico</item>
+        <item name="colorOnPrimary">@color/contorno</item>
+        <item name="colorSecondary">@color/heat</item>
+        <item name="colorAccent">@color/atomico</item>
+        <item name="android:colorBackground">@color/fondo</item>
+        <item name="colorSurface">@color/superficie</item>
+        <item name="colorOnSurface">@color/texto</item>
+        <item name="android:windowBackground">@color/fondo</item>
+        <item name="android:statusBarColor">@color/contorno</item>
+        <item name="android:navigationBarColor">@color/contorno</item>
+        <item name="android:textColorPrimary">@color/texto</item>
+        <item name="android:textColorSecondary">@color/texto_sec</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="alertDialogTheme">@style/Dialogo</item>
+    </style>
+
+    <!-- Diálogos con el mismo estilo de cómic que el resto de la app -->
+    <style name="Dialogo" parent="Theme.Material3.Dark.Dialog.Alert">
+        <item name="android:windowBackground">@drawable/bg_dialogo</item>
+        <item name="colorPrimary">@color/atomico</item>
+        <item name="android:textColorPrimary">@color/texto</item>
+        <item name="android:textColorSecondary">@color/texto_sec</item>
+        <item name="colorSurface">@color/superficie</item>
+    </style>
+
+    <style name="Titulo">
+        <item name="android:fontFamily">sans-serif-black</item>
+        <item name="android:textColor">@color/amarillo</item>
+        <item name="android:textSize">26sp</item>
+        <item name="android:shadowColor">@color/contorno</item>
+        <item name="android:shadowDx">3</item>
+        <item name="android:shadowDy">3</item>
+        <item name="android:shadowRadius">1</item>
+        <item name="android:letterSpacing">0.04</item>
+    </style>
+
+    <style name="Subtitulo">
+        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/texto</item>
+        <item name="android:textSize">17sp</item>
+    </style>
+
+    <style name="Cuerpo">
+        <item name="android:textColor">@color/texto_sec</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="Panel">
+        <item name="android:background">@drawable/bg_panel</item>
+        <item name="android:padding">14dp</item>
+    </style>
+
+    <style name="Boton">
+        <item name="android:background">@drawable/bg_boton_verde</item>
+        <item name="android:gravity">center</item>
+        <item name="android:minHeight">52dp</item>
+        <item name="android:paddingStart">14dp</item>
+        <item name="android:paddingEnd">14dp</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">12dp</item>
+        <item name="android:fontFamily">sans-serif-black</item>
+        <item name="android:textColor">@color/texto_boton</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
+    <style name="Campo">
+        <item name="android:background">@drawable/bg_campo</item>
+        <item name="android:padding">14dp</item>
+        <item name="android:textColor">@color/texto</item>
+        <item name="android:textColorHint">@color/texto_sec</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:minHeight">52dp</item>
+    </style>
+
+    <style name="Chip">
+        <item name="android:background">@drawable/bg_chip</item>
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingEnd">12dp</item>
+        <item name="android:paddingTop">6dp</item>
+        <item name="android:paddingBottom">6dp</item>
+        <item name="android:fontFamily">sans-serif-black</item>
+        <item name="android:textColor">@color/texto</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+</resources>

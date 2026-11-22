@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Pantalla secundaria con encabezado y contenido desplazable (Progreso, Configuración) -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/raiz" android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@color/fondo" android:fitsSystemWindows="true">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="56dp"
+        android:background="@color/contorno" android:gravity="center_vertical" android:orientation="horizontal">
+        <TextView android:id="@+id/btnAtras" android:layout_width="56dp" android:layout_height="56dp"
+            android:gravity="center" android:text="←" android:textSize="24sp" android:textColor="@color/texto"
+            android:clickable="true" android:focusable="true" android:contentDescription="Volver"
+            android:background="?attr/selectableItemBackgroundBorderless" />
+        <TextView android:id="@+id/tvTitulo" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-black" android:textColor="@color/amarillo" android:textSize="19sp" />
+    </LinearLayout>
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+        <LinearLayout android:id="@+id/lista" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:padding="12dp" />
+    </ScrollView>
+</LinearLayout>

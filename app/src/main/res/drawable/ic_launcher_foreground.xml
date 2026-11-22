@@ -1,0 +1,14 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+    <!-- huella atómica -->
+    <path android:fillColor="#337CFF6B" android:pathData="M54,22a32,32 0,1 1,0 64a32,32 0,1 1,0 -64z" />
+    <!-- aletas dorsales del kaiju -->
+    <path android:fillColor="#FFC9D4DD" android:strokeColor="#FF070A16" android:strokeWidth="2.5"
+        android:strokeLineJoin="round"
+        android:pathData="M30,74 L36,52 L39,58 L44,38 L48,50 L54,28 L59,48 L64,38 L68,56 L72,48 L78,74 Z" />
+    <!-- lomo -->
+    <path android:fillColor="#FF56695A" android:strokeColor="#FF070A16" android:strokeWidth="2.5"
+        android:pathData="M26,80 Q54,58 82,80 Z" />
+    <path android:strokeColor="#FF8E2C3A" android:strokeWidth="2.5" android:strokeLineCap="round"
+        android:pathData="M44,74 Q48,70 52,73 M58,72 Q62,68 66,72" />
+</vector>

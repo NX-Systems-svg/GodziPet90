@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:fillViewport="true" android:background="@color/fondo">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="24dp" android:gravity="center_horizontal">
+
+        <TextView android:id="@+id/tvHola" style="@style/Cuerpo" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:layout_marginTop="8dp" />
+
+        <TextView style="@style/Titulo" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="GODZI-PET 90" android:textSize="36sp" android:textColor="@color/atomico" />
+
+        <LinearLayout style="@style/Panel" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:layout_marginTop="16dp" android:gravity="center_horizontal">
+            <com.cesba.godzipet.vista.KaijuMiniView android:id="@+id/vistaKaiju"
+                android:layout_width="match_parent" android:layout_height="200dp" />
+            <TextView android:id="@+id/tvResumen" style="@style/Subtitulo" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:gravity="center" android:layout_marginTop="8dp" />
+            <TextView android:id="@+id/tvDetalle" style="@style/Cuerpo" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:gravity="center" />
+        </LinearLayout>
+
+        <TextView android:id="@+id/btnContinuar" style="@style/Boton" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:layout_marginTop="22dp" android:text="▶  CONTINUAR PARTIDA" />
+        <TextView android:id="@+id/btnNueva" style="@style/Boton" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:layout_marginTop="12dp"
+            android:background="@drawable/bg_boton_naranja" android:text="🥚  NUEVA PARTIDA" />
+        <TextView android:id="@+id/btnAjustes" style="@style/Boton" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:layout_marginTop="12dp"
+            android:background="@drawable/bg_boton_gris" android:textColor="@color/texto" android:text="⚙  CONFIGURACIÓN" />
+        <TextView android:id="@+id/btnSalir" android:layout_width="wrap_content" android:layout_height="48dp"
+            android:gravity="center" android:layout_marginTop="12dp" android:padding="8dp"
+            android:textColor="@color/texto_sec" android:text="Cerrar sesión" />
+    </LinearLayout>
+</ScrollView>

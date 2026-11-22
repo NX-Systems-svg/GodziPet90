@@ -1,0 +1,4 @@
+// Archivo raíz: sólo declara el plugin de Android para el módulo :app
+plugins {
+    alias(libs.plugins.android.application) apply false
+}

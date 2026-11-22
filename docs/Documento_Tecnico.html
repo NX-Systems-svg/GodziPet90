@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Godzi-Pet 90 · Documento técnico</title>
+<style>
+  @page { size: Letter; margin: 16mm 15mm; }
+  body { font-family: "Segoe UI", Roboto, Arial, sans-serif; color: #1b2340; font-size: 10.5pt; line-height: 1.45; }
+  h1 { font-size: 30pt; margin: 0; color: #0e1630; }
+  h2 { color: #fff; background: #0e1630; padding: 6px 12px; border-left: 8px solid #7cff6b; font-size: 14pt; margin-top: 22px; page-break-after: avoid; }
+  h3 { color: #2e8b57; font-size: 12pt; margin: 14px 0 4px; page-break-after: avoid; }
+  table { border-collapse: collapse; width: 100%; margin: 6px 0 10px; font-size: 9.5pt; page-break-inside: avoid; }
+  th { background: #22305e; color: #fff; text-align: left; padding: 5px 7px; }
+  td { border-bottom: 1px solid #d5dbef; padding: 4px 7px; vertical-align: top; }
+  tr:nth-child(even) td { background: #f3f5fc; }
+  code { background: #eef1fa; padding: 1px 4px; border-radius: 3px; font-size: 9pt; }
+  .portada { border: 4px solid #0e1630; box-shadow: 8px 8px 0 #0e1630; padding: 26px; margin-bottom: 18px; }
+  .sub { color: #5a6794; font-size: 13pt; margin-top: 4px; }
+  .badge { display: inline-block; background: #7cff6b; color: #0e1630; font-weight: 800; padding: 2px 10px; border: 2px solid #0e1630; border-radius: 12px; margin: 2px 4px 2px 0; font-size: 9pt; }
+  .caja { background: #f3f5fc; border-left: 5px solid #ff8a1f; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .galeria { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+  .galeria figure { margin: 0; text-align: center; font-size: 8.5pt; color: #5a6794; page-break-inside: avoid; }
+  .galeria img { border: 2px solid #0e1630; border-radius: 6px; }
+  .salto { page-break-before: always; }
+</style>
+</head>
+<body>
+
+<div class="portada">
+  <div style="color:#2e8b57;font-weight:800">PROGRAMACIÓN MÓVIL I · PROYECTO FINAL · RETROPET 90</div>
+  <h1>Godzi-Pet 90</h1>
+  <div class="sub">Mascota virtual inspirada en <b>Godzilla: La Serie Animada</b> (caricatura de finales de los 90)</div>
+  <p>
+    <span class="badge">Android Studio</span><span class="badge">Java 11</span><span class="badge">Room / SQLite</span>
+    <span class="badge">Sin internet</span><span class="badge">18 pruebas JUnit</span>
+  </p>
+  <p><b>Alumno:</b> Emilio Garduño Servín &nbsp;·&nbsp; <b>Modalidad:</b> individual &nbsp;·&nbsp; <b>Paquete:</b> <code>com.cesba.godzipet</code> &nbsp;·&nbsp; minSdk 24 / targetSdk 36</p>
+</div>
+
+<h2>1. Concepto</h2>
+<p>El jugador recibe un <b>huevo de kaiju</b> (como en la serie, donde el Dr. Nick Tatopoulos y el equipo H.E.A.T. cuidan a la cría de Godzilla en Nueva York). Al tocarlo 5 veces eclosiona una <b>cría</b> que vive en un muelle de la bahía de Manhattan. Sus necesidades bajan con el tiempo real (aunque la app esté cerrada) y cada decisión cambia su estado, su economía y la <b>forma final</b> en la que evolucionará: <b>Guardián</b>, <b>Atómico</b> o <b>Salvaje</b>.</p>
+<p>Todo el arte (Godzilla, escenario, guarida, monstruos) está <b>dibujado por código con Canvas</b> en estilo caricatura de los 90 (contorno grueso, aletas dorsales afiladas, rayas granate como el diseño de la serie), por lo que no usa imágenes con derechos de autor y pesa poco.</p>
+
+<h2>2. Flujo del jugador (cumplimiento de la guía)</h2>
+<table>
+<tr><th>#</th><th>Experiencia pedida</th><th>Dónde se cumple</th></tr>
+<tr><td>01</td><td>Nueva partida, elegir personaje y nombre</td><td><code>InicioActivity</code> → <code>SeleccionActivity</code> (3 huevos con imagen, descripción y bono inicial + nombre validado de 2–14 caracteres)</td></tr>
+<tr><td>02</td><td>Consultar necesidades y cuidarlo</td><td><code>HogarFragment</code>: 5 barras + valor numérico, mensaje contextual y 6 acciones</td></tr>
+<tr><td>03</td><td>Minijuegos por monedas y XP</td><td><code>DefensaActivity</code> (reflejos) y <code>MemoriaActivity</code> (parejas)</td></tr>
+<tr><td>04</td><td>Comprar y administrar inventario</td><td><code>TiendaFragment</code> con pestañas Tienda / Inventario</td></tr>
+<tr><td>05</td><td>Decorar, misiones, evolución</td><td><code>GuaridaFragment</code>, <code>MisionesFragment</code>, <code>ProgresoActivity</code></td></tr>
+<tr><td>06</td><td>Cerrar y reabrir sin perder la partida</td><td>Room + marca de tiempo <code>ultimaActualizacion</code>; guardado tras cada acción, cada 10 s y en <code>onPause</code></td></tr>
+</table>
+<p><b>Inicio de sesión:</b> cuentas locales (<code>LoginActivity</code>) — no requiere internet. La contraseña se guarda como hash <b>PBKDF2 + sal aleatoria</b>, nunca en texto plano. Cada usuario tiene su propia partida.</p>
+
+<h2>3. Arquitectura y clases</h2>
+<table>
+<tr><th>Capa / paquete</th><th>Clases</th><th>Responsabilidad</th></tr>
+<tr><td><code>modelo</code> (Java puro, probado con JUnit)</td><td><code>Personaje</code>, <code>Necesidades</code>, <code>Stat</code>, <code>EstadoAnimo</code>, <code>Etapa</code></td><td>Identidad, etapa, sueño; 5 indicadores con límite 0–100; reglas de estado</td></tr>
+<tr><td></td><td><code>Partida</code>, <code>Deterioro</code>, <code>Contadores</code></td><td>Estado completo, paso del tiempo real, historial de hábitos</td></tr>
+<tr><td></td><td><code>Cuidados</code></td><td>6 acciones + Aliento Atómico con validaciones</td></tr>
+<tr><td></td><td><code>Articulo</code>, <code>Catalogo</code>, <code>Tienda</code>, <code>Inventario</code>, <code>Guarida</code>, <code>Slot</code></td><td>Economía, inventario y decoración</td></tr>
+<tr><td></td><td><code>Mision</code>, <code>GestorMisiones</code></td><td>Condiciones, avance y recompensa única</td></tr>
+<tr><td></td><td><code>Niveles</code>, <code>Evolucion</code>, <code>RutaEvolucion</code></td><td>Progresión, regla de evolución y ventajas</td></tr>
+<tr><td></td><td><code>Minijuego</code>, <code>Record</code>, <code>AlertaKaiju</code></td><td>Premios proporcionales, récords, mecánica exclusiva</td></tr>
+<tr><td><code>datos</code></td><td><code>BaseDatos</code> (Room), <code>JuegoDao</code>, 6 entidades, <code>Repositorio</code>, <code>Preferencias</code>, <code>Seguridad</code></td><td>Persistencia en hilo de fondo, guardado atómico (<code>@Transaction</code>)</td></tr>
+<tr><td><code>juego</code></td><td><code>Juego</code>, <code>Alertas</code>, <code>AlarmaReceiver</code>, <code>Sonidos</code></td><td>Partida en memoria, notificaciones locales, sonidos sintetizados (rugido)</td></tr>
+<tr><td><code>vista</code></td><td><code>KaijuPainter</code>, <code>PetView</code>, <code>GuaridaView</code>, <code>DefensaView</code>, <code>BarraView</code></td><td>Dibujo vectorial y animaciones</td></tr>
+<tr><td><code>ui</code></td><td>8 actividades y 5 fragmentos</td><td>Pantallas y navegación</td></tr>
+</table>
+
+<h3>Base de datos (Room, versión 1)</h3>
+<table>
+<tr><th>Tabla</th><th>Guarda</th></tr>
+<tr><td><code>usuarios</code></td><td>usuario (único), sal, hash</td></tr>
+<tr><td><code>partidas</code></td><td>personaje, etapa, ruta, 5 estadísticas, sueño, <b>ultimaActualizacion</b>, monedas, XP, carga de aliento, alerta kaiju, tiempos de espera y contadores de hábitos</td></tr>
+<tr><td><code>inventario</code></td><td>artículo y cantidad por usuario</td></tr>
+<tr><td><code>decoraciones</code></td><td>decoración equipada en cada posición</td></tr>
+<tr><td><code>misiones</code></td><td>recompensas reclamadas (día o "LOGRO")</td></tr>
+<tr><td><code>records</code></td><td>mejor puntaje, victorias y partidas por minijuego</td></tr>
+</table>
+<p>Las preferencias simples (sesión, sonido, notificaciones, modo demo) van en <code>SharedPreferences</code>.</p>
+
+<h2>4. Reglas de tiempo real</h2>
+<table>
+<tr><th>Indicador</th><th>Despierto (por hora)</th><th>Dormido (por hora)</th></tr>
+<tr><td>🐟 Alimentación</td><td>−8</td><td>−4</td></tr>
+<tr><td>🫧 Higiene</td><td>−5</td><td>−2</td></tr>
+<tr><td>⚡ Energía</td><td>−4</td><td>+120</td></tr>
+<tr><td>😊 Felicidad</td><td>−4 (−8 si alimentación o higiene &lt; 30)</td><td>la mitad</td></tr>
+<tr><td>❤ Salud</td><td colspan="2">−6 si alimentación o higiene &lt; 20 o energía &lt; 10 · +2 si el promedio ≥ 60</td></tr>
+</table>
+<div class="caja"><b>Caso obligatorio comprobado:</b> se cierra la app con 80 de alimentación y se abre 2 horas después → muestra <b>64</b> sin pulsar ningún botón (prueba <code>casoObligatorio_80DeAlimentacionBajaA64TrasDosHoras</code> y verificado en el emulador). El cálculo se hace en pasos de 1 minuto, separando el tramo dormido del despierto, con tope de 7 días.</div>
+<p><b>Modo demostración</b> (Configuración): el tiempo corre ×20 (1 min real = 20 min de juego) para poder mostrar el deterioro en clase. La ruta Salvaje multiplica el deterioro ×1.25 y la Guardián reduce a la mitad la pérdida de felicidad.</p>
+
+<h2>5. Estados (8, todos por reglas)</h2>
+<p>Prioridad: <b>Dormido</b> → <b>Enfermo</b> (salud &lt; 30) → <b>Hambriento</b> (alim. &lt; 25) → <b>Sucio</b> (higiene &lt; 25) → <b>Cansado</b> (energía &lt; 20) → <b>Triste</b> (felicidad &lt; 35) → <b>Feliz</b> (felicidad ≥ 75 y promedio ≥ 65) → <b>Normal</b>. Cada estado se ve distinto: ojos cerrados y "Zzz", piel pálida con párpados caídos, burbuja pensando en pescado, manchas y moscas, nube con lluvia y lágrima, notas musicales y rebote, etc. Debajo aparece un <b>mensaje contextual</b> que explica la reacción.</p>
+
+<h2>6. Acciones de cuidado</h2>
+<table>
+<tr><th>Acción</th><th>Efecto</th><th>Restricciones</th></tr>
+<tr><td>🐟 Alimentar</td><td>Según la comida (p. ej. atún +25 alim. +6 fel.)</td><td>Requiere comida en el inventario (la consume); no si está lleno (≥95) o dormido</td></tr>
+<tr><td>🎾 Jugar</td><td>+15 fel., −10 energía, −5 alim., −5 higiene</td><td>Energía ≥ 15, espera de 20 s, despierto</td></tr>
+<tr><td>💤 Dormir</td><td>+5 energía, +3 salud y recupera +120/h durante 20 min de juego</td><td>Energía &lt; 85. Si ya duerme, el botón cambia a "Despertar" (−5 fel.)</td></tr>
+<tr><td>🫧 Bañar</td><td>Con jabón: +40 higiene +5 fel. · sin jabón: +15 higiene −3 energía</td><td>Higiene &lt; 95; el baño gratis tiene espera de 60 s</td></tr>
+<tr><td>⛑ Curar</td><td>+35 salud, +5 energía, −4 fel.</td><td>Requiere Botiquín H.E.A.T.; salud &lt; 95</td></tr>
+<tr><td>💪 Entrenar</td><td>−20 energía, −10 alim., −10 higiene, +5 fel., +20 aliento, +15 XP</td><td>Energía ≥ 25, alim. ≥ 20, salud ≥ 30, espera 30 s</td></tr>
+</table>
+<p>Cada acción reproduce una animación ("¡ÑAM!", burbujas, "¡POW!", corazones, cruces verdes), un sonido de éxito o error y se guarda de inmediato.</p>
+
+<h2>7. Mecánicas exclusivas del personaje</h2>
+<h3>☢ Mecánica 1 · Aliento Atómico</h3>
+<p>Inspirado en el "power breath" verde de Godzilla en la serie. Una barra de carga 0–100 se llena al <b>entrenar</b> (+20) y al comer <b>pescado radioactivo</b> (+25). Se desbloquea en el nivel 3. Con 100 aparece el botón <b>¡ALIENTO ATÓMICO!</b>: un rayo verde cruza la bahía con sacudida de pantalla y rugido (+25 felicidad, +20 XP). En el minijuego Defensa se puede usar una vez para destruir a todos los monstruos, y en una Alerta Kaiju garantiza la victoria. La ruta Atómico la carga al doble.</p>
+<h3>🚨 Mecánica 2 · Alertas Kaiju</h3>
+<p>Como en cada episodio de la serie, monstruos mutantes atacan Nueva York (cangrejo mutante, murciélago colosal, calamar radioactivo…). Desde el nivel 3, cada 10–25 min de juego aparece un aviso rojo con cuenta regresiva de 8 min. <b>DEFENDER</b> cuesta 20 de energía y requiere salud ≥ 30; la probabilidad de ganar depende de energía y salud (gana +40 monedas, +30 XP). Si se ignora —incluso con la app cerrada— la ciudad sufre daños: −15 felicidad y −5 salud al volver.</p>
+
+<h2>8. Minijuegos</h2>
+<table>
+<tr><th></th><th>🌊 Defensa de la Bahía (reflejos)</th><th>🧠 Memoria H.E.A.T. (parejas)</th></tr>
+<tr><td>Acceso</td><td>Nivel 1, cuesta 15 de energía</td><td>Nivel 2, cuesta 10 de energía</td></tr>
+<tr><td>Interacción</td><td>Tocar monstruos antes de que escapen (aro de tiempo); cada vez salen más rápido</td><td>Voltear cartas 4×4 con animación</td></tr>
+<tr><td>Victoria / derrota</td><td>≥ 15 aciertos en 30 s</td><td>8 parejas antes de 60 s</td></tr>
+<tr><td>Puntaje</td><td>10 por acierto</td><td>10 por pareja + segundos restantes</td></tr>
+<tr><td>Premio</td><td>puntaje/5 monedas (+20 si gana)</td><td>puntaje/4 monedas (+15 si gana)</td></tr>
+</table>
+<p>Ambos tienen instrucciones, inicio, opción <b>Repetir</b>, guardan mejor puntaje y victorias, y salir a mitad de la ronda cuenta como derrota con el puntaje parcial.</p>
+
+<h2>9. Tienda, inventario y guarida</h2>
+<table>
+<tr><th>Tipo</th><th>Artículos (precio · nivel)</th></tr>
+<tr><td>Comida (3)</td><td>Lata de sardinas 8 · Atún gigante 15 · Pescado radioactivo 30 (nv 2)</td></tr>
+<tr><td>Cuidado (3)</td><td>Jabón marino 12 · Botiquín H.E.A.T. 35 · Isótopo energético 40 (nv 3)</td></tr>
+<tr><td>Decoración (10)</td><td><b>Ventanal:</b> Skyline de Manhattan 60, Arrecife 80 (nv 2), Isla Monstruo 110 (nv 3) · <b>Izquierda:</b> Helicóptero 50, Barco pesquero 70 (nv 2) · <b>Derecha:</b> Antena torcida 45, Mini Estatua de la Libertad 120 (nv 4) · <b>Suelo:</b> Alfombra de algas 35, Conos aplastados 25, Charco radioactivo 55 (nv 3)</td></tr>
+</table>
+<p>Compra bloqueada sin saldo (indica cuánto falta), por nivel, por decoración repetida o inventario lleno (99). Consumibles bajan su cantidad al usarse; decoraciones se equipan sin consumirse en <b>4 posiciones fijas</b> de la guarida, sólo si se poseen, y se ven igual al reabrir la app.</p>
+
+<h2>10. Niveles, misiones y evolución</h2>
+<table>
+<tr><th>Nivel (XP)</th><th>Desbloqueo</th></tr>
+<tr><td>1 (0)</td><td>Defensa de la Bahía y tienda básica</td></tr>
+<tr><td>2 (60)</td><td>Memoria H.E.A.T., pescado radioactivo, arrecife</td></tr>
+<tr><td>3 (150)</td><td>Evoluciona a Juvenil, Aliento Atómico, Alertas Kaiju, isótopo</td></tr>
+<tr><td>4 (280)</td><td>Mini Estatua de la Libertad</td></tr>
+<tr><td>5 (450)</td><td>Evolución final</td></tr>
+<tr><td>6 (700)</td><td>Título "Rey de los Monstruos": +10 monedas por misión</td></tr>
+</table>
+<p><b>Misiones diarias</b> (se renuevan a medianoche): alimentar 3 veces, jugar 2 minijuegos, entrenar 2 veces. <b>Logros</b> (permanentes): llegar a nivel 4, ganar 5 minijuegos, equipar 3 decoraciones, ganar 3 Alertas Kaiju, alcanzar una forma final. Cada recompensa se marca como reclamada (con el día, en las diarias), por lo que no puede cobrarse dos veces.</p>
+<div class="caja"><b>Regla medible de evolución</b> (al llegar a nivel 5 siendo Juvenil):<br>
+1) Bienestar promedio histórico &lt; 50 → <b>Godzilla Salvaje</b> — gana siempre las Alertas Kaiju y +50 % XP en ellas, pero sus necesidades bajan 25 % más rápido.<br>
+2) Entrenamientos ≥ 6 y entrenamientos × 2 ≥ cuidados → <b>Godzilla Atómico</b> — aliento carga ×2 y entrenar cuesta 25 % menos energía.<br>
+3) En otro caso → <b>Godzilla Guardián</b> — +25 % de monedas y la felicidad baja la mitad de rápido.<br>
+El bienestar promedio se pondera por minuto de juego. La pantalla Progreso muestra el historial y la ruta prevista en todo momento.</div>
+
+<h2>11. Alertas locales y validaciones</h2>
+<p><b>Notificaciones</b> (canal propio; en Android 13+ se pide el permiso <code>POST_NOTIFICATIONS</code>): al salir de la app se programan con <code>AlarmManager</code> inexacto (1) la <b>necesidad crítica</b>, calculando cuándo la alimentación o la higiene llegarán a 20, y (2) el <b>fin del descanso</b> si está dormido. Se cancelan al volver.</p>
+<p><b>Validaciones:</b> límites 0–100 en una sola clase; nombre y usuario con patrón; compras sin saldo; acciones imposibles con mensaje claro; recompensas duplicadas; <b>reinicio con doble confirmación</b> (hay que escribir REINICIAR); nueva partida pide confirmación si ya existe una.</p>
+
+<h2>12. Pruebas</h2>
+<p>18 pruebas JUnit (<code>app/src/test</code>), todas en verde: límites de estadísticas, estados por reglas, caso obligatorio de tiempo, modo demo, eclosión, consumo de inventario, sueño y despertar automático, esperas, compras sin saldo, equipar sólo lo propio, misiones sin doble reclamo y renovación diaria, evolución Juvenil/Final y las 3 rutas. Además se probó todo el flujo en el emulador Android 14 (capturas abajo).</p>
+
+<div class="salto"></div>
+<h2>13. Capturas</h2>
+<div class="galeria">
+  <figure><img src="capturas/login.jpg" width="150"><figcaption>Inicio de sesión</figcaption></figure>
+  <figure><img src="capturas/seleccion.jpg" width="150"><figcaption>Selección de huevo</figcaption></figure>
+  <figure><img src="capturas/huevo.jpg" width="150"><figcaption>Huevo por eclosionar</figcaption></figure>
+  <figure><img src="capturas/cria.jpg" width="150"><figcaption>La cría</figcaption></figure>
+  <figure><img src="capturas/pestanas.jpg" width="640"><figcaption>Tienda · Guarida · Misiones · Minijuegos</figcaption></figure>
+  <figure><img src="capturas/evolucion_atomico.jpg" width="340"><figcaption>Evento de evolución → Godzilla Atómico</figcaption></figure>
+  <figure><img src="capturas/formas_finales.jpg" width="640"><figcaption>Salvaje · Guardián · guarida decorada</figcaption></figure>
+  <figure><img src="capturas/alerta_progreso_ajustes.jpg" width="640"><figcaption>Alerta Kaiju · defensa · Progreso · Configuración</figcaption></figure>
+  <figure><img src="capturas/defensa.jpg" width="150"><figcaption>Defensa de la Bahía</figcaption></figure>
+  <figure><img src="capturas/memoria.jpg" width="150"><figcaption>Memoria H.E.A.T.</figcaption></figure>
+  <figure><img src="capturas/caso_obligatorio.jpg" width="300"><figcaption>Reabierta tras 2 h: 80 → 64</figcaption></figure>
+</div>
+
+<h2>14. Guion sugerido para la demostración en vivo</h2>
+<ol>
+  <li>Crear cuenta, elegir huevo, nombrarlo y tocar el huevo hasta que nazca.</li>
+  <li>Mostrar las 6 acciones, incluyendo un error (p. ej. curar sin botiquín o jugar sin energía).</li>
+  <li>Comprar comida y una decoración; colocarla en la guarida.</li>
+  <li>Jugar un minijuego y reclamar una misión (intentar reclamarla otra vez → bloqueado).</li>
+  <li>Activar el modo demostración, cerrar la app 1–2 minutos y reabrir: las barras bajaron solas.</li>
+  <li>Explicar en Progreso la regla de evolución y las 2 mecánicas exclusivas (Aliento Atómico y Alertas Kaiju).</li>
+</ol>
+<p><b>Ejecutar:</b> abrir la carpeta <code>GodziPet90</code> en Android Studio y pulsar Run, o instalar <code>app/build/outputs/apk/debug/app-debug.apk</code>.</p>
+</body>
+</html>
