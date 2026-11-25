@@ -113,7 +113,7 @@ public final class Cuidados {
         Resultado base = validarBase(p);
         if (base != null) return base;
         if (p.getNecesidades().get(Stat.SALUD) >= 95) return Resultado.error("Está completamente sano.");
-        if (!p.getInventario().posee(Catalogo.BOTIQUIN)) return Resultado.error("No tienes botiquines H.E.A.T. Cómpralos en la tienda.");
+        if (!p.getInventario().posee(Catalogo.BOTIQUIN)) return Resultado.error("No tienes botiquines de la Fuerza G. Cómpralos en la tienda.");
         p.getInventario().consumir(Catalogo.BOTIQUIN);
         Articulo b = Catalogo.buscar(Catalogo.BOTIQUIN);
         aplicarEfectos(p, b);

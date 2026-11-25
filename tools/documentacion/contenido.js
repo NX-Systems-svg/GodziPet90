@@ -1,0 +1,337 @@
+// Contenido de la "Tarea 1 · Documentación funcional y diseño de la aplicación".
+// Un solo origen para el Word (.docx) y el PDF. Texto con **negritas**.
+const I = (n) => __dirname + '/img/' + n;
+const P = (n) => I('pantallas/' + n + '.jpg');
+const E = (n) => I('estados/' + n + '.png');
+const IT = (n) => I('items/' + n + '.png');
+const D = (n) => __dirname + '/diag/' + n + '.png';
+
+const h1 = (t) => ({ t: 'h1', v: t });
+const h2 = (t) => ({ t: 'h2', v: t });
+const p = (t) => ({ t: 'p', v: t });
+const ul = (...a) => ({ t: 'ul', v: a });
+const nota = (t) => ({ t: 'nota', v: t });
+const img = (src, ancho, pie) => ({ t: 'img', src, ancho, pie });
+const tabla = (cols, enc, filas) => ({ t: 'tabla', cols, enc, filas });
+const salto = () => ({ t: 'salto' });
+const pantalla = (src, titulo, texto) => ({ t: 'pantalla', src, titulo, texto });
+const galeria = (items, ancho, porFila) => ({ t: 'galeria', items, ancho, porFila });
+
+const COLORES = [
+  ['#0E1630', 'Noche en la bahía', 'Fondo general de la app (cielo nocturno de Tokio).'],
+  ['#18234A', 'Panel', 'Tarjetas y paneles con contorno grueso estilo cómic.'],
+  ['#3DE0FF', 'Aliento atómico', 'Color principal y botones: el rayo azul de Godzilla en las películas japonesas.'],
+  ['#C8102E', 'Rojo póster', 'Título ゴジラ, sol naciente y avisos: carteles de cine japonés retro.'],
+  ['#F2E6C9', 'Crema papel', 'Fondo del modo póster y textos sobre rojo.'],
+  ['#FFD23F', 'Amarillo cómic', 'Títulos de sección, monedas y botones de compra.'],
+  ['#FF8A1F', 'Naranja', 'Acciones de comida y botón de nueva partida.'],
+  ['#FF4D5E', 'Rojo alerta', 'Valores críticos, errores y Alertas Kaiju.'],
+  ['#111111', 'Tinta', 'Contornos de los dibujos y sombras duras.'],
+];
+
+module.exports = {
+  portada: {
+    logoInst: I('logo_cesba.png'),
+    universidad: 'Centro de Estudios Superiores del Bajío (CESBA) · Querétaro',
+    materia: 'Programación Móvil I',
+    trabajo: 'Tarea 1. Documentación funcional y diseño de la aplicación\nProyecto final «RetroPet 90»',
+    estudiante: 'Emilio Garduño Servín',
+    grupo: '6.º semestre · Grupo 6 A',
+    docente: 'Prof. Víctor Ricardo Vargas Ávila',
+    app: 'Godzi-Pet 90 · ゴジラ',
+    logoApp: I('logo_app.png'),
+    fecha: 'Fecha de entrega: 29 de noviembre de 2026',
+  },
+  bloques: [
+    // ------------------------------------------------------------------ 2
+    h1('2. Introducción'),
+    p('**Godzi-Pet 90** es una mascota virtual (tipo Tamagotchi) para Android en la que el jugador cría a su propio Godzilla desde el huevo hasta convertirlo en el Rey de los Monstruos. Fue desarrollada en Android Studio con Java, guarda todo en una base de datos local (Room/SQLite) y funciona sin conexión a Internet.'),
+    p('**Propósito.** Que el jugador cuide a un ser vivo digital cuyas necesidades cambian con el tiempo real —aunque la aplicación esté cerrada— y que cada decisión tenga consecuencias visibles: el estado de ánimo, la economía, las misiones y, sobre todo, la forma final en la que evoluciona.'),
+    p('**Temática.** El personaje es Godzilla. La idea parte de la caricatura de los 90 *Godzilla: The Series* (1998) y, por sugerencia del profesor, se llevó al Godzilla japonés original de Toho: los escenarios son lugares reales de las películas (Isla Odo, Ginza, Monte Fuji, Torre de Tokio, Castillo de Osaka, Kamakura…), las etapas siguen la cronología de Baby Godzilla → Little Godzilla → Godzilla Junior y las formas finales son las eras Showa, Heisei, Burning y Shin. Todo el arte está dibujado por código o renderizado en 3D propio; no se usan imágenes, música ni logotipos con derechos de autor.'),
+    p('**Experiencia.** Una sesión típica dura pocos minutos: el jugador revisa a su kaiju, lo alimenta arrastrando la comida hasta su boca, equilibra su radiación, juega un minijuego para ganar monedas, compra objetos, decora su guarida japonesa y cumple misiones. Escenarios 3D con profundidad, música japonesa sintetizada, vibraciones y secretos para fans buscan que se sienta como una pequeña película de monstruos en el bolsillo.'),
+
+    // ------------------------------------------------------------------ 3
+    h1('3. Identidad visual'),
+    h2('3.1 Nombre de la aplicación y su significado'),
+    p('**Godzi-Pet 90** combina tres ideas: **Godzi** (Godzilla, el personaje), **Pet** (mascota virtual) y **90** (la consigna del proyecto RetroPet 90: caricaturas de los años 90). El subtítulo **ゴジラ** («Gojira») es el nombre japonés original, que mezcla *gorira* (gorila) y *kujira* (ballena).'),
+    h2('3.2 Logotipo'),
+    img(I('logo_app.png'), 2.6, 'Logotipo y pantalla de título: «ゴジラ» en estilo pincel sobre un sol naciente con rayos, la silueta de Godzilla con placas que brillan y el horizonte de Tokio.'),
+    p('El ícono de la aplicación muestra las aletas dorsales del kaiju sobre la ciudad nocturna y un halo atómico, reconocible aun en tamaño pequeño.'),
+    h2('3.3 Paleta de colores'),
+    { t: 'paleta', v: COLORES },
+    p('Cada indicador tiene su propio color para reconocerlo de un vistazo: alimentación naranja **#FF9F43**, felicidad amarilla **#FFD23F**, energía azul **#4FC3F7**, higiene turquesa **#7FE3C4**, salud rosa **#FF5C7A** y radiación cian **#3DE0FF**.'),
+    h2('3.4 Tipografías'),
+    tabla([2.0, 2.2, 2.3], ['Uso', 'Tipografía', 'Por qué'], [
+      ['Títulos y botones', 'Roboto Black (sans-serif-black)', 'Gruesa y legible, recuerda a los títulos de cómic.'],
+      ['Subtítulos y etiquetas', 'Roboto Condensed Bold', 'Ocupa menos ancho en las barras de estadísticas.'],
+      ['Texto general', 'Roboto Regular', 'Tipografía del sistema Android, máxima legibilidad.'],
+      ['Números de las barras', 'Monospace Bold', 'Los dígitos no «bailan» al cambiar de valor.'],
+      ['Kanji y katakana (ゴジラ, 怪獣)', 'Noto Sans CJK', 'Incluida en Android; muestra los textos japoneses.'],
+    ]),
+    p('Se usan sólo fuentes del sistema para que la app funcione sin Internet y no pese más.'),
+    h2('3.5 Justificación de las decisiones de diseño'),
+    ul('**Estilo cómic de los 90:** contornos gruesos, sombras duras desplazadas y botones que se «aplastan» al tocarlos, como en las caricaturas de la época.',
+       '**Póster de cine japonés:** el rojo del sol naciente y el crema del papel evocan los carteles de las películas de Godzilla.',
+       '**Fondo oscuro nocturno:** hace resaltar el brillo azul de las placas y del aliento atómico, que es la firma visual del personaje.',
+       '**Información clara:** cada indicador tiene ícono, nombre, barra segmentada y número; los valores críticos parpadean en rojo.',
+       '**Accesibilidad:** botones de al menos 48 dp, descripciones para lector de pantalla y, si el teléfono tiene desactivadas las animaciones, el juego detiene el movimiento automático.'),
+
+    // ------------------------------------------------------------------ 4
+    h1('4. El personaje'),
+    tabla([1.8, 4.7], ['Dato', 'Descripción'], [
+      ['Personaje', '**Godzilla** (ゴジラ, Gojira). El jugador le da su propio nombre al incubar el huevo (2 a 14 caracteres).'],
+      ['Caricatura de origen', '*Godzilla: The Series* (1998-2000), caricatura de finales de los 90. La app rinde homenaje también a las películas japonesas de Toho (1954-2016).'],
+      ['Especie', 'Kaiju (monstruo gigante) mutado por la radiación nuclear.'],
+    ]),
+    h2('4.1 Historia'),
+    p('En la caricatura, tras la caída del primer Godzilla en Nueva York, el biólogo Nick Tatopoulos encuentra un huevo que sobrevivió. La cría que nace lo reconoce como su «padre» y, junto al equipo de investigación H.E.A.T., protege la ciudad de otros monstruos mutantes. En las películas japonesas, Godzilla nace de la radiación de las pruebas nucleares y aparece por primera vez en la Isla Odo (1954).'),
+    p('Godzi-Pet 90 une ambas ideas: el jugador cuida un huevo de kaiju —puede elegir uno de cuatro orígenes, incluido un huevo de Nueva York en homenaje a la caricatura— y lo ve crecer como Baby Godzilla, Little Godzilla y Godzilla Junior hasta su forma definitiva.'),
+    h2('4.2 Características'),
+    ul('**Radiación:** es su fuente de poder y su mayor peligro; debe mantenerse en equilibrio.',
+       '**Aletas dorsales** que se encienden de la cola a la cabeza antes de lanzar el **aliento atómico** azul (de cría sólo le salen anillos de humo, como a Minilla, el hijo de Godzilla).',
+       '**Protector de Japón:** responde a las Alertas Kaiju cuando otros monstruos atacan.',
+       '**Pisadas que hacen temblar** la pantalla, **rugido** propio y gusto por la comida japonesa.'),
+    h2('4.3 Estados visuales'),
+    p('El estado no se elige con un botón: se calcula con reglas a partir de los indicadores, en este orden de prioridad.'),
+    tabla([1.4, 2.9, 2.2], ['Estado', 'Regla', 'Cómo se ve'], [
+      ['Dormido', 'Está durmiendo', 'Ojos cerrados, «Zzz» y escena nocturna.'],
+      ['¡En fusión!', 'Radiación ≥ 85', 'Cuerpo rojo incandescente, vapor y aviso ⚠.'],
+      ['Enfermo', 'Salud < 30', 'Piel pálida verdosa, párpados caídos y burbuja 🤒.'],
+      ['Sin radiación', 'Radiación < 20', 'Placas grises sin brillo y burbuja ☢.'],
+      ['Hambriento', 'Alimentación < 25', 'Boca entreabierta y piensa en un onigiri.'],
+      ['Sucio', 'Higiene < 25', 'Manchas de escombro y moscas.'],
+      ['Cansado', 'Energía < 20', 'Párpados caídos y gotas de sudor.'],
+      ['Triste', 'Felicidad < 35', 'Cejas caídas, lágrima y mirada hacia abajo.'],
+      ['Feliz', 'Felicidad ≥ 75 y promedio ≥ 65', 'Ojos ^ ^, boca abierta, rubor, notas y rebote.'],
+      ['Normal', 'Ninguna de las anteriores', 'Postura tranquila y respiración.'],
+    ]),
+    galeria([
+      [E('NORMAL'), 'Normal'], [E('FELIZ'), 'Feliz'], [E('TRISTE'), 'Triste'], [E('HAMBRIENTO'), 'Hambriento'], [E('SUCIO'), 'Sucio'],
+      [E('CANSADO'), 'Cansado'], [E('ENFERMO'), 'Enfermo'], [E('DEBIL'), 'Sin radiación'], [E('FUSION'), '¡En fusión!'], [E('DORMIDO'), 'Dormido'],
+    ], 2.05, 3),
+    h2('4.4 Etapas y formas'),
+    tabla([1.7, 1.9, 2.9], ['Forma', 'Cuándo aparece', 'Referencia en el cine japonés'], [
+      ['Huevo', 'Al iniciar', 'Se toca 5 veces para que eclosione.'],
+      ['Baby Godzilla', 'Al eclosionar (nivel 1)', 'Godzilla vs. Mechagodzilla II (1993).'],
+      ['Little Godzilla', 'Nivel 2', 'Godzilla vs. SpaceGodzilla (1994).'],
+      ['Godzilla Junior', 'Nivel 3', 'Godzilla vs. Destoroyah (1995).'],
+      ['Godzilla Showa / Heisei / Burning / Shin', 'Nivel 5, según su cuidado', 'Eras Showa (1954-75) y Heisei (1984-95), Burning Godzilla (1995) y Shin Godzilla (2016).'],
+    ]),
+    salto(),
+
+    // ------------------------------------------------------------------ 5
+    h1('5. Funcionalidades de la aplicación'),
+    tabla([1.9, 4.6], ['Funcionalidad', 'Cómo interactúa el usuario'], [
+      ['Cuenta local', 'Crea una cuenta con usuario y contraseña (se guarda cifrada en el teléfono) o entra con una existente. No requiere Internet.'],
+      ['Nueva partida', 'Elige uno de 4 huevos (Isla Odo, Isla Adonoa, Isla del Nacimiento o Nueva York), cada uno con una ventaja inicial, y le pone nombre. Toca el huevo 5 veces para que nazca.'],
+      ['Continuar', 'Al reabrir la app el juego calcula el tiempo que pasó y aplica el desgaste de las necesidades.'],
+      ['Cuidados', '8 botones: Comer, Jugar, Dormir/Despertar, Nadar, Curar, Entrenar, Central nuclear y Viajar. Cada uno valida restricciones y muestra una animación y un mensaje.'],
+      ['Comida arrastrable', 'Al elegir una comida aparece en la escena y el jugador la arrastra con el dedo hasta la boca del kaiju.'],
+      ['Caricias y mirada', 'Frotar al kaiju lo hace ronronear (vibración); su cabeza sigue el dedo del jugador.'],
+      ['Aliento atómico', 'Cuando la carga llega a 100 aparece el botón; las placas se encienden y lanza el rayo (de cría, anillos de humo).'],
+      ['Minijuegos', '4 juegos para ganar monedas y experiencia (sección 7).'],
+      ['Tienda e inventario', 'Compra con monedas comida, cuidados y decoraciones; usa o coloca lo que tiene (sección 8).'],
+      ['Guarida', 'Cuarto japonés con 4 posiciones para decorar (sección 10.1).'],
+      ['Misiones', '4 diarias y 7 logros con recompensa (sección 10.2).'],
+      ['Progreso y evolución', 'Muestra nivel, experiencia, desbloqueos, línea evolutiva, historial de hábitos y la regla de evolución.'],
+      ['Mapa de Japón', '8 escenarios de las películas, desbloqueables por nivel. Viajar a uno nuevo da +10 XP.'],
+      ['Kaiju-pedia', 'Álbum de formas, escenarios y secretos descubiertos (28 elementos coleccionables).'],
+      ['Alertas Kaiju', 'Un monstruo ataca una ciudad; el jugador pulsa DEFENDER antes de que acabe el tiempo.'],
+      ['Agitar y rugir', 'Agitar el teléfono provoca un terremoto (pisotón); rugirle al micrófono hace que Godzilla conteste (sólo mide el volumen, no graba).'],
+      ['Foto póster', 'Captura la escena dentro de un póster de película japonesa y la comparte.'],
+      ['Godzilla en tu cuarto', 'Muestra al kaiju sobre la cámara del teléfono; se mueve, escala y gira con los dedos y se toma una foto.'],
+      ['Widget', 'Tarjeta en la pantalla de inicio del teléfono con el kaiju, su forma y sus barras.'],
+      ['Alertas locales', 'Notificaciones de necesidad crítica, fin del descanso y sobrecalentamiento.'],
+      ['Configuración', 'Sonido, notificaciones, modo demostración (×20), música, vibración, efectos de GPU, profundidad 3D, agitar, micrófono, filtros visuales y reinicio con doble confirmación (escribir REINICIAR).'],
+      ['Modo evaluador', 'Panel para el profesor con todo desbloqueado. Se activa con el código **GOJIRA1954** (sección 11.3).'],
+    ]),
+
+    // ------------------------------------------------------------------ 6
+    h1('6. Sistema de necesidades'),
+    p('Todos los indicadores van de **0 (mínimo) a 100 (máximo)**; ningún valor puede salir de ese rango. Bajan con el tiempo real (por hora de juego), también con la app cerrada: al reabrirla se calcula el tiempo transcurrido. Ejemplo comprobable: con 80 de alimentación, 2 horas después hay **64**.'),
+    tabla([1.15, 1.75, 1.85, 1.75], ['Indicador', 'Cómo disminuye', 'Cómo aumenta', 'Valor crítico y consecuencias'], [
+      ['🍙 Alimentación', '−8/h despierto, −4/h dormido · Jugar −5 · Entrenar −10', 'Onigiri +12 · Atún +25 · Ramen +22 · Pescado radioactivo +15', '< 25: estado Hambriento · < 20: baja la salud 6/h, no puede entrenar y llega una notificación · < 30: la felicidad baja al doble'],
+      ['😊 Felicidad', '−4/h (−8/h si tiene hambre o está sucio; la mitad dormido; 0 en la Isla de los Monstruos) · Despertarlo −5 · Curar −4 · Alerta ignorada −15', 'Jugar +15 · Minijuego +15/+5 · Comida +2 a +10 · Caricia +3 · Central +5 · Aliento +25 · ¡Shie! +15 · Mothra +20', '< 35: estado Triste · influye en el promedio de bienestar que decide la evolución'],
+      ['⚡ Energía', '−4/h despierto · Jugar −10 · Entrenar −20 · Minijuegos −10 a −25 · Defender −20', '+120/h durmiendo · Dormir +5 · Central +10 · Isótopo +40 · Botiquín +5', '< 20: estado Cansado · < 15: no puede jugar · < 10: baja la salud 6/h · sin la energía mínima se bloquean minijuegos y defensas'],
+      ['🫧 Higiene', '−5/h despierto, −2/h dormido · Jugar −5 · Entrenar −10 · Minijuego −3 · Central −5', 'Nadar en el mar +15 (gratis cada 60 s) · Con jabón marino +40', '< 25: estado Sucio · < 20: baja la salud 6/h y notificación · < 30: la felicidad baja al doble'],
+      ['❤ Salud', '−6/h si alimentación o higiene < 20 o energía < 10 · −5/h si radiación ≥ 85 · Derrota en alerta −10', 'Botiquín +35 · Dormir +3 · +2/h si el promedio de bienestar ≥ 60', '< 30: estado Enfermo · no puede entrenar, jugar minijuegos ni defender la ciudad'],
+    ]),
+    nota('Indicador adicional — ☢ **Radiación** (mecánica exclusiva, sección 11): no se llena, se equilibra. Su zona ideal es **40-70**; baja 3/h y sube con la central nuclear, el pescado radioactivo y el isótopo. Con < 20 está «Sin radiación» (pierde energía) y con ≥ 85 se sobrecalienta. Con ≥ 95 durante 30 minutos de juego su núcleo se funde.'),
+
+    // ------------------------------------------------------------------ 7
+    h1('7. Minijuegos'),
+    p('Los cuatro minijuegos comparten un flujo: **instrucciones → se cobra la energía → partida con tiempo → puntaje → victoria o derrota → premio proporcional → repetir o salir**. Salir a mitad de la ronda cuenta como derrota con el puntaje parcial. Se guardan el mejor puntaje, las victorias y las partidas jugadas. Además de monedas, cada partida da **experiencia = puntaje ÷ 10 + 15 si gana (o + 3 si pierde)** y felicidad (+15 si gana, +5 si pierde).'),
+    { t: 'minijuego', nombre: '7.1 Defensa de Tokio', img1: P('24_defensa_instr'), img2: P('25_defensa'), filas: [
+      ['Objetivo', 'Proteger la bahía de Tokio de los kaijus enemigos (mantis, pteranodón y langosta mutante).'],
+      ['Instrucciones', 'Toca a cada monstruo que emerge del agua antes de que se acabe su aro de tiempo. Si el aliento está al 100% puedes usarlo una vez para arrasar con todos.'],
+      ['Reglas', 'Disponible desde el nivel 1 · cuesta 15 de energía · dura 30 s · cada acierto vale 10 puntos · los monstruos salen cada vez más rápido.'],
+      ['Victoria / derrota', 'Gana con **15 aciertos o más**; con menos, pierde.'],
+      ['Recompensa', 'Monedas = puntaje ÷ 5 (+20 si gana).'],
+      ['Interfaz', 'Encabezado con tiempo, contador de aciertos y escapes; escena nocturna de Tokio con la Torre; el kaiju dispara un rayo azul a cada monstruo tocado.'],
+    ]},
+    { t: 'minijuego', nombre: '7.2 Anillos de Humo', img1: P('26_anillos_instr'), img2: P('27_anillos'), filas: [
+      ['Objetivo', 'Homenaje a Minilla (1967): atrapar insectos gigantes con anillos de humo.'],
+      ['Instrucciones', 'Toca la pantalla para soplar un anillo hacia ese punto; si alcanza a un insecto, cae.'],
+      ['Reglas', 'Nivel 1 · cuesta 10 de energía · 30 s · un anillo a la vez · 10 puntos por insecto.'],
+      ['Victoria / derrota', 'Gana con **10 insectos o más**.'],
+      ['Recompensa', 'Monedas = puntaje ÷ 5 (+15 si gana).'],
+      ['Interfaz', 'Playa tropical al atardecer con volcán y palmeras; Little Godzilla a la izquierda; contador de aciertos y escapes.'],
+    ]},
+    { t: 'minijuego', nombre: '7.3 Memoria Fuerza G', img1: P('28_memoria_instr'), img2: P('29_memoria'), filas: [
+      ['Objetivo', 'Encontrar las 8 parejas de cartas (Fuji, Torre de Tokio, onigiri, radiación, Mothra, castillo, torii, pez).'],
+      ['Instrucciones', 'Voltea dos cartas; si son iguales se quedan descubiertas, si no, se vuelven a tapar.'],
+      ['Reglas', 'Desde el nivel 2 · cuesta 10 de energía · 60 s · cuenta los intentos.'],
+      ['Victoria / derrota', 'Gana si encuentra las 8 parejas antes de 60 s.'],
+      ['Recompensa', 'Puntaje = parejas × 10 + segundos restantes si gana · monedas = puntaje ÷ 4 (+15 si gana).'],
+      ['Interfaz', 'Cuadrícula de 4 × 4 cartas que giran; las parejas encontradas se ponen verdes.'],
+    ]},
+    { t: 'minijuego', nombre: '7.4 Batalla contra Mecha-Kaiju', img1: P('30_batalla_instr'), img2: P('31_batalla'), filas: [
+      ['Objetivo', 'Derrotar a un robot gigante de diseño propio que ataca Tokio.'],
+      ['Instrucciones', 'Toca los misiles para destruirlos. Mantén presionado para cargar el aliento (las placas se encienden) y suelta para disparar; la carga completa hace un CRÍTICO de 22%.'],
+      ['Reglas', 'Desde el nivel 3 · cuesta 25 de energía · 60 s · cada misil que te alcanza quita 6 de vida (8 en furia) y el láser 12 · al 50% el jefe se enfurece.'],
+      ['Victoria / derrota', 'Gana si la vida del jefe llega a 0; pierde si su vida llega a 0 o se acaba el tiempo.'],
+      ['Recompensa', 'Puntaje = daño causado + vida restante + 2 por segundo sobrante si gana · monedas = puntaje ÷ 5 (+40 si gana).'],
+      ['Interfaz', 'Barras de vida del jefe y propia, números de daño, explosiones y temblor de cámara.'],
+    ]},
+
+    // ------------------------------------------------------------------ 8
+    h1('8. Sistema de economía virtual'),
+    p('La moneda del juego es la **🪙 moneda**. El saldo se guarda en la partida y se muestra siempre en la barra superior.'),
+    ul('**Saldo inicial:** 100 monedas (+60 con el huevo de la Isla Odo, +30 con el de Nueva York).',
+       '**Cómo se ganan:** minijuegos, misiones diarias y logros, Alertas Kaiju ganadas (+40) y, con la forma Showa, +25% en todo. En nivel 6 cada misión paga +10 extra.',
+       '**Cómo se compra:** en la pestaña Tienda se toca el precio. Si el nivel no alcanza, la decoración ya se tiene o faltan monedas, la compra se bloquea y se indica cuánto falta.',
+       '**Inventario:** los consumibles se acumulan (máximo 99) y se gastan al usarse; las decoraciones se compran una sola vez y se colocan sin gastarse.'),
+    { t: 'tienda', filas: [
+      ['onigiri', 'Onigiri', 8, 'Comida', '+12 alimentación, +3 felicidad'],
+      ['atun', 'Atún gigante', 15, 'Comida', '+25 alimentación, +6 felicidad'],
+      ['ramen', 'Ramen humeante', 18, 'Comida', '+22 alimentación, +10 felicidad, +3 energía'],
+      ['pescado_rad', 'Pescado radioactivo', 30, 'Comida (nv 2)', '+15 alim., +4 fel., +10 energía, −2 salud, +20 radiación, +25 aliento'],
+      ['jabon', 'Jabón marino', 12, 'Cuidado', 'Al nadar: +40 higiene, +5 felicidad'],
+      ['botiquin', 'Botiquín Fuerza G', 35, 'Cuidado', '+35 salud, +5 energía, −4 felicidad'],
+      ['isotopo', 'Isótopo energético', 40, 'Cuidado (nv 2)', '+40 energía, +3 fel., +25 radiación, +10 aliento'],
+      ['cadmio', 'Misil de cadmio', 25, 'Cuidado', '−35 radiación, −5 salud, −5 felicidad (enfría el núcleo)'],
+      ['destructor_oxigeno', 'Destructor de Oxígeno', '—', 'Exhibición', 'No se vende: intentar comprarlo desbloquea un secreto'],
+      ['v_fuji', 'Vista al Monte Fuji', 60, 'Decoración · ventanal', 'Decora la guarida'],
+      ['v_odo', 'Isla Odo de noche', 80, 'Decoración · ventanal (nv 2)', 'Decora la guarida'],
+      ['v_monstruos', 'Isla de los Monstruos', 110, 'Decoración · ventanal (nv 3)', 'Decora la guarida'],
+      ['i_toro', 'Linterna de piedra', 50, 'Decoración · izquierda', 'Luz cálida que parpadea'],
+      ['i_torre', 'Torre de Tokio miniatura', 120, 'Decoración · izquierda (nv 4)', 'Decora la guarida'],
+      ['d_daruma', 'Muñeco Daruma', 45, 'Decoración · derecha', 'Decora la guarida'],
+      ['d_bonsai', 'Bonsái de pino', 70, 'Decoración · derecha (nv 2)', 'Decora la guarida'],
+      ['d_reloj', 'Reloj de la torre Wako', 90, 'Decoración · derecha (nv 3)', 'Marca la hora real'],
+      ['s_tatami', 'Tatami', 30, 'Decoración · suelo', 'Decora la guarida'],
+      ['s_ola', 'Alfombra La Gran Ola', 65, 'Decoración · suelo (nv 2)', 'Decora la guarida'],
+      ['s_koi', 'Estanque koi', 85, 'Decoración · suelo (nv 3)', 'Peces koi animados'],
+    ]},
+
+    // ------------------------------------------------------------------ 9
+    h1('9. Sistema de niveles y evolución'),
+    p('**Cómo obtiene experiencia (XP):** comer +5, jugar +5, dormir +3, nadar +4, curar +5, entrenar +15, central nuclear +5, aliento atómico +20 (anillo de humo +10), eclosionar +10, visitar un escenario nuevo +10, descubrir un secreto +15, ganar una Alerta Kaiju +30, misiones (20 a 60) y minijuegos (puntaje ÷ 10 + 15 o + 3). Después de una fusión nuclear cada generación gana **+10% de XP** (máximo +30%).'),
+    tabla([0.8, 1.1, 4.6], ['Nivel', 'XP mínima', 'Recompensa y desbloqueos'], [
+      ['1', '0', 'Isla Odo, Bahía de Tokio, Defensa de Tokio, Anillos de Humo y tienda básica'],
+      ['2', '60', 'Evoluciona a Little Godzilla · Memoria Fuerza G · Ginza 1954 · Monte Fuji · pescado radioactivo e isótopo'],
+      ['3', '150', 'Evoluciona a Godzilla Junior · aliento atómico real · Alertas Kaiju · Torre de Tokio · Batalla contra Mecha-Kaiju'],
+      ['4', '280', 'Castillo de Osaka · Torre de Tokio en miniatura · logro «Rey en ascenso»'],
+      ['5', '450', '¡Forma final según cómo lo cuidó! · Kamakura'],
+      ['6', '700', 'Isla de los Monstruos · título Rey de los Monstruos (+10 monedas por misión)'],
+    ]),
+    p('Cada cambio de etapa reproduce una **animación de evolución** (silueta que destella, sol rojo con rayos y el nombre de la nueva forma). El nivel, la XP, la etapa y la ruta se guardan en la base de datos.'),
+
+    // ------------------------------------------------------------------ 10
+    h1('10. Desafíos avanzados'),
+    h2('10.1 Habitación personalizable (la guarida)'),
+    ul('**Escena base:** cuarto japonés (washitsu) con ventana shoji, vigas de madera, tokonoma y piso de tatami.',
+       '**4 posiciones definidas:** Ventanal, Rincón izquierdo, Rincón derecho y Suelo.',
+       '**11 decoraciones** en la tienda (tabla de la sección 8), con precios de 30 a 120 monedas; algunas se desbloquean por nivel.',
+       '**Reglas:** sólo se puede colocar lo que está en el inventario y en la posición que le corresponde; se puede cambiar o retirar en cualquier momento tocando el espacio o el botón CAMBIAR. Las decoraciones no se gastan.',
+       '**Persistencia:** la decoración queda exactamente igual al cerrar y abrir la app.',
+       '**Recompensa:** el logro «Decorador zen» (3 decoraciones a la vez) paga 80 monedas y 30 XP.'),
+    h2('10.2 Sistema de misiones'),
+    p('Las misiones detectan acciones reales leyendo los contadores de la partida. Una recompensa no puede reclamarse dos veces: las diarias se marcan con la fecha del día y los logros con la marca «LOGRO». El progreso y los reclamos se guardan.'),
+    tabla([0.9, 1.7, 2.4, 1.5], ['Tipo', 'Misión', 'Condición', 'Recompensa'], [
+      ['Diaria', 'Hora del almuerzo', 'Alimentarlo 3 veces hoy', '30 🪙 + 20 XP'],
+      ['Diaria', 'Reflejos de kaiju', 'Jugar 2 minijuegos hoy', '40 🪙 + 25 XP'],
+      ['Diaria', 'Rutina de combate', 'Entrenar 2 veces hoy', '30 🪙 + 25 XP'],
+      ['Diaria', 'Núcleo estable', 'Radiación en zona ideal 60 min de juego hoy', '45 🪙 + 30 XP'],
+      ['Logro', 'Rey en ascenso', 'Llegar al nivel 4', '100 🪙'],
+      ['Logro', 'Campeón de Tokio', 'Ganar 5 minijuegos', '120 🪙 + 50 XP'],
+      ['Logro', 'Decorador zen', 'Equipar 3 decoraciones a la vez', '80 🪙 + 30 XP'],
+      ['Logro', 'Protector de Japón', 'Ganar 3 Alertas Kaiju', '150 🪙 + 60 XP'],
+      ['Logro', 'Gira por Japón', 'Visitar 5 escenarios', '120 🪙 + 40 XP'],
+      ['Logro', 'Fan de Toho', 'Descubrir 5 secretos', '150 🪙 + 50 XP'],
+      ['Logro', 'Forma definitiva', 'Alcanzar una forma final', '200 🪙'],
+    ]),
+    p('Las misiones diarias se renuevan automáticamente al cambiar el día; los logros nunca se reinician.'),
+    h2('10.3 Evolución por decisiones'),
+    p('El personaje comienza como huevo y, al llegar al **nivel 5** siendo Godzilla Junior, evoluciona a una de **cuatro formas finales**. El resultado no se elige: depende del historial de cuidado de la generación actual, con promedios ponderados por minuto de juego. La regla, medible y visible en la pantalla de Progreso, es:'),
+    tabla([0.5, 3.2, 1.4, 1.4], ['#', 'Condición (en este orden)', 'Forma final', 'Ventaja que modifica el juego'], [
+      ['1', 'Bienestar promedio < 45 (fue descuidado)', 'Shin Godzilla', '+25% de experiencia, pero sus necesidades bajan 25% más rápido'],
+      ['2', 'Radiación promedio ≥ 72 (vivió sobrecalentado)', 'Burning Godzilla', 'Gana siempre las Alertas Kaiju (+50% XP en ellas); su radiación sube 50% más rápido'],
+      ['3', 'Entrenamientos ≥ 6 y entrenamientos × 2 ≥ cuidados', 'Godzilla Heisei', 'El aliento carga al doble y entrenar cuesta 25% menos energía'],
+      ['4', 'En cualquier otro caso (cuidado equilibrado)', 'Godzilla Showa', '+25% de monedas en todo y la felicidad baja la mitad de rápido'],
+    ]),
+    galeria([[P('37_evolucion'), 'Evento visual de evolución'], [P('37b_evolucion'), 'Revelación de la nueva forma'], [P('18_progreso2'), 'Regla y línea evolutiva en Progreso']], 1.9, 3),
+
+    // ------------------------------------------------------------------ 11
+    h1('11. Mecánicas exclusivas'),
+    h2('11.1 Radiación y fusión nuclear ☢'),
+    p('Es la mecánica característica: una **sexta necesidad que no se llena, se equilibra**. En las películas la radiación es a la vez el poder y el peligro de Godzilla; aquí también.'),
+    ul('**Zona ideal 40-70:** la barra marca la franja y un indicador. Baja 3/h por sí sola (1.5 dormido).',
+       '**Subirla:** visitar la central nuclear (+25, espera de 45 s), pescado radioactivo (+20) o isótopo (+25).',
+       '**Bajarla:** nadar en el mar (−12, o −24 en la Bahía de Tokio), aliento atómico (−15) o misil de cadmio (−35).',
+       '**Consecuencias:** < 20 se debilita (placas grises, pierde energía); ≥ 85 se sobrecalienta (pierde salud y la pantalla tiembla de calor); ≥ 95 durante 30 minutos de juego provoca la **fusión nuclear**.',
+       '**Fusión:** como al final de *Godzilla vs. Destoroyah* (1995), su núcleo se funde y **Godzilla Junior absorbe la radiación**: la partida no se pierde, empieza una nueva generación con +10% de experiencia (máximo +30%).',
+       '**Influye en la evolución:** vivir con radiación alta lleva a Burning Godzilla.'),
+    p('**Diferencia con un Tamagotchi tradicional:** en un Tamagotchi todas las necesidades se «llenan» y más siempre es mejor. Aquí el exceso también es peligroso, obliga a tomar decisiones de equilibrio y da una consecuencia dramática pero no definitiva (generaciones).'),
+    h2('11.2 Aliento atómico y Alertas Kaiju'),
+    ul('**Carga:** entrenar, visitar la central y el pescado radioactivo llenan la barra de aliento (la forma Heisei carga al doble).',
+       '**Disparo:** al llegar a 100, las aletas se encienden una por una de la cola a la cabeza y sale el rayo azul con acercamiento de cámara, temblor y destello (+25 felicidad, +20 XP).',
+       '**De cría:** antes de Godzilla Junior le salen **anillos de humo**, como a Minilla en *Son of Godzilla* (1967).',
+       '**Alertas Kaiju:** desde el nivel 3, cada 10-25 minutos de juego un monstruo ataca un lugar de Japón y hay 8 minutos para pulsar DEFENDER (cuesta 20 de energía). La probabilidad de ganar depende de su energía, salud y radiación; con el aliento al 100% gana seguro. Si gana recibe 40 monedas y 30 XP; si nadie defiende la ciudad, aunque la app esté cerrada, pierde 15 de felicidad y 5 de salud.'),
+    p('**Diferencia con un Tamagotchi tradicional:** el personaje no sólo recibe cuidados: actúa como protector, con eventos que llegan por su cuenta y exigen una respuesta a tiempo.'),
+    h2('11.3 Modo evaluador (para la demostración)'),
+    p('Para que el profesor pueda revisar todo sin jugar días, existe un panel con todo desbloqueado. **Código de acceso: GOJIRA1954.** Se activa tocando 7 veces el título ゴジラ o desde Configuración → «Ingresar código». Permite fijar cualquier nivel o forma, viajar a cualquier escenario, mover las 6 necesidades, obtener todos los artículos y 9 999 monedas, adelantar el tiempo (+1 hora, +1 día), provocar una Alerta Kaiju o una fusión y descubrir todos los secretos. Antes de activarse respalda la partida real y al salir la restaura.'),
+
+    // ------------------------------------------------------------------ 12
+    h1('12. Diagrama de navegación'),
+    img(D('navegacion'), 6.4, 'Todas las pantallas de la aplicación y sus conexiones. Desde la pantalla principal se llega a las 5 pestañas, a Progreso (chip de nivel), a la Kaiju-pedia (📖) y a Configuración (⚙).'),
+
+    // ------------------------------------------------------------------ 13
+    h1('13. Diagramas de flujo'),
+    p('Simbología utilizada: **óvalo** = inicio o fin, **rectángulo** = proceso, **rombo** = decisión (con salidas Sí/No) y **paralelogramo** = entrada o salida de datos con el usuario.'),
+    img(D('flujo_alimentar'), 4.6, 'Diagrama 1. Alimentar al personaje (con la comida arrastrable).'),
+    img(D('flujo_comprar'), 4.8, 'Diagrama 2. Comprar un objeto en la tienda.'),
+    img(D('flujo_mision'), 4.8, 'Diagrama 3. Completar y reclamar una misión (sin recompensas duplicadas).'),
+    img(D('flujo_evolucion'), 4.8, 'Diagrama 4. Evolución del personaje según su historial.'),
+    img(D('flujo_fusion'), 4.6, 'Diagrama 5. Radiación y fusión nuclear (mecánica exclusiva).'),
+
+    // ------------------------------------------------------------------ 14
+    h1('14. Diseño de interfaces'),
+    p('Capturas reales de la aplicación funcionando en Android 14. Cada una indica su propósito, sus elementos y lo que puede hacer el usuario.'),
+    pantalla(P('01_titulo'), 'Pantalla de título', 'Presentación animada: sol naciente con rayos que giran, relámpagos, silueta de Godzilla con placas que brillan y el título ゴジラ. Tocar la pantalla lleva al inicio de sesión; tocar 7 veces el título abre el código del modo evaluador.'),
+    pantalla(P('02_login'), 'Inicio de sesión / registro', 'Campos de usuario y contraseña con validación y botones ENTRAR y CREAR CUENTA NUEVA. Las cuentas se guardan sólo en el teléfono (contraseña cifrada).'),
+    pantalla(P('06_inicio'), 'Inicio de partida', 'Muestra el kaiju guardado con su forma, nivel y monedas. Botones: Continuar partida, Nueva partida (pide confirmación si ya hay una), Configuración y Cerrar sesión.'),
+    pantalla(P('04_seleccion'), 'Selección del huevo', 'Cuatro huevos con imagen, descripción y ventaja inicial; se marca uno, se escribe el nombre del kaiju y se pulsa «¡A incubar!».'),
+    pantalla(P('05_hogar_huevo'), 'Hogar con el huevo', 'El huevo tiembla y se agrieta con cada toque; al quinto nace Baby Godzilla. Mientras sea huevo los cuidados están deshabilitados.'),
+    pantalla(P('07_hogar'), 'Hogar · escena principal', 'Barra superior con nombre, forma, estado, chip de nivel, monedas, Kaiju-pedia y Configuración. La escena 3D muestra al kaiju en su escenario con el chip del lugar (toca para viajar). Debajo, las 6 barras de necesidades.'),
+    pantalla(P('08_hogar_cuidados'), 'Hogar · cuidados', 'Mensaje contextual que explica cada reacción, barra de aliento y los 8 botones de cuidado con contadores de inventario.'),
+    pantalla(P('09_hogar_extras'), 'Hogar · funciones extra', 'Botones Foto póster, Rugirle (micrófono) y En tu cuarto (cámara AR). Si el aliento está cargado aparece el botón del aliento atómico.'),
+    pantalla(P('33_alerta'), 'Alerta Kaiju', 'Banner rojo con el monstruo, el lugar, el tiempo restante y el botón DEFENDER.'),
+    pantalla(P('10_juegos'), 'Lista de minijuegos', 'Tarjetas con descripción, costo de energía, récord y victorias. El botón JUGAR se bloquea con el motivo (nivel, energía o salud).'),
+    pantalla(P('12_tienda'), 'Tienda', 'Artículos con ícono, efectos y precio. Los bloqueados por nivel muestran un candado; sin saldo suficiente el botón se pone gris.'),
+    pantalla(P('13_inventario'), 'Inventario', 'Lo que posee el jugador con su cantidad. USAR aplica un consumible; COLOCAR lleva a la guarida.'),
+    pantalla(P('14_guarida'), 'Guarida', 'Cuarto japonés con las 4 posiciones; tocar un espacio o CAMBIAR abre la lista de decoraciones propias para colocar, cambiar o retirar.'),
+    pantalla(P('15_misiones'), 'Misiones', 'Diarias y logros con descripción, barra de progreso, recompensa y botón RECLAMAR (deshabilitado si no se cumple o ya se cobró).'),
+    pantalla(P('17_progreso'), 'Progreso y evolución', 'Nivel y barra de experiencia, desbloqueos por nivel, línea evolutiva con siluetas, historial de hábitos, regla de evolución y récords.'),
+    pantalla(P('19_kaijupedia'), 'Kaiju-pedia', 'Colección de formas (siluetas si no se han visto), escenarios visitados, «cómo se hizo el rugido» y la lista de secretos con pistas.'),
+    pantalla(P('21_mapa'), 'Mapa de Japón', 'Vista previa de cada escenario, película de origen y botón VIAJAR (bloqueado por nivel).'),
+    pantalla(P('22_ajustes'), 'Configuración', 'Interruptores de sonido, notificaciones, modo demostración, música, vibración, efectos de GPU, profundidad 3D, agitar y micrófono; filtros visuales, modo evaluador, reglas de tiempo y reinicio con confirmación.'),
+    pantalla(P('36_profesor'), 'Panel del modo evaluador', 'Botones para fijar nivel, forma y escenario, deslizadores de las necesidades, eventos (alerta, fusión, +1 hora, +1 día, todo + 9999) y salir restaurando la partida real.'),
+    pantalla(P('25_defensa'), 'Minijuego: Defensa de Tokio', 'Tiempo, aciertos y escapes arriba; botón ALIENTO cuando está cargado y SALIR.'),
+    pantalla(P('27_anillos'), 'Minijuego: Anillos de Humo', 'Little Godzilla sopla anillos hacia donde toca el jugador.'),
+    pantalla(P('29_memoria'), 'Minijuego: Memoria Fuerza G', 'Cuadrícula de 16 cartas, parejas encontradas e intentos.'),
+    pantalla(P('31_batalla'), 'Minijuego: Batalla contra Mecha-Kaiju', 'Vida del jefe y propia, misiles para tocar y el rayo cargado.'),
+    pantalla(P('32_camara_ar'), 'Godzilla en tu cuarto', 'Vista de la cámara con el kaiju encima (en el emulador la cámara es virtual). Se arrastra, se escala con dos dedos y se toma la foto con el botón rojo.'),
+    pantalla(P('35_poster'), 'Póster para compartir', 'Imagen generada con el título ゴジラ, el sol rojo, la escena, el nombre del kaiju, su forma y el lugar.'),
+  ],
+};

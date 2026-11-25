@@ -118,13 +118,14 @@ public class ProgresoActivity extends AppCompatActivity {
         }
         panel.addView(Ui.texto(this, "\nTu historial:", R.style.Subtitulo));
         panel.addView(Ui.texto(this, String.format(Locale.US,
-                "• Bienestar promedio: %.0f / 100\n• Entrenamientos: %d\n• Cuidados (comer, jugar, dormir, bañar, curar): %d\n• Alertas Kaiju ganadas: %d\n• Alientos atómicos: %d",
-                prom, c.entrenar, c.cuidadosTotales(), c.defensas, c.alientos), R.style.Cuerpo));
+                "• Bienestar promedio: %.0f / 100\n• Radiación promedio: %.0f\n• Entrenamientos: %d\n• Cuidados (comer, jugar, dormir, nadar, curar): %d\n• Alertas Kaiju ganadas: %d\n• Alientos atómicos: %d",
+                prom, p.getPromedioRadiacion(), c.entrenosGeneracion(), c.cuidadosGeneracion(), c.defensas, c.alientos), R.style.Cuerpo));
         panel.addView(Ui.texto(this, "\nRegla (se evalúa al llegar al nivel 5):", R.style.Subtitulo));
         panel.addView(Ui.texto(this,
-                "1. Bienestar promedio < 50 → Godzilla Salvaje\n"
-                        + "2. Entrenamientos ≥ 6 y entrenamientos × 2 ≥ cuidados → Godzilla Atómico\n"
-                        + "3. En otro caso → Godzilla Guardián", R.style.Cuerpo));
+                "1. Bienestar promedio < 45 → Shin Godzilla (forma secreta por descuido)\n"
+                        + "2. Radiación promedio ≥ 72 → Burning Godzilla\n"
+                        + "3. Entrenamientos ≥ 6 y entrenamientos × 2 ≥ cuidados → Godzilla Heisei\n"
+                        + "4. En otro caso → Godzilla Showa (cuidado equilibrado)", R.style.Cuerpo));
         lista.addView(panel);
     }
 

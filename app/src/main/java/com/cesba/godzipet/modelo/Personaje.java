@@ -50,7 +50,7 @@ public final class Personaje {
     void despertar() { dormido = false; despertarEn = 0; }
     int tocarHuevo() { return ++toquesHuevo; }
 
-    /** Nombre de la forma visible (p. ej. "Cría" o "Godzilla Atómico"). */
+    /** Nombre de la forma visible (p. ej. "Baby Godzilla" o "Godzilla Heisei"). */
     public String nombreForma() {
         return etapa == Etapa.FINAL ? ruta.nombre : etapa.nombre;
     }
