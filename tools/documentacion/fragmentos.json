@@ -1,0 +1,416 @@
+{
+ "Necesidades.campos": {
+  "ruta": "modelo/Necesidades.java",
+  "ini": 8,
+  "fin": 25,
+  "v": "public final class Necesidades {\n    public static final double MIN = 0;\n    public static final double MAX = 100;\n    public static final int CRITICO = 20;\n    public static final int RAD_IDEAL_MIN = 40;\n    public static final int RAD_IDEAL_MAX = 70;\n    public static final int RAD_BAJA = 20;\n    public static final int RAD_ALTA = 85;\n    public static final int RAD_FUSION = 95;\n\n    private final double[] valores = new double[Stat.values().length];\n\n    public Necesidades(double alimentacion, double felicidad, double energia,\n                       double higiene, double salud, double radiacion) {\n        establecer(Stat.ALIMENTACION, alimentacion);\n        establecer(Stat.FELICIDAD, felicidad);\n        establecer(Stat.ENERGIA, energia);\n        establecer(Stat.HIGIENE, higiene);"
+ },
+ "Necesidades.cambiar": {
+  "ruta": "modelo/Necesidades.java",
+  "ini": 52,
+  "fin": 54,
+  "v": "public void cambiar(Stat s, double delta) {\n    establecer(s, get(s) + delta);\n}"
+ },
+ "Necesidades.establecer": {
+  "ruta": "modelo/Necesidades.java",
+  "ini": 48,
+  "fin": 50,
+  "v": "public void establecer(Stat s, double v) {\n    valores[s.ordinal()] = limitar(v);\n}"
+ },
+ "Necesidades.limitar": {
+  "ruta": "modelo/Necesidades.java",
+  "ini": 34,
+  "fin": 37,
+  "v": "public static double limitar(double v) {\n    if (Double.isNaN(v)) return MIN;\n    return Math.max(MIN, Math.min(MAX, v));\n}"
+ },
+ "Necesidades.calidad": {
+  "ruta": "modelo/Necesidades.java",
+  "ini": 56,
+  "fin": 63,
+  "v": "/** Calidad 0-100 de un indicador: la radiación vale 100 dentro de la zona ideal. */\npublic double calidad(Stat s) {\n    if (s != Stat.RADIACION) return get(s);\n    double r = get(s);\n    if (r >= RAD_IDEAL_MIN && r <= RAD_IDEAL_MAX) return 100;\n    double distancia = r < RAD_IDEAL_MIN ? RAD_IDEAL_MIN - r : r - RAD_IDEAL_MAX;\n    return limitar(100 - distancia * 2.5);\n}"
+ },
+ "Necesidades.promedio": {
+  "ruta": "modelo/Necesidades.java",
+  "ini": 65,
+  "fin": 69,
+  "v": "public double promedio() {\n    double suma = 0;\n    for (Stat s : Stat.values()) suma += calidad(s);\n    return suma / valores.length;\n}"
+ },
+ "Necesidades.enZonaIdeal": {
+  "ruta": "modelo/Necesidades.java",
+  "ini": 71,
+  "fin": 74,
+  "v": "public boolean enZonaIdeal() {\n    double r = get(Stat.RADIACION);\n    return r >= RAD_IDEAL_MIN && r <= RAD_IDEAL_MAX;\n}"
+ },
+ "Cuidados.alimentar": {
+  "ruta": "modelo/Cuidados.java",
+  "ini": 31,
+  "fin": 45,
+  "v": "public static Resultado alimentar(Partida p, String articuloId) {\n    Resultado base = validarBase(p);\n    if (base != null) return base;\n    Articulo a = Catalogo.buscar(articuloId);\n    if (a == null || a.tipo != TipoArticulo.COMIDA) return Resultado.error(\"Elige una comida válida.\");\n    if (p.getPersonaje().isDormido()) return Resultado.error(\"Está dormido. Déjalo descansar.\");\n    if (!p.getInventario().posee(a.id)) return Resultado.error(\"No tienes \" + a.nombre + \". Cómprala en la tienda.\");\n    if (p.getNecesidades().get(Stat.ALIMENTACION) >= 95) return Resultado.error(\"Está lleno, no quiere comer más.\");\n    p.getInventario().consumir(a.id);\n    aplicarEfectos(p, a);\n    p.getContadores().alimentar++;\n    p.getContadores().hoyAlimentar++;\n    p.sumarXp(5);\n    return Resultado.exito(\"¡Ñam! Devoró \" + a.nombre + \". \" + a.resumenEfectos(), Reaccion.COMER);\n}"
+ },
+ "Cuidados.central": {
+  "ruta": "modelo/Cuidados.java",
+  "ini": 152,
+  "fin": 173,
+  "v": "/** Visitar una central nuclear: sube la radiación (mecánica característica). */\npublic static Resultado central(Partida p, long ahora) {\n    Resultado base = validarBase(p);\n    if (base != null) return base;\n    if (p.getPersonaje().isDormido()) return Resultado.error(\"Está dormido.\");\n    long resta = p.ultimaCentral + ESPERA_CENTRAL_MS - ahora;\n    if (resta > 0) return Resultado.error(\"La central se está recargando. \" + espera(resta));\n    Necesidades n = p.getNecesidades();\n    p.ultimaCentral = ahora;\n    double rad = RADIACION_CENTRAL * p.getPersonaje().getRuta().multRadiacion;\n    n.cambiar(Stat.RADIACION, rad);\n    n.cambiar(Stat.ENERGIA, 10);\n    n.cambiar(Stat.FELICIDAD, 5);\n    n.cambiar(Stat.HIGIENE, -5);\n    p.cargarAliento(10);\n    p.getContadores().centrales++;\n    p.sumarXp(5);\n    String aviso = n.get(Stat.RADIACION) >= Necesidades.RAD_ALTA\n            ? \" ⚠ ¡Cuidado, está sobrecalentado!\" : n.enZonaIdeal() ? \" Zona ideal ✔\" : \"\";\n    return Resultado.exito(\"Absorbió energía de una central nuclear: +\" + (int) rad + \" ☢ +10 ⚡.\" + aviso,\n            Reaccion.CENTRAL);\n}"
+ },
+ "Cuidados.costoEntrenar": {
+  "ruta": "modelo/Cuidados.java",
+  "ini": 148,
+  "fin": 150,
+  "v": "public static int costoEntrenar(Partida p) {\n    return (int) Math.round(ENERGIA_ENTRENAR * p.getPersonaje().getRuta().multCostoEntreno);\n}"
+ },
+ "Partida.acariciar": {
+  "ruta": "modelo/Partida.java",
+  "ini": 335,
+  "fin": 342,
+  "v": "/** Acariciarlo frotando la pantalla: ronronea (+3 felicidad, espera de 20 s). */\npublic Resultado acariciar(long ahora) {\n    if (personaje.getEtapa() == Etapa.HUEVO) return Resultado.error(\"El huevo está tibio…\");\n    if (personaje.isDormido()) return Resultado.exito(\"Lo acaricias mientras duerme. Sonríe en sueños.\", Reaccion.CARICIA);\n    if (!esperaLibre(ahora)) return Resultado.exito(\"Ronronea como un volcán dormido.\", Reaccion.CARICIA);\n    necesidades.cambiar(Stat.FELICIDAD, 3);\n    return Resultado.exito(\"¡Le encantan las caricias! Ronronea como un volcán dormido (+3 😊).\", Reaccion.CARICIA);\n}"
+ },
+ "Partida.actualizar": {
+  "ruta": "modelo/Partida.java",
+  "ini": 102,
+  "fin": 135,
+  "v": "/**\n * Aplica el paso del tiempo desde la última actualización (igual con la app abierta o al\n * reabrirla). {@code velocidad} = minutos de juego por minuto real (1 normal, 20 en demo).\n */\npublic void actualizar(long ahora, double velocidad) {\n    if (contadores.renovarDia(claveDia(ahora))) {\n        eventos.add(new Evento(Evento.Tipo.DIA_NUEVO, \"¡Nuevo día! Las misiones diarias se renovaron.\"));\n    }\n    long dt = ahora - ultimaActualizacion;\n    if (dt <= 0) return;\n    if (personaje.getEtapa() == Etapa.HUEVO) { // el huevo no se deteriora\n        ultimaActualizacion = ahora;\n        return;\n    }\n    long cursor = ultimaActualizacion;\n    double presupuesto = MAX_MINUTOS_OFFLINE;\n    while (cursor < ahora && presupuesto > 0) {\n        long fin = ahora;\n        if (personaje.isDormido() && personaje.getDespertarEn() > cursor) {\n            fin = Math.min(fin, personaje.getDespertarEn());\n        }\n        double minutos = Math.min((fin - cursor) / 60000.0 * velocidad, presupuesto);\n        presupuesto -= minutos;\n        avanzar(minutos);\n        cursor = fin;\n        if (personaje.isDormido() && cursor >= personaje.getDespertarEn()) {\n            personaje.despertar();\n            eventos.add(new Evento(Evento.Tipo.DESPERTO,\n                    personaje.getNombre() + \" despertó con energía renovada.\"));\n        }\n    }\n    ultimaActualizacion = ahora;\n    revisarAlertas(ahora, velocidad);\n}"
+ },
+ "Partida.avanzar": {
+  "ruta": "modelo/Partida.java",
+  "ini": 137,
+  "fin": 148,
+  "v": "private void avanzar(double minutos) {\n    double restante = minutos;\n    while (restante > 0) {\n        double paso = Math.min(1.0, restante);\n        Deterioro.aplicar(necesidades, paso, personaje.isDormido(), personaje.getRuta(), escenario);\n        limitarRadiacionPequenos();\n        contadores.muestrear(necesidades.promedio(), necesidades.get(Stat.RADIACION), paso,\n                necesidades.enZonaIdeal());\n        revisarFusion(paso);\n        restante -= paso;\n    }\n}"
+ },
+ "Partida.revisarFusion": {
+  "ruta": "modelo/Partida.java",
+  "ini": 157,
+  "fin": 172,
+  "v": "/** Mecánica característica: con radiación ≥ 95 sostenida, el núcleo se funde. */\nprivate void revisarFusion(double minutos) {\n    boolean puedeFundirse = personaje.getEtapa().ordinal() >= Etapa.JUNIOR.ordinal();\n    if (puedeFundirse && necesidades.get(Stat.RADIACION) >= Necesidades.RAD_FUSION) {\n        fusion += minutos;\n        if (!avisoFusion) {\n            avisoFusion = true;\n            eventos.add(new Evento(Evento.Tipo.FUSION_INMINENTE,\n                    \"☢ ¡ALERTA DE FUSIÓN! Enfría a \" + personaje.getNombre() + \" antes de que su núcleo estalle.\"));\n        }\n        if (fusion >= MINUTOS_FUSION) fundirse();\n    } else {\n        fusion = Math.max(0, fusion - minutos * 2);\n        if (fusion == 0) avisoFusion = false;\n    }\n}"
+ },
+ "Partida.fundirse": {
+  "ruta": "modelo/Partida.java",
+  "ini": 174,
+  "fin": 199,
+  "v": "/**\n * Fusión (canon de Godzilla vs. Destoroyah): Godzilla se funde y Godzilla Junior absorbe su\n * radiación. Empieza una nueva generación con un bono de experiencia heredado.\n */\nvoid fundirse() {\n    String anterior = personaje.nombreForma();\n    generacion++;\n    fusion = 0;\n    avisoFusion = false;\n    personaje.setRuta(RutaEvolucion.NINGUNA);\n    personaje.setEtapa(Etapa.JUNIOR);\n    personaje.despertar();\n    necesidades.establecer(Stat.RADIACION, 50);\n    necesidades.establecer(Stat.SALUD, 80);\n    necesidades.establecer(Stat.ENERGIA, 70);\n    necesidades.establecer(Stat.FELICIDAD, 60);\n    xp = Math.min(xp, Niveles.UMBRALES[Evolucion.NIVEL_JUNIOR - 1]);\n    contadores.nuevaGeneracion();\n    cargaAliento = ALIENTO_MAX;\n    evolucionPendiente = true;\n    registrarForma();\n    descubrir(Secreto.FUSION);\n    eventos.add(new Evento(Evento.Tipo.FUSION, \"☢ \" + anterior + \" se fundió… pero Godzilla Junior absorbió su \"\n            + \"radiación. ¡Comienza la generación \" + generacion + \" con +\" + (int) Math.round((multLegado() - 1) * 100)\n            + \"% de experiencia!\"));\n}"
+ },
+ "Partida.ganar": {
+  "ruta": "modelo/Partida.java",
+  "ini": 362,
+  "fin": 368,
+  "v": "/** Suma monedas (con multiplicador de ruta) y experiencia. Devuelve monedas reales ganadas. */\npublic int ganar(int monedasBase, int xpGanada) {\n    int m = (int) Math.round(monedasBase * personaje.getRuta().multMonedas);\n    monedas = Math.min(999_999, monedas + m);\n    sumarXp(xpGanada);\n    return m;\n}"
+ },
+ "Partida.sumarXp": {
+  "ruta": "modelo/Partida.java",
+  "ini": 370,
+  "fin": 381,
+  "v": "public void sumarXp(int cantidad) {\n    if (cantidad <= 0) return;\n    int real = (int) Math.round(cantidad * personaje.getRuta().multXp() * multLegado());\n    int antes = getNivel();\n    xp += real;\n    int despues = getNivel();\n    for (int n = antes + 1; n <= despues; n++) {\n        eventos.add(new Evento(Evento.Tipo.SUBIO_NIVEL,\n                \"¡Nivel \" + n + \"! Desbloqueado: \" + Niveles.desbloqueo(n)));\n    }\n    revisarEvolucion();\n}"
+ },
+ "Partida.registrarMinijuego": {
+  "ruta": "modelo/Partida.java",
+  "ini": 459,
+  "fin": 475,
+  "v": "public Resultado registrarMinijuego(Minijuego juego, int puntaje, boolean gano) {\n    puntaje = Math.max(0, puntaje);\n    Record r = getRecord(juego.id);\n    r.jugadas++;\n    if (gano) r.victorias++;\n    boolean nuevoRecord = puntaje > r.mejorPuntaje;\n    if (nuevoRecord) r.mejorPuntaje = puntaje;\n    contadores.minijuegos++;\n    contadores.hoyMinijuegos++;\n    if (gano) contadores.victorias++;\n    necesidades.cambiar(Stat.FELICIDAD, gano ? 15 : 5);\n    int xpGanada = juego.experiencia(puntaje, gano);\n    int m = ganar(juego.monedas(puntaje, gano), xpGanada);\n    String txt = (gano ? \"¡Victoria! \" : \"Derrota. \") + \"+\" + m + \" monedas, +\" + xpGanada + \" XP\"\n            + (nuevoRecord ? \" · ¡Nuevo récord!\" : \"\");\n    return gano ? Resultado.exito(txt, Reaccion.MONEDAS) : Resultado.error(txt);\n}"
+ },
+ "Partida.iniciarMinijuego": {
+  "ruta": "modelo/Partida.java",
+  "ini": 451,
+  "fin": 457,
+  "v": "public Resultado iniciarMinijuego(Minijuego juego) {\n    Resultado r = puedeJugar(juego);\n    if (!r.ok) return r;\n    necesidades.cambiar(Stat.ENERGIA, -juego.costoEnergia);\n    necesidades.cambiar(Stat.HIGIENE, -3);\n    return r;\n}"
+ },
+ "Partida.reclamarMision": {
+  "ruta": "modelo/Partida.java",
+  "ini": 486,
+  "fin": 496,
+  "v": "public Resultado reclamarMision(String id) {\n    Mision m = GestorMisiones.buscar(id);\n    if (m == null) return Resultado.error(\"Misión desconocida.\");\n    if (!m.completada(this)) return Resultado.error(\"Aún no completas esta misión.\");\n    if (GestorMisiones.reclamada(this, m)) return Resultado.error(\"Esta recompensa ya fue reclamada.\");\n    misionesReclamadas.put(m.id, m.diaria ? contadores.diaClave : \"LOGRO\");\n    int extra = getNivel() >= Niveles.MAXIMO ? 10 : 0;\n    int ganadas = ganar(m.recompensaMonedas + extra, m.recompensaXp);\n    return Resultado.exito(\"Misión cumplida: +\" + ganadas + \" monedas, +\" + m.recompensaXp + \" XP\",\n            Reaccion.MONEDAS);\n}"
+ },
+ "Partida.revisarEvolucion": {
+  "ruta": "modelo/Partida.java",
+  "ini": 383,
+  "fin": 400,
+  "v": "private void revisarEvolucion() {\n    int nivel = getNivel();\n    Etapa e = personaje.getEtapa();\n    if (e == Etapa.HUEVO) return;\n    if (e == Etapa.BEBE && nivel >= Evolucion.NIVEL_PEQUENO) evolucionarA(Etapa.PEQUENO,\n            \"¡\" + personaje.getNombre() + \" creció y ahora es Little Godzilla!\");\n    e = personaje.getEtapa();\n    if (e == Etapa.PEQUENO && nivel >= Evolucion.NIVEL_JUNIOR) evolucionarA(Etapa.JUNIOR,\n            \"¡\" + personaje.getNombre() + \" es ahora Godzilla Junior! Su aliento ya es un rayo atómico.\");\n    e = personaje.getEtapa();\n    if (e == Etapa.JUNIOR && nivel >= Evolucion.NIVEL_FINAL) {\n        RutaEvolucion ruta = Evolucion.decidir(getPromedioBienestar(), getPromedioRadiacion(),\n                contadores.entrenosGeneracion(), contadores.cuidadosGeneracion());\n        personaje.setRuta(ruta);\n        evolucionarA(Etapa.FINAL, \"¡\" + personaje.getNombre() + \" se convirtió en \" + ruta.nombre + \" (\"\n                + ruta.kanji + \")! \" + ruta.ventaja);\n    }\n}"
+ },
+ "Partida.nueva": {
+  "ruta": "modelo/Partida.java",
+  "ini": 71,
+  "fin": 90,
+  "v": "/** Nueva partida con la configuración inicial del origen elegido. */\npublic static Partida nueva(String nombre, OrigenHuevo origen, long ahora) {\n    Necesidades n = Necesidades.iniciales();\n    n.establecer(Stat.RADIACION, origen.radiacionInicial);\n    if (origen == OrigenHuevo.ISLA_NACIMIENTO) n.establecer(Stat.ENERGIA, 100);\n    Inventario inv = new Inventario();\n    inv.agregar(Catalogo.ONIGIRI, 2);\n    inv.agregar(Catalogo.ATUN, 2);\n    inv.agregar(Catalogo.JABON, 2);\n    inv.agregar(Catalogo.BOTIQUIN, 1 + origen.botiquinesExtra);\n    inv.agregar(Catalogo.CADMIO, 1);\n    Contadores c = new Contadores();\n    c.renovarDia(claveDia(ahora));\n    Partida p = new Partida(Personaje.nuevo(nombre, origen), n, inv, c,\n            100 + origen.monedasExtra, 0, origen.alientoInicial, ahora);\n    p.formasVistas.add(claveForma(Etapa.HUEVO, RutaEvolucion.NINGUNA));\n    if (origen == OrigenHuevo.NUEVA_YORK) p.descubrir(Secreto.NUEVA_YORK);\n    p.eventos.clear();\n    return p;\n}"
+ },
+ "Partida.getPromedioBienestar": {
+  "ruta": "modelo/Partida.java",
+  "ini": 516,
+  "fin": 520,
+  "v": "public double getPromedioBienestar() {\n    return contadores.minutosBienestar > 0\n            ? contadores.sumaBienestar / contadores.minutosBienestar\n            : necesidades.promedio();\n}"
+ },
+ "Deterioro.aplicar": {
+  "ruta": "modelo/Deterioro.java",
+  "ini": 30,
+  "fin": 58,
+  "v": "public static void aplicar(Necesidades n, double minutos, boolean dormido, RutaEvolucion ruta, Escenario lugar) {\n    if (minutos <= 0) return;\n    double h = minutos / 60.0;\n    double m = ruta.multDeterioro;\n\n    boolean necesitado = n.get(Stat.ALIMENTACION) < 30 || n.get(Stat.HIGIENE) < 30;\n    boolean critico = n.get(Stat.ALIMENTACION) < 20 || n.get(Stat.HIGIENE) < 20\n            || n.get(Stat.ENERGIA) < 10;\n    boolean sinRadiacion = n.get(Stat.RADIACION) < Necesidades.RAD_BAJA;\n    boolean sobrecalentado = n.get(Stat.RADIACION) >= Necesidades.RAD_ALTA;\n\n    n.cambiar(Stat.ALIMENTACION, -(dormido ? ALIM_HORA_DORMIDO : ALIM_HORA) * h * m);\n    n.cambiar(Stat.HIGIENE, -(dormido ? HIGIENE_HORA_DORMIDO : HIGIENE_HORA) * h * m);\n    n.cambiar(Stat.ENERGIA, dormido ? ENERGIA_RECUPERA_HORA * h : -ENERGIA_HORA * h * m);\n    if (sinRadiacion && !dormido) n.cambiar(Stat.ENERGIA, -ENERGIA_SIN_RADIACION_HORA * h);\n\n    if (lugar != Escenario.ISLA_MONSTRUOS) {\n        double feliz = FELICIDAD_HORA + (necesitado ? FELICIDAD_EXTRA_HORA : 0);\n        if (dormido) feliz /= 2;\n        n.cambiar(Stat.FELICIDAD, -feliz * h * m * ruta.multDeterioroFelicidad);\n    }\n\n    if (ruta == RutaEvolucion.BURNING) n.cambiar(Stat.RADIACION, RADIACION_BURNING_HORA * h);\n    else n.cambiar(Stat.RADIACION, -(dormido ? RADIACION_HORA_DORMIDO : RADIACION_HORA) * h);\n\n    if (critico) n.cambiar(Stat.SALUD, -SALUD_DANO_HORA * h * m);\n    if (sobrecalentado) n.cambiar(Stat.SALUD, -SALUD_RADIACION_HORA * h);\n    if (!critico && !sobrecalentado && n.promedio() >= 60) n.cambiar(Stat.SALUD, SALUD_RECUPERA_HORA * h);\n}"
+ },
+ "Niveles.nivelPara": {
+  "ruta": "modelo/Niveles.java",
+  "ini": 20,
+  "fin": 24,
+  "v": "public static int nivelPara(int xp) {\n    int nivel = 1;\n    for (int i = 0; i < UMBRALES.length; i++) if (xp >= UMBRALES[i]) nivel = i + 1;\n    return nivel;\n}"
+ },
+ "Tienda.comprar": {
+  "ruta": "modelo/Tienda.java",
+  "ini": 7,
+  "fin": 22,
+  "v": "public static Resultado comprar(Partida p, String articuloId) {\n    Articulo a = Catalogo.buscar(articuloId);\n    if (a == null) return Resultado.error(\"Ese artículo no existe.\");\n    if (a.prohibido) {\n        p.descubrir(Secreto.DESTRUCTOR_OXIGENO);\n        return Resultado.error(\"El Dr. Serizawa destruyó sus notas para que nadie volviera a construirlo. No está a la venta.\");\n    }\n    if (p.getNivel() < a.nivelRequerido) return Resultado.error(\"Disponible desde el nivel \" + a.nivelRequerido + \".\");\n    if (!a.esConsumible() && p.getInventario().posee(a.id)) return Resultado.error(\"Ya tienes esta decoración.\");\n    if (!p.getInventario().puedeAgregar(a.id, 1)) return Resultado.error(\"Inventario lleno para este artículo (máx. 99).\");\n    if (!p.gastarMonedas(a.precio)) {\n        return Resultado.error(\"Saldo insuficiente: te faltan \" + (a.precio - p.getMonedas()) + \" monedas.\");\n    }\n    p.getInventario().agregar(a.id, 1);\n    return Resultado.exito(\"Compraste \" + a.nombre + \" por \" + a.precio + \" monedas.\", Reaccion.MONEDAS);\n}"
+ },
+ "Inventario.agregar": {
+  "ruta": "modelo/Inventario.java",
+  "ini": 26,
+  "fin": 30,
+  "v": "public void agregar(String id, int n) {\n    if (n <= 0) throw new IllegalArgumentException(\"Cantidad inválida\");\n    if (Catalogo.buscar(id) == null) throw new IllegalArgumentException(\"Artículo desconocido: \" + id);\n    cantidades.put(id, Math.min(MAX_POR_ARTICULO, cantidad(id) + n));\n}"
+ },
+ "Inventario.consumir": {
+  "ruta": "modelo/Inventario.java",
+  "ini": 32,
+  "fin": 39,
+  "v": "/** Consume una unidad. Devuelve false si no había. */\npublic boolean consumir(String id) {\n    int c = cantidad(id);\n    if (c <= 0) return false;\n    if (c == 1) cantidades.remove(id);\n    else cantidades.put(id, c - 1);\n    return true;\n}"
+ },
+ "Guarida.equipar": {
+  "ruta": "modelo/Guarida.java",
+  "ini": 7,
+  "fin": 14,
+  "v": "public static Resultado equipar(Partida p, Slot slot, String articuloId) {\n    Articulo a = Catalogo.buscar(articuloId);\n    if (a == null || a.tipo != TipoArticulo.DECORACION) return Resultado.error(\"No es una decoración.\");\n    if (a.slot != slot) return Resultado.error(a.nombre + \" va en: \" + a.slot.nombre + \".\");\n    if (!p.getInventario().posee(a.id)) return Resultado.error(\"No puedes equipar algo que no tienes.\");\n    p.getDecoraciones().put(slot, a.id);\n    return Resultado.exito(a.nombre + \" colocado en \" + slot.nombre + \".\", Reaccion.JUGAR);\n}"
+ },
+ "Guarida.retirar": {
+  "ruta": "modelo/Guarida.java",
+  "ini": 16,
+  "fin": 19,
+  "v": "public static Resultado retirar(Partida p, Slot slot) {\n    if (p.getDecoraciones().remove(slot) == null) return Resultado.error(\"No hay nada en \" + slot.nombre + \".\");\n    return Resultado.exito(\"Retiraste la decoración de \" + slot.nombre + \".\", Reaccion.NINGUNA);\n}"
+ },
+ "GuaridaFragment.elegir": {
+  "ruta": "ui/GuaridaFragment.java",
+  "ini": 76,
+  "fin": 99,
+  "v": "private void elegir(Slot slot) {\n    Partida p = Juego.get(requireContext()).partida();\n    guarida.setResaltado(slot);\n    List<Articulo> propias = new ArrayList<>();\n    for (Articulo a : Catalogo.decoracionesDe(slot)) if (p.getInventario().posee(a.id)) propias.add(a);\n    String actual = p.getDecoraciones().get(slot);\n    List<String> opciones = new ArrayList<>();\n    for (Articulo a : propias) opciones.add(a.icono + \"  \" + a.nombre + (a.id.equals(actual) ? \"  (en uso)\" : \"\"));\n    AlertDialog.Builder d = new AlertDialog.Builder(requireContext())\n            .setTitle(slot.nombre + \" · \" + slot.descripcion)\n            .setOnDismissListener(x -> guarida.setResaltado(null));\n    if (propias.isEmpty()) {\n        d.setMessage(\"No tienes decoraciones para esta posición. Disponibles en la tienda: \"\n                + nombres(Catalogo.decoracionesDe(slot)) + \".\")\n                .setPositiveButton(\"Ir a la tienda\", (x, w) -> ((MainActivity) requireActivity()).mostrarPestana(2, false));\n    } else {\n        d.setItems(opciones.toArray(new String[0]), (x, w) ->\n                ((MainActivity) requireActivity()).despuesDeAccion(Guarida.equipar(p, slot, propias.get(w).id)));\n    }\n    if (actual != null) {\n        d.setNeutralButton(\"Retirar\", (x, w) -> ((MainActivity) requireActivity()).despuesDeAccion(Guarida.retirar(p, slot)));\n    }\n    d.setNegativeButton(\"Cerrar\", null).show();\n}"
+ },
+ "GestorMisiones.reclamada": {
+  "ruta": "modelo/GestorMisiones.java",
+  "ini": 48,
+  "fin": 53,
+  "v": "/** Las diarias se consideran reclamadas sólo si se reclamaron en el día actual. */\npublic static boolean reclamada(Partida p, Mision m) {\n    String marca = p.getMisionesReclamadas().get(m.id);\n    if (marca == null) return false;\n    return !m.diaria || marca.equals(p.getContadores().diaClave);\n}"
+ },
+ "Mision.progreso": {
+  "ruta": "modelo/Mision.java",
+  "ini": 28,
+  "fin": 30,
+  "v": "public int progreso(Partida p) {\n    return Math.min(meta, Math.max(0, medidor.applyAsInt(p)));\n}"
+ },
+ "Evolucion.decidir": {
+  "ruta": "modelo/Evolucion.java",
+  "ini": 23,
+  "fin": 29,
+  "v": "public static RutaEvolucion decidir(double promedioBienestar, double promedioRadiacion,\n                                    int entrenamientos, int cuidados) {\n    if (promedioBienestar < UMBRAL_DESCUIDO) return RutaEvolucion.SHIN;\n    if (promedioRadiacion >= UMBRAL_BURNING) return RutaEvolucion.BURNING;\n    if (entrenamientos >= ENTRENOS_MINIMOS && entrenamientos * 2 >= cuidados) return RutaEvolucion.HEISEI;\n    return RutaEvolucion.SHOWA;\n}"
+ },
+ "Minijuego.monedas": {
+  "ruta": "modelo/Minijuego.java",
+  "ini": 40,
+  "fin": 46,
+  "v": "/** Monedas base (antes del multiplicador de ruta). */\npublic int monedas(int puntaje, boolean gano) {\n    if (this == DEFENSA) return puntaje / 5 + (gano ? 20 : 0);\n    if (this == ANILLOS) return puntaje / 5 + (gano ? 15 : 0);\n    if (this == BATALLA) return puntaje / 5 + (gano ? 40 : 0);\n    return puntaje / 4 + (gano ? 15 : 0);\n}"
+ },
+ "Minijuego.experiencia": {
+  "ruta": "modelo/Minijuego.java",
+  "ini": 48,
+  "fin": 50,
+  "v": "public int experiencia(int puntaje, boolean gano) {\n    return puntaje / 10 + (gano ? 15 : 3);\n}"
+ },
+ "MinijuegoActivity.terminar": {
+  "ruta": "ui/MinijuegoActivity.java",
+  "ini": 72,
+  "fin": 88,
+  "v": "/** Llamar al terminar la ronda. */\nprotected void terminar(int puntaje, boolean gano) {\n    if (!enCurso) return;\n    enCurso = false;\n    Resultado r = partida().registrarMinijuego(minijuego(), puntaje, gano);\n    juego.guardar();\n    if (gano) Sonidos.rugido(this);\n    else Sonidos.error(this);\n    if (isFinishing()) return;\n    new AlertDialog.Builder(this)\n            .setTitle(gano ? \"🏆 ¡VICTORIA!\" : \"💥 Derrota\")\n            .setMessage(\"Puntaje: \" + puntaje + \"\\n\" + r.mensaje)\n            .setCancelable(false)\n            .setPositiveButton(\"🔁 Repetir\", (d, w) -> intentarIniciar())\n            .setNegativeButton(\"Salir\", (d, w) -> finish())\n            .show();\n}"
+ },
+ "Alertas.programar": {
+  "ruta": "juego/Alertas.java",
+  "ini": 54,
+  "fin": 79,
+  "v": "/** Programa las dos alertas a partir del estado actual de la partida. */\npublic static void programar(Context c, Partida p, double velocidad) {\n    cancelar(c);\n    if (p == null || !Juego.get(c).prefs().notificaciones() || p.getPersonaje().getEtapa() == Etapa.HUEVO) return;\n    long ahora = System.currentTimeMillis();\n    String nombre = p.getPersonaje().getNombre();\n\n    if (p.getPersonaje().isDormido()) {\n        alarma(c, ID_DESPERTAR, p.getPersonaje().getDespertarEn(), \"☀ ¡\" + nombre + \" despertó!\",\n                \"Terminó su descanso. Ya puede jugar y entrenar.\");\n    }\n    Necesidades n = p.getNecesidades();\n    if (n.get(Stat.RADIACION) >= Necesidades.RAD_ALTA) {\n        alarma(c, ID_FUSION, ahora + (long) (2 * 60000 / velocidad), \"☢ ¡\" + nombre + \" se está sobrecalentando!\",\n                \"Su radiación está en zona de peligro. Nada en el mar o usa un misil de cadmio antes de la fusión.\");\n    }\n    double mult = p.getPersonaje().getRuta().multDeterioro;\n    double minAlim = minutosHastaCritico(n.get(Stat.ALIMENTACION), Deterioro.ALIM_HORA * mult);\n    double minHig = minutosHastaCritico(n.get(Stat.HIGIENE), Deterioro.HIGIENE_HORA * mult);\n    boolean hambre = minAlim <= minHig;\n    double minutos = Math.max(1, Math.min(minAlim, minHig));\n    long cuando = ahora + (long) (minutos * 60000 / velocidad);\n    alarma(c, ID_CRITICA, cuando, hambre ? \"🐟 ¡\" + nombre + \" tiene mucha hambre!\" : \"🫧 ¡\" + nombre + \" está muy sucio!\",\n            hambre ? \"Su alimentación llegó a nivel crítico. Abre la app y dale de comer.\"\n                    : \"Su higiene llegó a nivel crítico. Dale un baño antes de que enferme.\");\n}"
+ },
+ "Alertas.minutosHastaCritico": {
+  "ruta": "juego/Alertas.java",
+  "ini": 81,
+  "fin": 84,
+  "v": "static double minutosHastaCritico(double valor, double porHora) {\n    if (valor <= Necesidades.CRITICO) return 0;\n    return (valor - Necesidades.CRITICO) / porHora * 60.0;\n}"
+ },
+ "AlarmaReceiver.onReceive": {
+  "ruta": "juego/AlarmaReceiver.java",
+  "ini": 9,
+  "fin": 15,
+  "v": "@Override\npublic void onReceive(Context context, Intent intent) {\n    String titulo = intent.getStringExtra(Alertas.EXTRA_TITULO);\n    String texto = intent.getStringExtra(Alertas.EXTRA_TEXTO);\n    if (titulo == null || texto == null) return;\n    Alertas.mostrar(context, intent.getIntExtra(Alertas.EXTRA_ID, 1000), titulo, texto);\n}"
+ },
+ "EstadoAnimo.calcular": {
+  "ruta": "modelo/EstadoAnimo.java",
+  "ini": 24,
+  "fin": 40,
+  "v": "/**\n * Reglas (por prioridad): dormido → radiación ≥ 85 en fusión → salud &lt; 30 enfermo →\n * radiación &lt; 20 débil → alim &lt; 25 hambriento → higiene &lt; 25 sucio → energía &lt; 20 cansado →\n * felicidad &lt; 35 triste → felicidad ≥ 75 y promedio ≥ 65 feliz → normal.\n */\npublic static EstadoAnimo calcular(Necesidades n, boolean dormido) {\n    if (dormido) return DORMIDO;\n    if (n.get(Stat.RADIACION) >= Necesidades.RAD_ALTA) return FUSION;\n    if (n.get(Stat.SALUD) < 30) return ENFERMO;\n    if (n.get(Stat.RADIACION) < Necesidades.RAD_BAJA) return DEBIL;\n    if (n.get(Stat.ALIMENTACION) < 25) return HAMBRIENTO;\n    if (n.get(Stat.HIGIENE) < 25) return SUCIO;\n    if (n.get(Stat.ENERGIA) < 20) return CANSADO;\n    if (n.get(Stat.FELICIDAD) < 35) return TRISTE;\n    if (n.get(Stat.FELICIDAD) >= 75 && n.promedio() >= 65) return FELIZ;\n    return NORMAL;\n}"
+ },
+ "Seguridad.verificar": {
+  "ruta": "datos/Seguridad.java",
+  "ini": 45,
+  "fin": 49,
+  "v": "/** Verifica contra el formato que tenga el hash guardado. */\npublic static boolean verificar(String contrasena, String sal, String guardado) {\n    if (guardado.startsWith(PREFIJO_V2)) return iguales(guardado, hash(contrasena, sal));\n    return iguales(guardado, hashV1(contrasena, sal));\n}"
+ },
+ "Seguridad.hash": {
+  "ruta": "datos/Seguridad.java",
+  "ini": 27,
+  "fin": 34,
+  "v": "/** Hash nuevo: SHA-256 con 120 000 iteraciones (SHA-1 sólo si el dispositivo no lo soporta). */\npublic static String hash(String contrasena, String sal) {\n    try {\n        return PREFIJO_V2 + pbkdf2(\"PBKDF2WithHmacSHA256\", contrasena, sal, ITERACIONES_V2);\n    } catch (Exception e) {\n        return hashV1(contrasena, sal);\n    }\n}"
+ },
+ "Personaje.validarNombre": {
+  "ruta": "modelo/Personaje.java",
+  "ini": 30,
+  "fin": 37,
+  "v": "/** Nombre de 2 a 14 caracteres, sin espacios sobrantes. */\npublic static String validarNombre(String nombre) {\n    String limpio = nombre == null ? \"\" : nombre.trim().replaceAll(\"\\\\s+\", \" \");\n    if (limpio.length() < 2 || limpio.length() > 14) {\n        throw new IllegalArgumentException(\"El nombre debe tener entre 2 y 14 caracteres\");\n    }\n    return limpio;\n}"
+ },
+ "Contadores.muestrear": {
+  "ruta": "modelo/Contadores.java",
+  "ini": 31,
+  "fin": 36,
+  "v": "public void muestrear(double promedio, double radiacion, double minutos, boolean enZona) {\n    sumaBienestar += promedio * minutos;\n    sumaRadiacion += radiacion * minutos;\n    minutosBienestar += minutos;\n    if (enZona) hoyMinutosZona += minutos;\n}"
+ },
+ "Contadores.renovarDia": {
+  "ruta": "modelo/Contadores.java",
+  "ini": 51,
+  "fin": 60,
+  "v": "/** Renueva los contadores diarios si cambió el día. Devuelve true si se renovó. */\npublic boolean renovarDia(String hoy) {\n    if (hoy.equals(diaClave)) return false;\n    diaClave = hoy;\n    hoyAlimentar = 0;\n    hoyMinijuegos = 0;\n    hoyEntrenar = 0;\n    hoyMinutosZona = 0;\n    return true;\n}"
+ },
+ "HogarFragment.ofrecer": {
+  "ruta": "ui/HogarFragment.java",
+  "ini": 247,
+  "fin": 257,
+  "v": "/** La comida aparece en la escena y el jugador la arrastra hasta la boca del kaiju. */\nprivate void ofrecer(Partida p, Articulo a) {\n    if (p.getPersonaje().isDormido() || Ui.movimientoReducido(requireContext())) {\n        ejecutar(Cuidados.alimentar(p, a.id));\n        return;\n    }\n    mostrarMensaje(\"👆 Arrastra \" + a.icono + \" \" + a.nombre + \" hasta su boca.\");\n    petView.ofrecerComida(a.icono, () -> {\n        if (isAdded()) ejecutar(Cuidados.alimentar(partida(), a.id));\n    });\n}"
+ },
+ "PetView.soltarComida": {
+  "ruta": "vista/PetView.java",
+  "ini": 321,
+  "fin": 335,
+  "v": "private void soltarComida() {\n    arrastrando = false;\n    if (apariencia == null) return;\n    PointF boca = KaijuPainter.boca(centroX(), pies(), tam(), apariencia);\n    if (Math.hypot(comidaX - boca.x, comidaY - boca.y) < tam() * apariencia.escalaEtapa() * 0.3f) {\n        Runnable r = alComer;\n        comidaArrastradaEn = System.currentTimeMillis();\n        comidaIcono = null;\n        alComer = null;\n        if (r != null) r.run();\n    } else {\n        comidaX = getWidth() * 0.15f;  // vuelve a su lugar\n        comidaY = getHeight() * 0.8f;\n    }\n}"
+ },
+ "Repositorio.guardar": {
+  "ruta": "datos/Repositorio.java",
+  "ini": 230,
+  "fin": 240,
+  "v": "/** Toma la instantánea en el hilo actual y escribe en segundo plano. */\npublic void guardar(long uid, Partida p) {\n    Instantanea s = instantanea(uid, p);\n    disco.execute(() -> {\n        try {\n            dao.guardarTodo(s);\n        } catch (Exception e) {\n            Log.e(TAG, \"guardar\", e);\n        }\n    });\n}"
+ },
+ "Repositorio.cargar": {
+  "ruta": "datos/Repositorio.java",
+  "ini": 111,
+  "fin": 122,
+  "v": "public void cargar(long uid, Callback<Partida> cb) {\n    disco.execute(() -> {\n        Partida p = null;\n        try {\n            p = cargarSincrono(uid);\n        } catch (Exception e) {\n            Log.e(TAG, \"cargar\", e);\n        }\n        Partida r = p;\n        principal.post(() -> cb.listo(r));\n    });\n}"
+ },
+ "Repositorio.cargarSincrono": {
+  "ruta": "datos/Repositorio.java",
+  "ini": 124,
+  "fin": 176,
+  "v": "Partida cargarSincrono(long uid) {\n    PartidaEntity e = dao.partida(uid);\n    if (e == null) return null;\n    Personaje k = new Personaje(e.nombre, OrigenHuevo.desde(e.origen), Etapa.desde(e.etapa),\n            RutaEvolucion.desde(e.ruta), e.dormido, e.despertarEn, e.toquesHuevo);\n    Necesidades n = new Necesidades(e.alimentacion, e.felicidad, e.energia, e.higiene, e.salud, e.radiacion);\n    Inventario inv = new Inventario();\n    for (InventarioEntity i : dao.inventario(uid)) {\n        try {\n            if (i.cantidad > 0) inv.agregar(i.articuloId, i.cantidad);\n        } catch (IllegalArgumentException ex) {\n            Log.w(TAG, \"Artículo ignorado: \" + i.articuloId);\n        }\n    }\n    Contadores c = new Contadores();\n    c.alimentar = e.cAlimentar; c.jugar = e.cJugar; c.dormir = e.cDormir; c.banar = e.cBanar;\n    c.curar = e.cCurar; c.entrenar = e.cEntrenar; c.minijuegos = e.cMinijuegos;\n    c.victorias = e.cVictorias; c.defensas = e.cDefensas; c.alientos = e.cAlientos;\n    c.sumaBienestar = e.sumaBienestar; c.minutosBienestar = e.minutosBienestar;\n    c.diaClave = e.diaClave; c.hoyAlimentar = e.hoyAlimentar; c.hoyMinijuegos = e.hoyMinijuegos;\n    c.hoyEntrenar = e.hoyEntrenar;\n    c.centrales = e.cCentrales;\n    c.sumaRadiacion = e.sumaRadiacion;\n    c.entrenosBase = e.entrenosBase;\n    c.cuidadosBase = e.cuidadosBase;\n    c.hoyMinutosZona = e.hoyMinutosZona;\n\n    Partida p = new Partida(k, n, inv, c, e.monedas, e.xp, e.cargaAliento, e.ultimaActualizacion);\n    AlertaKaiju alerta = e.alertaMonstruo == null ? null\n            : new AlertaKaiju(e.alertaMonstruo, e.alertaLugar == null ? \"la ciudad\" : e.alertaLugar, e.alertaExpira);\n    // … (continúa: el resto de los campos se copian igual)\n}"
+ },
+ "Repositorio.instantanea": {
+  "ruta": "datos/Repositorio.java",
+  "ini": 253,
+  "fin": 323,
+  "v": "static Instantanea instantanea(long uid, Partida p) {\n    PartidaEntity e = new PartidaEntity();\n    e.usuarioId = uid;\n    Personaje k = p.getPersonaje();\n    e.nombre = k.getNombre();\n    e.origen = k.getOrigen().name();\n    e.etapa = k.getEtapa().name();\n    e.ruta = k.getRuta().name();\n    e.dormido = k.isDormido();\n    e.despertarEn = k.getDespertarEn();\n    e.toquesHuevo = k.getToquesHuevo();\n    Necesidades n = p.getNecesidades();\n    e.alimentacion = n.get(Stat.ALIMENTACION);\n    e.felicidad = n.get(Stat.FELICIDAD);\n    e.energia = n.get(Stat.ENERGIA);\n    e.higiene = n.get(Stat.HIGIENE);\n    e.salud = n.get(Stat.SALUD);\n    e.monedas = p.getMonedas();\n    e.xp = p.getXp();\n    e.cargaAliento = p.getCargaAliento();\n    e.ultimaActualizacion = p.getUltimaActualizacion();\n    e.evolucionPendiente = p.isEvolucionPendiente();\n    // … (continúa: el resto de los campos se copian igual)\n}"
+ },
+ "JuegoDao.guardarTodo": {
+  "ruta": "datos/JuegoDao.java",
+  "ini": 72,
+  "fin": 82,
+  "v": "/** Guarda la partida completa de forma atómica (todo o nada). */\n@Transaction\npublic void guardarTodo(Instantanea s) {\n    guardarPartida(s.partida);\n    borrarInventario(s.partida.usuarioId);\n    guardarInventario(s.inventario);\n    borrarDecoraciones(s.partida.usuarioId);\n    guardarDecoraciones(s.decoraciones);\n    guardarMisiones(s.misiones);\n    guardarRecords(s.records);\n}"
+ },
+ "BaseDatos.get": {
+  "ruta": "datos/BaseDatos.java",
+  "ini": 40,
+  "fin": 51,
+  "v": "public static BaseDatos get(Context ctx) {\n    if (instancia == null) {\n        synchronized (BaseDatos.class) {\n            if (instancia == null) {\n                instancia = Room.databaseBuilder(ctx.getApplicationContext(), BaseDatos.class, \"godzipet.db\")\n                        .addMigrations(MIGRACION_1_2)\n                        .build();\n            }\n        }\n    }\n    return instancia;\n}"
+ },
+ "Juego.tick": {
+  "ruta": "juego/Juego.java",
+  "ini": 46,
+  "fin": 49,
+  "v": "/** Aplica el paso del tiempo real. */\npublic void tick() {\n    if (partida != null) partida.actualizar(System.currentTimeMillis(), velocidad());\n}"
+ },
+ "Juego.guardar": {
+  "ruta": "juego/Juego.java",
+  "ini": 51,
+  "fin": 53,
+  "v": "public void guardar() {\n    if (partida != null && uid > 0) repo.guardar(uid, partida);\n}"
+ },
+ "Juego.asegurar": {
+  "ruta": "juego/Juego.java",
+  "ini": 55,
+  "fin": 75,
+  "v": "/** Garantiza que la partida esté en memoria (p. ej. tras cerrar la app). */\npublic void asegurar(Runnable listo, Runnable sinPartida) {\n    if (cargada()) {\n        listo.run();\n        return;\n    }\n    long id = prefs.usuarioId();\n    if (id <= 0) {\n        sinPartida.run();\n        return;\n    }\n    repo.cargar(id, p -> {\n        if (p == null) {\n            sinPartida.run();\n        } else {\n            establecer(id, p);\n            tick();\n            listo.run();\n        }\n    });\n}"
+ },
+ "MainActivity.onPause": {
+  "ruta": "ui/MainActivity.java",
+  "ini": 116,
+  "fin": 126,
+  "v": "@Override\nprotected void onPause() {\n    super.onPause();\n    activo = false;\n    reloj.removeCallbacks(tick);\n    Musica.get().detener();\n    if (juego.partida() != null) {\n        juego.tick();\n        juego.guardar();\n    }\n}"
+ },
+ "MainActivity.onStop": {
+  "ruta": "ui/MainActivity.java",
+  "ini": 128,
+  "fin": 133,
+  "v": "@Override\nprotected void onStop() {\n    super.onStop();\n    if (juego.partida() != null) Alertas.programar(this, juego.partida(), juego.velocidad());\n    WidgetKaiju.actualizar(this);\n}"
+ },
+ "MainActivity.despuesDeAccion": {
+  "ruta": "ui/MainActivity.java",
+  "ini": 188,
+  "fin": 197,
+  "v": "/** Llamar después de cualquier acción del jugador: aviso, guardado y refresco. */\npublic void despuesDeAccion(Resultado r) {\n    // En Hogar el resultado ya se explica en el globo de mensaje: sólo sonido\n    Fragment f = getSupportFragmentManager().findFragmentById(R.id.contenedor);\n    if (f instanceof HogarFragment) Ui.sonido(this, r);\n    else Ui.aviso(this, r);\n    procesarEventos();\n    juego.guardar();\n    refrescarTodo();\n}"
+ },
+ "Repositorio.iniciarSesion": {
+  "ruta": "datos/Repositorio.java",
+  "ini": 82,
+  "fin": 100,
+  "v": "public void iniciarSesion(String usuario, String contrasena, Callback<Long> ok, Callback<String> error) {\n    disco.execute(() -> {\n        try {\n            UsuarioEntity u = dao.buscarUsuario(usuario);\n            if (u == null || !Seguridad.verificar(contrasena, u.sal, u.hash)) {\n                principal.post(() -> error.listo(\"Usuario o contraseña incorrectos.\"));\n                return;\n            }\n            if (Seguridad.esAntiguo(u.hash)) { // actualiza cuentas de la v1 al hash fuerte\n                String sal = Seguridad.nuevaSal();\n                dao.actualizarHash(u.id, sal, Seguridad.hash(contrasena, sal));\n            }\n            principal.post(() -> ok.listo(u.id));\n        } catch (Exception e) {\n            Log.e(TAG, \"iniciarSesion\", e);\n            principal.post(() -> error.listo(\"Error al iniciar sesión.\"));\n        }\n    });\n}"
+ },
+ "GestorMisiones.static": {
+  "ruta": "modelo/GestorMisiones.java",
+  "ini": 11,
+  "fin": 20,
+  "v": "static {\n    MISIONES.add(new Mision(\"d_comer\", \"Hora del almuerzo\", \"Alimenta a tu kaiju 3 veces hoy\",\n            true, 3, 30, 20, p -> p.getContadores().hoyAlimentar));\n    MISIONES.add(new Mision(\"d_juegos\", \"Reflejos de kaiju\", \"Juega 2 minijuegos hoy\",\n            true, 2, 40, 25, p -> p.getContadores().hoyMinijuegos));\n    MISIONES.add(new Mision(\"d_entreno\", \"Rutina de combate\", \"Entrena 2 veces hoy\",\n            true, 2, 30, 25, p -> p.getContadores().hoyEntrenar));\n    MISIONES.add(new Mision(\"d_zona\", \"Núcleo estable\", \"Mantén la radiación en zona ideal (40-70) durante 60 min de juego hoy\",\n            true, 60, 45, 30, p -> (int) p.getContadores().hoyMinutosZona));\n"
+ },
+ "Niveles.UMBRALES": {
+  "ruta": "modelo/Niveles.java",
+  "ini": 6,
+  "fin": 7,
+  "v": "public static final int[] UMBRALES = {0, 60, 150, 280, 450, 700};\npublic static final int MAXIMO = UMBRALES.length;"
+ },
+ "MainActivity.tick": {
+  "ruta": "ui/MainActivity.java",
+  "ini": 50,
+  "fin": 61,
+  "v": "private final Runnable tick = new Runnable() {\n    @Override\n    public void run() {\n        if (!activo) return;\n        juego.tick();\n        procesarEventos();\n        refrescarTodo();\n        if (++ticks % GUARDAR_CADA == 0) juego.guardar();\n        reloj.postDelayed(this, TICK_MS);\n    }\n};\n"
+ },
+ "MainActivity.const": {
+  "ruta": "ui/MainActivity.java",
+  "ini": 33,
+  "fin": 34,
+  "v": "private static final long TICK_MS = 1000;\nprivate static final int GUARDAR_CADA = 10;"
+ },
+ "BaseDatos.decl": {
+  "ruta": "datos/BaseDatos.java",
+  "ini": 11,
+  "fin": 16,
+  "v": "@Database(entities = {UsuarioEntity.class, PartidaEntity.class, InventarioEntity.class,\n        DecoracionEntity.class, MisionEntity.class, RecordEntity.class}, version = 2, exportSchema = true)\npublic abstract class BaseDatos extends RoomDatabase {\n    private static volatile BaseDatos instancia;\n\n    public abstract JuegoDao dao();"
+ },
+ "BaseDatos.migracion": {
+  "ruta": "datos/BaseDatos.java",
+  "ini": 19,
+  "fin": 39,
+  "v": "static final Migration MIGRACION_1_2 = new Migration(1, 2) {\n    @Override\n    public void migrate(SupportSQLiteDatabase db) {\n        String[] columnas = {\n                \"radiacion REAL NOT NULL DEFAULT 55\",\n                \"fusion REAL NOT NULL DEFAULT 0\",\n                \"generacion INTEGER NOT NULL DEFAULT 1\",\n                \"escenario TEXT\",\n                \"ultimaCentral INTEGER NOT NULL DEFAULT 0\",\n                \"cCentrales INTEGER NOT NULL DEFAULT 0\",\n                \"sumaRadiacion REAL NOT NULL DEFAULT 0\",\n                \"entrenosBase INTEGER NOT NULL DEFAULT 0\",\n                \"cuidadosBase INTEGER NOT NULL DEFAULT 0\",\n                \"hoyMinutosZona REAL NOT NULL DEFAULT 0\",\n                \"secretos TEXT\", \"visitados TEXT\", \"formas TEXT\"};\n        for (String c : columnas) db.execSQL(\"ALTER TABLE partidas ADD COLUMN \" + c);\n        // las partidas viejas tenían 55 de radiación \"virtual\" durante todo su historial\n        db.execSQL(\"UPDATE partidas SET sumaRadiacion = 55 * minutosBienestar\");\n    }\n};\n"
+ },
+ "Preferencias.sesion": {
+  "ruta": "datos/Preferencias.java",
+  "ini": 10,
+  "fin": 18,
+  "v": "private final SharedPreferences sp;\n\npublic Preferencias(Context ctx) {\n    sp = ctx.getApplicationContext().getSharedPreferences(ARCHIVO, Context.MODE_PRIVATE);\n}\n\npublic long usuarioId() { return sp.getLong(\"usuario_id\", -1); }\npublic void setUsuarioId(long id) { sp.edit().putLong(\"usuario_id\", id).apply(); }\npublic void cerrarSesion() { sp.edit().remove(\"usuario_id\").apply(); }"
+ },
+ "PartidaEntity.decl": {
+  "ruta": "datos/PartidaEntity.java",
+  "ini": 8,
+  "fin": 28,
+  "v": "@Entity(tableName = \"partidas\")\npublic class PartidaEntity {\n    @PrimaryKey\n    public long usuarioId;\n    // Personaje\n    @NonNull public String nombre = \"\";\n    @NonNull public String origen = \"\";\n    @NonNull public String etapa = \"\";\n    @NonNull public String ruta = \"\";\n    public boolean dormido;\n    public long despertarEn;\n    public int toquesHuevo;\n    // Necesidades\n    public double alimentacion, felicidad, energia, higiene, salud;\n    // Economía y progreso\n    public int monedas;\n    public int xp;\n    public double cargaAliento;\n    public long ultimaActualizacion;\n    public boolean evolucionPendiente;\n    // Alerta Kaiju"
+ }
+}

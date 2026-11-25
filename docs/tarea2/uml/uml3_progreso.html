@@ -1,0 +1,56 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+body{margin:0;background:#fff;font-family:"DejaVu Sans Mono",monospace;}
+#lienzo{position:relative;}
+.box{position:absolute;border:1.6px solid #1d2b44;background:#fbfcff;font-size:11.5px;line-height:1.33;
+ box-shadow:3px 3px 0 #d8deea;border-radius:3px;min-width:150px;max-width:420px}
+.box.enum{background:#fffaf0}.box.interface{background:#f3fff5}.box.ext{background:#eef0f4;border-style:dashed}
+.hd{background:#1d2b44;color:#fff;text-align:center;padding:4px 8px;font-family:"DejaVu Sans",sans-serif}
+.box.enum .hd{background:#8a4b08}.box.interface .hd{background:#1f6b35}.box.ext .hd{background:#6b7385}
+.hd b{display:block;font-size:13.5px}.hd i{display:block;font-size:10.5px;font-style:normal;opacity:.85}
+.hd span{display:block;font-size:9.5px;opacity:.7}
+.at,.me{padding:4px 7px 4px 7px;border-top:1.4px solid #1d2b44}.at div,.me div{padding-left:1.4em;text-indent:-1.4em}.vacio{padding:2px}
+.st{text-decoration:underline}
+svg{position:absolute;left:0;top:0;overflow:visible}
+.tit{position:absolute;left:20px;top:10px;font-family:"DejaVu Sans",sans-serif;font-size:22px;font-weight:bold;color:#1d2b44}
+.ley{position:absolute;font-family:"DejaVu Sans",sans-serif;font-size:11px;color:#333;border:1px solid #bbb;padding:6px 10px;background:#fff}
+.lbl{font-family:"DejaVu Sans",sans-serif;font-size:10.5px;fill:#333}
+</style></head><body><div id="lienzo"><div class="tit">Diagrama de clases 3 · Tiempo, progreso y evolución (paquete modelo)</div><svg><defs>
+<marker id="tri" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="14" markerHeight="14" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M0,0 L12,6 L0,12 Z" fill="#fff" stroke="#1d2b44" stroke-width="1.3"/></marker>
+<marker id="flecha" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="12" markerHeight="12" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M0,0 L12,6 L0,12" fill="none" stroke="#1d2b44" stroke-width="1.5"/></marker>
+<marker id="rombo" viewBox="0 0 16 10" refX="1" refY="5" markerWidth="18" markerHeight="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,5 L8,0 L16,5 L8,10 Z" fill="#1d2b44"/></marker>
+<marker id="romboV" viewBox="0 0 16 10" refX="1" refY="5" markerWidth="18" markerHeight="11" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,5 L8,0 L16,5 L8,10 Z" fill="#fff" stroke="#1d2b44"/></marker>
+</defs></svg><div class="box ext" id="Partida" style="left:0px;top:0px;width:520px"><div class="hd"><i>«clase del diagrama 1» · estado completo de la partida</i><b>Partida</b></div></div><div class="box class" id="Deterioro" style="left:0px;top:0px;"><div class="hd"><b>Deterioro</b><span>modelo</span></div><div class="at"><div class="st">+ ALIM_HORA: double</div><div class="st">+ HIGIENE_HORA: double</div><div class="st">+ ENERGIA_HORA: double</div><div class="st">+ FELICIDAD_HORA: double</div><div class="st">+ SALUD_DANO_HORA: double</div><div class="st">+ RADIACION_HORA: double</div></div><div class="me"><div class="">- Deterioro()</div><div class="st">+ aplicar(n: Necesidades, minutos: double, dormido: boolean, ruta: RutaEvolucion): void</div><div class="st">+ aplicar(n: Necesidades, minutos: double, dormido: boolean, ruta: RutaEvolucion, lugar: Escenario): void</div></div></div><div class="box ext" id="Necesidades" style="left:0px;top:0px;"><div class="hd"><i>«diagrama 1»</i><b>Necesidades</b></div></div><div class="box class" id="Evolucion" style="left:0px;top:0px;"><div class="hd"><b>Evolucion</b><span>modelo</span></div><div class="at"><div class="st">+ UMBRAL_DESCUIDO: double</div><div class="st">+ UMBRAL_BURNING: double</div><div class="st">+ ENTRENOS_MINIMOS: int</div><div class="st">+ NIVEL_PEQUENO: int</div><div class="st">+ NIVEL_JUNIOR: int</div><div class="st">+ NIVEL_FINAL: int</div></div><div class="me"><div class="">- Evolucion()</div><div class="st">+ decidir(promedioBienestar: double, promedioRadiacion: double, entrenamientos: int, cuidados: int): RutaEvolucion</div><div class="st">+ etapaPorNivel(nivel: int): Etapa</div></div></div><div class="box ext" id="RutaEvolucion" style="left:0px;top:0px;"><div class="hd"><i>«enumeration» diagrama 1</i><b>RutaEvolucion</b></div></div><div class="box ext" id="Etapa" style="left:0px;top:0px;"><div class="hd"><i>«enumeration» diagrama 1</i><b>Etapa</b></div></div><div class="box class" id="Niveles" style="left:0px;top:0px;"><div class="hd"><b>Niveles</b><span>modelo</span></div><div class="at"><div class="st">+ UMBRALES: int[]</div><div class="st">+ MAXIMO: int</div><div class="st">+ DESBLOQUEOS: String[]</div></div><div class="me"><div class="">- Niveles()</div><div class="st">+ nivelPara(xp: int): int</div><div class="st">+ xpBase(nivel: int): int</div><div class="st">+ xpSiguiente(nivel: int): int</div><div class="st">+ desbloqueo(nivel: int): String</div></div></div><div class="box class" id="ModoProfesor" style="left:0px;top:0px;"><div class="hd"><b>ModoProfesor</b><span>modelo</span></div><div class="at"><div class="st">+ CODIGO: String</div></div><div class="me"><div class="">- ModoProfesor()</div><div class="st">+ codigoValido(s: String): boolean</div><div class="st">+ fijarNivel(p: Partida, nivel: int, rutaFinal: RutaEvolucion): void</div><div class="st">+ fijarForma(p: Partida, etapa: Etapa, ruta: RutaEvolucion): void</div><div class="st">- eclosionar(p: Partida): void</div><div class="st">+ darTodo(p: Partida): void</div><div class="st">+ fijarStat(p: Partida, s: Stat, valor: int): void</div><div class="st">+ adelantarTiempo(p: Partida, minutosJuego: double, velocidad: double, ahora: long): void</div><div class="st">+ cargarAliento(p: Partida): void</div><div class="st">+ provocarAlerta(p: Partida, ahora: long, velocidad: double): void</div><div class="st">+ provocarFusion(p: Partida): Resultado</div><div class="st">+ viajarA(p: Partida, e: Escenario): void</div><div class="st">+ descubrirTodo(p: Partida): void</div></div></div><div class="box enum" id="Minijuego" style="left:0px;top:0px;"><div class="hd"><i>«enumeration»</i><b>Minijuego</b><span>modelo</span></div><div class="at"><div class="">DEFENSA</div><div class="">ANILLOS</div><div class="">MEMORIA</div><div class="">BATALLA</div></div><div class="me"><div class="">~ Minijuego(id: String, nombre: String, icono: String, instrucciones: String, nivel: int, energia: int)</div><div class="">+ monedas(puntaje: int, gano: boolean): int</div><div class="">+ experiencia(puntaje: int, gano: boolean): int</div></div></div><div class="ley" id="leyenda" style="left:0px;top:0px"><b>Notación UML</b><br>◆── composición (la parte vive dentro del todo) &nbsp; ◇── agregación<br>──▷ herencia (extends) &nbsp; - - ▷ realización (implements)<br>──&gt; asociación &nbsp; - - &gt; dependencia (usa)<br>+ público · − privado · # protegido · ~ paquete · <u>subrayado</u> = static</div></div><script>
+const rels = [["ModoProfesor", "Partida", "dep", "modifica"], ["Partida", "Deterioro", "dep", "avanzar()"], ["Partida", "Evolucion", "dep", "decidir()"], ["Partida", "Niveles", "dep", "getNivel()"], ["Partida", "Minijuego", "dep", "registrarMinijuego()"], ["Deterioro", "Necesidades", "dep", "aplicar()"], ["Evolucion", "RutaEvolucion", "dep", "elige"], ["RutaEvolucion", "Etapa", "dep", ""]]; const cols = [["@top", "Partida"], ["Deterioro", "Necesidades"], ["Evolucion", "RutaEvolucion", "Etapa"], ["Niveles"], ["ModoProfesor"], ["Minijuego", "leyenda"]];
+let cx=20; let cima=null; let y0=70;
+if (cols.length && cols[0][0]==='@top'){ cima=document.getElementById(cols[0][1]); cols.shift(); y0=70+cima.getBoundingClientRect().height+110; }
+for (const col of cols){ let y=y0, mw=0; const xs=cx;
+  for (const id of col){ const e=document.getElementById(id); e.style.left=xs+'px'; e.style.top=y+'px';
+    const r=e.getBoundingClientRect(); y+=r.height+70; mw=Math.max(mw,r.width);} cx+=mw+110; }
+if (cima){ cima.style.top="70px"; cima.style.left=((cx-110)/2-cima.getBoundingClientRect().width/2)+'px'; }
+
+const svg = document.querySelector('svg');
+function R(id){const e=document.getElementById(id); if(!e) throw id; const r=e.getBoundingClientRect(); return {x:r.left+scrollX,y:r.top+scrollY,w:r.width,h:r.height};}
+function borde(a, hacia){ // punto del borde de a en dirección del centro "hacia"
+  const cx=a.x+a.w/2, cy=a.y+a.h/2, dx=hacia.x-cx, dy=hacia.y-cy;
+  const sx = dx===0?1e9:(a.w/2)/Math.abs(dx), sy = dy===0?1e9:(a.h/2)/Math.abs(dy); const s=Math.min(sx,sy);
+  return {x:cx+dx*s, y:cy+dy*s};}
+let maxX=0,maxY=0;
+document.querySelectorAll('.box,.ley').forEach(b=>{const r=b.getBoundingClientRect(); maxX=Math.max(maxX,r.right+scrollX); maxY=Math.max(maxY,r.bottom+scrollY);});
+svg.setAttribute('width',maxX+20); svg.setAttribute('height',maxY+20);
+document.getElementById('lienzo').style.width=(maxX+30)+'px'; document.getElementById('lienzo').style.height=(maxY+30)+'px';
+const NS='http://www.w3.org/2000/svg';
+for (const [a,b,tipo,etq,oa,ob] of rels){
+  const A=R(a),B=R(b); const ca={x:A.x+A.w/2+(oa||0),y:A.y+A.h/2}, cb={x:B.x+B.w/2+(ob||0),y:B.y+B.h/2};
+  const p1=borde(A,cb), p2=borde(B,ca);
+  const l=document.createElementNS(NS,'line'); l.setAttribute('x1',p1.x);l.setAttribute('y1',p1.y);l.setAttribute('x2',p2.x);l.setAttribute('y2',p2.y);
+  l.setAttribute('stroke', tipo==='dep'?'#7a7f8c':'#1d2b44'); l.setAttribute('stroke-width','1.5');
+  if (tipo==='dep'||tipo==='real') l.setAttribute('stroke-dasharray','6 4');
+  const fin={her:'url(#tri)',real:'url(#tri)',dep:'url(#flecha)',asoc:'url(#flecha)',comp:null,agr:null}[tipo];
+  if (fin) l.setAttribute('marker-end',fin);
+  if (tipo==='comp') l.setAttribute('marker-start','url(#rombo)');
+  if (tipo==='agr') l.setAttribute('marker-start','url(#romboV)');
+  svg.appendChild(l);
+  if (etq){const t=document.createElementNS(NS,'text'); t.setAttribute('x',(p1.x+p2.x)/2+4); t.setAttribute('y',(p1.y+p2.y)/2-4); t.setAttribute('class','lbl'); t.textContent=etq; svg.appendChild(t);}
+}
+document.title='listo';
+</script></body></html>
